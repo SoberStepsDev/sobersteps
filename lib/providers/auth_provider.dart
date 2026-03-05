@@ -1,0 +1,64 @@
+import 'dart:async';
+import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import '../services/supabase_auth_service.dart';
+import '../services/analytics_service.dart';
+
+class AuthProvider extends ChangeNotifier {
+  final SupabaseAuthService _authService = SupabaseAuthService();
+  final AnalyticsService _analytics = AnalyticsService();
+  StreamSubscription<AuthState>? _sub;
+
+  User? _user;
+  bool _loading = true;
+
+  User? get user => _user;
+  bool get isLoggedIn => _user != null;
+  bool get loading => _loading;
+  String? get userId => _user?.id;
+
+  AuthProvider() {
+    _user = _authService.currentUser;
+    _loading = false;
+    _sub = _authService.onAuthStateChange.listen((state) {
+      _user = state.session?.user;
+      if (_user != null) {
+        _authService.ensureProfile();
+        _analytics.setUserId(_user!.id);
+      }
+      notifyListeners();
+    });
+  }
+
+  Future<void> signInWithOtp(String email) async {
+    await _authService.signInWithOtp(email);
+    _analytics.track('magic_link_sent');
+  }
+
+  Future<void> signInWithGoogle() async {
+    await _authService.signInWithGoogle();
+    _analytics.track('google_sign_in');
+  }
+
+  Future<void> signInWithApple() async {
+    await _authService.signInWithApple();
+    _analytics.track('apple_sign_in');
+  }
+
+  Future<void> signOut() async {
+    await _authService.signOut();
+    _user = null;
+    notifyListeners();
+  }
+
+  Future<void> insertEmailLead(String email) async {
+    await _authService.insertEmailLead(email);
+    _analytics.track('email_gate_submitted');
+  }
+
+  @override
+  void dispose() {
+    _sub?.cancel();
+    super.dispose();
+  }
+}

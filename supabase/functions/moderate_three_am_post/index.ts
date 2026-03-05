@@ -1,97 +1,58 @@
-// supabase/functions/moderate_three_am_post/index.ts
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+const BLOCKLIST_PATTERNS = [
+  /suicid/i,
+  /kill\s*(my|him|her|them)?self/i,
+  /heroin/i,
+  /cocaine/i,
+  /fentanyl/i,
+  /meth(amphetamine)?/i,
+  /https?:\/\//i,
+  /bit\.ly/i,
+  /t\.co/i,
+];
 
-serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
-  }
-
+serve(async (req: Request) => {
   try {
-    const supabase = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
-    );
+    const body = await req.json();
+    console.log("[moderate_three_am_post] invoked", JSON.stringify(body));
 
-    const payload = await req.json();
-    console.log("[WEBHOOK] Otrzymano:", JSON.stringify(payload, null, 2));
-
-    if (payload.type !== "INSERT" || payload.table !== "three_am_wall") {
-      return new Response("Nie INSERT three_am_wall", { status: 200 });
+    const { record } = body;
+    if (!record) {
+      console.log("[moderate_three_am_post] no record found");
+      return new Response(JSON.stringify({ error: "no record" }), { status: 400 });
     }
 
-    const record = payload.record;
-    if (!record?.id || !record?.user_id || !record?.content) {
-      return new Response(JSON.stringify({ error: "Brak id/user_id/content" }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const supabase = createClient(supabaseUrl, serviceRoleKey);
+
+    const text = record.outcome_text || "";
+    const isFlagged = BLOCKLIST_PATTERNS.some((p) => p.test(text));
+
+    console.log(`[moderate_three_am_post] triggered for row ${record.id}, flagged: ${isFlagged}`);
+
+    if (isFlagged) {
+      await supabase.from("moderation_queue").insert({
+        table_name: "three_am_wall",
+        row_id: record.id,
+        reason: "blocklist_match",
       });
-    }
-
-    const content = (record.content as string).toLowerCase().trim();
-
-    // Lista słów kluczowych – bazujemy na Twoim dokumencie + rozszerzenia
-    const badWords = [
-      "samobójstwo", "samobój", "popełnię samobójstwo", "zabiję się", "powieszę się",
-      "podetnę sobie żyły", "skoczę z okna", "nie chcę żyć", "lepiej umrzeć",
-      "suicide", "kill myself", "end my life", "hang myself", "cut myself",
-      "overdose", "overdosing", "przedawkować", "heroin", "metamfetamina",
-      "fentanyl", "kokaina", "crack", "diler", "sprzedam prochy", "kupię dragi",
-      "http", "https://", "www.", "bit.ly", "tinyurl"
-    ];
-
-    let isToxic = badWords.some(word => content.includes(word));
-    let reason = isToxic ? "dopasowanie słów kluczowych" : "";
-
-    // Prosty filtr linków (lepszy niż tylko "http")
-    if (/(https?:\/\/[^\s]+)|(www\.[^\s]+)|(bit\.ly|tinyurl\.com)/i.test(content)) {
-      isToxic = true;
-      reason += (reason ? " + " : "") + "podejrzany link";
-    }
-
-    const updateData = {
-      is_visible: !isToxic,
-      auto_moderated_at: new Date().toISOString(),
-    };
-
-    // Aktualizacja rekordu
-    const { error: updateErr } = await supabase
-      .from("three_am_wall")
-      .update(updateData)
-      .eq("id", record.id);
-
-    if (updateErr) throw updateErr;
-
-    // Jeśli toksyczne → do moderation_queue
-    if (isToxic) {
+      console.log(`[moderate_three_am_post] is_visible set to false (flagged)`);
+    } else {
       await supabase
-        .from("moderation_queue")
-        .insert({
-          table_name: "three_am_wall",
-          row_id: record.id,
-          user_id: record.user_id,
-          reason: reason || "Wykryto treść potencjalnie szkodliwą",
-          content: record.content,
-          status: "pending",
-        })
-        .catch(err => console.error("Queue insert failed:", err));
+        .from("three_am_wall")
+        .update({ is_visible: true, auto_moderated_at: new Date().toISOString() })
+        .eq("id", record.id);
+      console.log(`[moderate_three_am_post] is_visible set to true`);
     }
 
-    return new Response(
-      JSON.stringify({ success: true, is_visible: updateData.is_visible }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
-    );
-  } catch (err) {
-    console.error("Błąd funkcji:", err);
-    return new Response(
-      JSON.stringify({ error: err.message }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 500 }
-    );
+    return new Response(JSON.stringify({ success: true, flagged: isFlagged }), {
+      headers: { "Content-Type": "application/json" },
+    });
+  } catch (error) {
+    console.error("[moderate_three_am_post] error:", error);
+    return new Response(JSON.stringify({ error: String(error) }), { status: 500 });
   }
 });

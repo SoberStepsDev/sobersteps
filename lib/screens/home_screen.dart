@@ -1,0 +1,302 @@
+import 'dart:async';
+import 'dart:convert';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import '../app/theme.dart';
+import '../providers/sobriety_provider.dart';
+import '../providers/purchase_provider.dart';
+import '../providers/future_letter_provider.dart';
+import '../providers/journal_provider.dart';
+import '../screens/checkin_screen.dart';
+import '../screens/three_am_screen.dart';
+import '../screens/milestones_screen.dart';
+import '../screens/community_screen.dart';
+import '../screens/profile_screen.dart';
+import '../screens/future_letter_read_screen.dart';
+
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
+  int _navIndex = 0;
+  Timer? _timer;
+  final _screens = const [
+    _HomeTab(),
+    CheckinScreen(),
+    MilestonesScreen(),
+    CommunityScreen(),
+    ProfileScreen(),
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _timer = Timer.periodic(const Duration(minutes: 1), (_) {
+      context.read<SobrietyProvider>().refresh();
+    });
+    _initData();
+  }
+
+  Future<void> _initData() async {
+    final sobriety = context.read<SobrietyProvider>();
+    await sobriety.loadFromLocal();
+    sobriety.loadFromSupabase();
+    context.read<JournalProvider>().loadEntries();
+    context.read<JournalProvider>().syncPendingData();
+    context.read<FutureLetterProvider>().loadLetters();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      context.read<SobrietyProvider>().loadFromSupabase();
+    }
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      body: IndexedStack(index: _navIndex, children: _screens),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _navIndex,
+        onTap: (i) => setState(() => _navIndex = i),
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home_rounded), label: 'Home'),
+          BottomNavigationBarItem(icon: Icon(Icons.edit_note_rounded), label: 'Journal'),
+          BottomNavigationBarItem(icon: Icon(Icons.emoji_events_rounded), label: 'Milestones'),
+          BottomNavigationBarItem(icon: Icon(Icons.people_rounded), label: 'Community'),
+          BottomNavigationBarItem(icon: Icon(Icons.person_rounded), label: 'Profile'),
+        ],
+      ),
+    );
+  }
+}
+
+class _HomeTab extends StatelessWidget {
+  const _HomeTab();
+
+  @override
+  Widget build(BuildContext context) {
+    final sobriety = context.watch<SobrietyProvider>();
+    final purchase = context.watch<PurchaseProvider>();
+    final letterProvider = context.watch<FutureLetterProvider>();
+    final isNight = DateTime.now().hour >= 22 || DateTime.now().hour < 6;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (letterProvider.pendingDelivery != null) {
+        _showLetterDialog(context, letterProvider);
+      }
+    });
+
+    return Stack(
+      children: [
+        SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            child: Column(
+              children: [
+                const SizedBox(height: 16),
+                Icon(
+                  Icons.shield_rounded,
+                  size: 48,
+                  color: purchase.isPremium ? AppColors.streakBlue : AppColors.textSecondary,
+                ).animate(onPlay: (c) => purchase.isPremium ? c.repeat() : null).shimmer(
+                      duration: 2000.ms,
+                      color: purchase.isPremium ? AppColors.streakBlue.withValues(alpha: 0.3) : Colors.transparent,
+                    ),
+                const SizedBox(height: 24),
+                Text(
+                  '${sobriety.daysSober}',
+                  style: const TextStyle(fontSize: 96, fontWeight: FontWeight.w800, letterSpacing: -4, color: AppColors.textPrimary, height: 1),
+                ).animate().fadeIn(duration: 400.ms),
+                Text(
+                  'and ${sobriety.hoursSober} hours',
+                  style: const TextStyle(fontSize: 18, color: AppColors.textSecondary),
+                ),
+                const SizedBox(height: 24),
+                _ProgressBar(progress: sobriety.progressToNextMilestone, daysToGo: sobriety.daysToNextMilestone, nextMilestone: sobriety.nextMilestone),
+                const SizedBox(height: 16),
+                _SavingsCard(days: sobriety.daysSober),
+                const SizedBox(height: 16),
+                _QuoteCard(),
+                const SizedBox(height: 32),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    icon: const Icon(Icons.check_circle_outline),
+                    label: const Text('Check-in Now'),
+                    onPressed: () => Navigator.of(context).pushNamed('/checkin'),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                _SosButton(isNight: isNight),
+                const SizedBox(height: 32),
+              ],
+            ),
+          ),
+        ),
+        if (isNight) Positioned.fill(child: IgnorePointer(child: Container(color: AppColors.nightOverlay))),
+      ],
+    );
+  }
+
+  void _showLetterDialog(BuildContext context, FutureLetterProvider provider) {
+    final letter = provider.pendingDelivery;
+    if (letter == null) return;
+    provider.clearPendingDelivery();
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: AppColors.surface,
+        title: const Text('Masz list od siebie'),
+        content: const Text('Otworzyć?'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Później')),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              Navigator.of(context).push(MaterialPageRoute(builder: (_) => FutureLetterReadScreen(letter: letter)));
+            },
+            child: const Text('Otwórz'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ProgressBar extends StatelessWidget {
+  final double progress;
+  final int daysToGo;
+  final int? nextMilestone;
+
+  const _ProgressBar({required this.progress, required this.daysToGo, this.nextMilestone});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: LinearProgressIndicator(
+            value: progress,
+            minHeight: 12,
+            backgroundColor: AppColors.surfaceLight,
+            valueColor: const AlwaysStoppedAnimation(AppColors.primary),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          nextMilestone != null ? '$daysToGo days to $nextMilestone-day milestone' : 'All milestones achieved!',
+          style: const TextStyle(color: AppColors.textSecondary, fontSize: 14),
+        ),
+      ],
+    );
+  }
+}
+
+class _QuoteCard extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<String>(
+      future: rootBundle.loadString('assets/data/quotes.json'),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) return const SizedBox.shrink();
+        final quotes = jsonDecode(snapshot.data!) as List;
+        final idx = DateTime.now().day % quotes.length;
+        final q = quotes[idx];
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          child: Text(
+            '"${q['text']}"\n— ${q['author']}',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 15,
+              fontStyle: FontStyle.italic,
+              color: AppColors.textPrimary.withValues(alpha: 0.85),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _SavingsCard extends StatelessWidget {
+  final int days;
+  const _SavingsCard({required this.days});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => Navigator.of(context).pushNamed('/savings'),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: AppColors.gold.withValues(alpha: 0.2)),
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.savings_rounded, color: AppColors.gold, size: 28),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('\$${(days * 15).toStringAsFixed(0)} zaoszczędzone', style: const TextStyle(color: AppColors.gold, fontWeight: FontWeight.w700, fontSize: 16)),
+                  const Text('Kliknij aby zobaczyć szczegóły zdrowia', style: TextStyle(color: AppColors.textSecondary, fontSize: 11)),
+                ],
+              ),
+            ),
+            const Icon(Icons.chevron_right, color: AppColors.textSecondary, size: 20),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SosButton extends StatelessWidget {
+  final bool isNight;
+  const _SosButton({required this.isNight});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton.icon(
+        icon: const Icon(Icons.sos_rounded),
+        label: const Text('3 AM SOS'),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: isNight ? AppColors.crisisRed : AppColors.crisisRed.withValues(alpha: 0.7),
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        ),
+        onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ThreeAmScreen())),
+      ),
+    ).animate(onPlay: (c) => isNight ? c.repeat(reverse: true) : null).scale(
+          begin: const Offset(0.96, 0.96),
+          end: const Offset(1.04, 1.04),
+          duration: 1200.ms,
+        );
+  }
+}
