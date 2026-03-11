@@ -104,6 +104,26 @@ body {
   font-size: 0.95rem;
 }
 
+.philosophy-section, .patryk-ai {
+  padding: 4rem 2rem;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.philosophy-section h2, .patryk-ai h2 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.5rem;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.phil-lead, .patryk-lead { text-align: center; color: var(--accent-light); margin-bottom: 1.5rem; }
+.phil-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1.5rem; }
+.phil-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; }
+.phil-card h3 { font-size: 1rem; margin-bottom: 0.5rem; }
+.phil-card p { color: var(--muted); font-size: 0.9rem; line-height: 1.5; }
+.patryk-ai p { color: var(--muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 1rem; }
+
 .features {
   padding: 4rem 2rem;
   max-width: 1000px;
