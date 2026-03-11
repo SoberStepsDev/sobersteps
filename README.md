@@ -1,6 +1,6 @@
 # SoberSteps
 
-**[Join the waitlist →](https://soberstepsdev.github.io/sobersteps/#waitlist)**
+**[Join the waitlist →](https://soberstepsdev.github.io/sobersteps-landing/#waitlist)** · [Landing page](https://soberstepsdev.github.io/sobersteps-landing/)
 
 A new Flutter project.
 
