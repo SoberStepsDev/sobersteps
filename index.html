@@ -3,131 +3,202 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SoberSteps – Join the Waitlist</title>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      font-family: 'Segoe UI', system-ui, sans-serif;
-      background: #0f1117;
-      color: #f0f0f0;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 2rem 1rem;
-    }
-
-    .card {
-      background: #1a1d27;
-      border: 1px solid #2a2d3e;
-      border-radius: 20px;
-      max-width: 520px;
-      width: 100%;
-      padding: 3rem 2.5rem;
-      text-align: center;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-    }
-
-    .badge {
-      display: inline-block;
-      background: rgba(99,102,241,0.15);
-      color: #818cf8;
-      border: 1px solid rgba(99,102,241,0.3);
-      border-radius: 999px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      padding: 0.35rem 1rem;
-      margin-bottom: 1.5rem;
-    }
-
-    .logo {
-      font-size: 2.8rem;
-      margin-bottom: 0.5rem;
-    }
-
-    h1 {
-      font-size: 2rem;
-      font-weight: 800;
-      background: linear-gradient(135deg, #a78bfa, #60a5fa);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      margin-bottom: 1rem;
-    }
-
-    p.sub {
-      color: #9ca3af;
-      font-size: 1rem;
-      line-height: 1.6;
-      margin-bottom: 2rem;
-    }
-
-    .cta-btn {
-      display: block;
-      width: 100%;
-      padding: 0.9rem;
-      border-radius: 12px;
-      border: none;
-      background: linear-gradient(135deg, #6366f1, #3b82f6);
-      color: #fff;
-      font-size: 1rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: opacity 0.2s, transform 0.1s;
-      text-align: center;
-      text-decoration: none;
-    }
-
-    .cta-btn:hover { opacity: 0.9; transform: translateY(-1px); }
-    .cta-btn:active { transform: translateY(0); }
-
-    .note {
-      margin-top: 1rem;
-      font-size: 0.78rem;
-      color: #4b5563;
-    }
-
-    .features {
-      display: flex;
-      justify-content: center;
-      gap: 1.5rem;
-      margin-top: 2.5rem;
-      flex-wrap: wrap;
-    }
-
-    .feature {
-      font-size: 0.82rem;
-      color: #6b7280;
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
-    }
-
-    .feature span.icon { font-size: 1rem; }
-  </style>
+  <meta name="description" content="SoberSteps — Recovery app for substance and behavioral addictions. Sobriety tracking, 3 AM SOS, Craving Surf, Return to Self. Launching March 22, 2026." />
+  <title>SoberSteps — Your Sobriety Companion</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="card">
-    <div class="badge">🚀 Early Access</div>
-    <div class="logo">🧭</div>
-    <h1>SoberSteps</h1>
-    <p class="sub">
-      The app that walks with you through sobriety, one step at a time.<br>
-      Join the waitlist and be the first to know.
-    </p>
+  <header class="header">
+    <a href="/" class="logo">🧭 SoberSteps</a>
+    <nav>
+      <a href="#features">Features</a>
+      <a href="#return-to-self">Return to Self</a>
+      <a href="#for-whom">For whom</a>
+      <a href="#launch">Launch</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </header>
 
-    <a href="https://soberstepsdev.github.io/sobersteps-landing/" class="cta-btn">Join the waitlist →</a>
+  <main>
+    <section class="intro">
+      <p class="intro-tagline">Mobile recovery app for iOS & Android</p>
+      <h1>SoberSteps</h1>
+      <p class="intro-philosophy"><span class="philosophy">Smile ↔ Perspective ↔ Path</span></p>
+      <p class="intro-desc">Classic sobriety tracking meets deep work on your relationship with yourself. Substance addictions, behavioral addictions, and — from 2026 — addiction to self-hatred.</p>
+      <p class="intro-model"><strong>Freemium.</strong> Core features free. PRO unlocks full power.</p>
+    </section>
 
-    <p class="note">No spam. Unsubscribe anytime.</p>
+    <section id="features" class="features">
+      <h2>All features</h2>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <span class="feature-icon">📅</span>
+          <h3>Sobriety tracking</h3>
+          <p>Day counter per addiction type. Milestones: 1, 7, 30, 90, 180, 365 days with animations and optional TTS voice. Streak Protection (PRO): 2×/month keep streak after slip.</p>
+        </div>
+        <div class="feature-card">
+          <span class="feature-icon">🌊</span>
+          <h3>Craving Surf</h3>
+          <p>Urge surfing. Free: white noise. PRO: 6 soundscapes (rain, ocean, forest). Works offline.</p>
+        </div>
+        <div class="feature-card">
+          <span class="feature-icon">🆘</span>
+          <h3>3 AM SOS</h3>
+          <p>Instant-load crisis screen, offline. [Breathe] → Craving Surf. [Write] → anonymous Wall of Strength. [Call] → SAMHSA or helpline. "X people survived this night" counter.</p>
+        </div>
+        <div class="feature-card">
+          <span class="feature-icon">📔</span>
+          <h3>Journal</h3>
+          <p>Daily entries: mood (1–5), craving level (1–5). History with filtering. Data export.</p>
+        </div>
+        <div class="feature-card">
+          <span class="feature-icon">✉️</span>
+          <h3>Letters to yourself</h3>
+          <p>Write to your future self. Free: 1/month. PRO: 5/month.</p>
+        </div>
+        <div class="feature-card">
+          <span class="feature-icon">📚</span>
+          <h3>Mini-lessons</h3>
+          <p>Research-based recovery education. Free: 5 universal. PRO: 20 (7 universal + 13 per addiction category).</p>
+        </div>
+        <div class="feature-card">
+          <span class="feature-icon">🤲</span>
+          <h3>Accountability Partner</h3>
+          <p>PRO. Pair with a partner. Notifications on partner milestones. Optional streak visibility.</p>
+        </div>
+        <div class="feature-card">
+          <span class="feature-icon">🗺️</span>
+          <h3>Community Map</h3>
+          <p>Anonymous map of other users in recovery. Free — community shouldn't be behind a paywall.</p>
+        </div>
+        <div class="feature-card">
+          <span class="feature-icon">📊</span>
+          <h3>Trigger tracker</h3>
+          <p>Patterns, craving by day, mood. Know your triggers.</p>
+        </div>
+        <div class="feature-card">
+          <span class="feature-icon">📞</span>
+          <h3>Meetings & crisis lines</h3>
+          <p>AA/NA, SMART, Recovery Dharma. SAMHSA, Crisis Text Line. Find support.</p>
+        </div>
+        <div class="feature-card">
+          <span class="feature-icon">📱</span>
+          <h3>Retention widget</h3>
+          <p>Home screen widget. Your streak at a glance.</p>
+        </div>
+      </div>
+    </section>
 
-    <div class="features">
-      <div class="feature"><span class="icon">✅</span> Sobriety journal</div>
-      <div class="feature"><span class="icon">🏆</span> Goals & rewards</div>
-      <div class="feature"><span class="icon">🤝</span> Community support</div>
-    </div>
-  </div>
+    <section id="return-to-self" class="return-to-self">
+      <h2>Return to Self — heart of SoberSteps 2026</h2>
+      <p class="rts-intro">The most original module. No other recovery app has this. Three elements: <strong>Smile</strong> (curiosity, not emotion) — <strong>Perspective</strong> (how to look, never ends) — <strong>Path</strong> (infinite map). Symmetric: enter from any side.</p>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <span class="feature-icon">🔍</span>
+          <h3>Diagnostic</h3>
+          <p>10 questions (A/B/C/D). Score 0–30. Four diagnoses: Returning to Yourself, The Inner Critic, The Invisible Wound, Survival Mode. Personalized first step + 30-Day Path.</p>
+        </div>
+        <div class="feature-card">
+          <span class="feature-icon">🏃</span>
+          <h3>30-Day Path</h3>
+          <p>Week 1: Awareness. Week 2: Distance. Week 3: Repair. Week 4: Integration. Each day: Practice (2–5 min) + Reflection + Reminder. 3-sec pause before entry. One day per 24h.</p>
+        </div>
+        <div class="feature-card">
+          <span class="feature-icon">🪞</span>
+          <h3>Mirror Moment</h3>
+          <p>Days 7, 14, 21, 28. Fullscreen front camera (mirror-flip), 3 min timer, mantra. Day 21: unlock celebration.</p>
+        </div>
+        <div class="feature-card">
+          <span class="feature-icon">📋</span>
+          <h3>Streak — days without self-flagellation</h3>
+          <p>7-point daily checklist. Not days without error — days you were gentler with yourself. Color indicators: green ≥100%, blue ≥75%, gold ≥50%, orange ≥25%, red below.</p>
+        </div>
+        <div class="feature-card">
+          <span class="feature-icon">📓</span>
+          <h3>80% is enough journal</h3>
+          <p>"I love X in myself despite Y" + "One small action for myself today (my 20%)." After 7 entries: automatic insight — recurring themes.</p>
+        </div>
+        <div class="feature-card">
+          <span class="feature-icon">💭</span>
+          <h3>Karma Mirror</h3>
+          <p>Evening question: "Did I do myself as much good as I would do someone I love?" Timeline with dates.</p>
+        </div>
+        <div class="feature-card">
+          <span class="feature-icon">💬</span>
+          <h3>Naomi Mode</h3>
+          <p>4 rotating questions about your motivational person (from profile). Claude API: 2–3 sentence warm, personalized feedback.</p>
+        </div>
+        <div class="feature-card">
+          <span class="feature-icon">🧱</span>
+          <h3>Wall of Strength</h3>
+          <p>Global anonymous feed. One sentence per week after completing Path. "I survived this week and that's enough." Auto moderation.</p>
+        </div>
+      </div>
+      <p class="rts-unlock">Day 30: celebration animation + Patryk's voice (TTS): "Congratulations, brother. You returned to yourself." Smile ↔ Perspective ↔ Path enabled for good.</p>
+    </section>
+
+    <section id="for-whom" class="for-whom">
+      <h2>For whom is SoberSteps?</h2>
+      <div class="for-whom-content">
+        <p class="lead">People overcoming addictions and returning to themselves.</p>
+        <p><strong>Substances:</strong> Alcohol, marijuana, cocaine, heroin, crack, meth, opioids.<br>
+        <strong>Behavioral:</strong> Gambling, sex/pornography, social media, shopping, video games, workaholism.<br>
+        <strong>Return to Self:</strong> Self-hatred (free), Perfectionism (PRO), Toxic relationships (PRO).</p>
+      </div>
+    </section>
+
+    <section id="launch" class="launch">
+      <h2>Launch</h2>
+      <div class="launch-card">
+        <p class="launch-date">March 22, 2026</p>
+        <p class="launch-phrase">First Spark Ignites — 08:00 UTC</p>
+      </div>
+    </section>
+
+    <section id="contact" class="contact">
+      <h2>Contact</h2>
+      <div class="contact-grid">
+        <div class="contact-card">
+          <span class="contact-icon">✉️</span>
+          <h3>Email</h3>
+          <a href="mailto:sobersteps@pm.me">sobersteps@pm.me</a>
+        </div>
+        <div class="contact-card">
+          <span class="contact-icon">🆘</span>
+          <h3>Crisis (USA)</h3>
+          <a href="tel:1-800-662-4357">SAMHSA 1-800-662-4357</a>
+          <span class="contact-note">Free, 24/7</span>
+        </div>
+        <div class="contact-card">
+          <span class="contact-icon">🆘</span>
+          <h3>Crisis (Europe)</h3>
+          <a href="tel:116123">116 123</a>
+          <span class="contact-note">European Helpline</span>
+        </div>
+        <div class="contact-card">
+          <span class="contact-icon">💬</span>
+          <h3>Crisis Text Line</h3>
+          <span>Text HOME to 741741</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="social">
+      <h2>Follow us</h2>
+      <div class="social-links">
+        <a href="https://www.instagram.com/sobersteps2026/" target="_blank" rel="noopener noreferrer" aria-label="Instagram">Instagram</a>
+        <a href="https://x.com/SoberStepsApp" target="_blank" rel="noopener noreferrer" aria-label="X (Twitter)">X</a>
+        <a href="https://www.linkedin.com/in/patryk-topolski-6674483b4/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">LinkedIn</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p class="disclaimer">SoberSteps is an app supporting people in the process of overcoming addictions and returning to themselves. It is not a medical, therapeutic or crisis app. It does not replace the help of a doctor, psychologist or psychiatrist.</p>
+    <p>© 2026 SoberSteps. Built for recovery.</p>
+  </footer>
 </body>
 </html>
