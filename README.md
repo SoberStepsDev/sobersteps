@@ -1,6 +1,10 @@
 # SoberSteps
 
+**Strona:** https://soberstepsdev.github.io/sobersteps-landing/
+
 **[Join the waitlist →](https://soberstepsdev.github.io/sobersteps-landing/#waitlist)**
+
+> Aby zostawić tylko ten link: GitHub → Settings → Pages → **Unpublish site** (repo sobersteps).
 
 A new Flutter project.
 
