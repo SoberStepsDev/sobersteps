@@ -1,4 +1,6 @@
-# soberstepsod
+# SoberSteps
+
+**[Join the waitlist →](https://soberstepsdev.github.io/sobersteps/#waitlist)**
 
 A new Flutter project.
 
