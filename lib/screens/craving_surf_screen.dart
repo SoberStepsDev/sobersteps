@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../app/theme.dart';
@@ -136,7 +137,14 @@ class _CravingSurfScreenState extends State<CravingSurfScreen> {
                     backgroundColor: _running ? AppColors.error : AppColors.primary,
                     padding: const EdgeInsets.symmetric(vertical: 18),
                   ),
-                  onPressed: _running ? _stop : _start,
+                  onPressed: () {
+                    HapticFeedback.lightImpact();
+                    if (_running) {
+                      _stop();
+                    } else {
+                      _start();
+                    }
+                  },
                   child: Text(_running ? 'Stop' : 'Start', style: const TextStyle(fontSize: 18)),
                 ),
               ),

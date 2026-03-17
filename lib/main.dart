@@ -39,15 +39,14 @@ import 'services/notification_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  await Supabase.initialize(
-    url: AppConstants.supabaseUrl,
-    anonKey: AppConstants.supabaseAnonKey,
-  );
-
-  await PurchaseService().init();
-  await NotificationService().init();
-
+  try {
+    await Supabase.initialize(
+      url: AppConstants.supabaseUrl,
+      anonKey: AppConstants.supabaseAnonKey,
+    );
+    await PurchaseService().init();
+    await NotificationService().init();
+  } catch (_) {}
   runApp(const SoberStepsApp());
 }
 

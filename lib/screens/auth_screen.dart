@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../app/theme.dart';
 import '../providers/auth_provider.dart';
@@ -39,7 +40,13 @@ class _AuthScreenState extends State<AuthScreen> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const Icon(Icons.lock_open_rounded, size: 64, color: AppColors.primary),
+        Image.asset(
+          'assets/images/SoberStepsLogo.png',
+          height: 64,
+          width: 64,
+          fit: BoxFit.contain,
+          errorBuilder: (context, error, stackTrace) => const Icon(Icons.lock_open_rounded, size: 64, color: AppColors.primary),
+        ),
         const SizedBox(height: 24),
         const Text('Zaloguj się magicznym linkiem',
             textAlign: TextAlign.center,
@@ -54,7 +61,10 @@ class _AuthScreenState extends State<AuthScreen> {
         SizedBox(
           width: double.infinity,
           child: ElevatedButton(
-            onPressed: _loading ? null : _sendMagicLink,
+            onPressed: _loading ? null : () {
+              HapticFeedback.lightImpact();
+              _sendMagicLink();
+            },
             child: _loading ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2)) : const Text('Wyślij link'),
           ),
         ),
@@ -76,7 +86,10 @@ class _AuthScreenState extends State<AuthScreen> {
               padding: const EdgeInsets.symmetric(vertical: 16),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             ),
-            onPressed: () => context.read<AuthProvider>().signInWithGoogle(),
+            onPressed: () {
+              HapticFeedback.lightImpact();
+              context.read<AuthProvider>().signInWithGoogle();
+            },
           ),
         ),
         const SizedBox(height: 12),
@@ -91,7 +104,10 @@ class _AuthScreenState extends State<AuthScreen> {
               padding: const EdgeInsets.symmetric(vertical: 16),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             ),
-            onPressed: () => context.read<AuthProvider>().signInWithApple(),
+            onPressed: () {
+              HapticFeedback.lightImpact();
+              context.read<AuthProvider>().signInWithApple();
+            },
           ),
         ),
         const SizedBox(height: 24),
@@ -135,10 +151,11 @@ class _AuthScreenState extends State<AuthScreen> {
     setState(() => _loading = true);
     try {
       await context.read<AuthProvider>().signInWithOtp(email);
-      setState(() => _sent = true);
+      if (mounted) setState(() => _sent = true);
     } catch (_) {
-      setState(() => _sent = true);
+      if (mounted) setState(() => _sent = true);
+    } finally {
+      if (mounted) setState(() => _loading = false);
     }
-    setState(() => _loading = false);
   }
 }

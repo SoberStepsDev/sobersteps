@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../app/theme.dart';
 import '../constants/app_constants.dart';
 import '../providers/three_am_provider.dart';
 import '../providers/auth_provider.dart';
+import '../services/soundscape_service.dart';
 
 class ThreeAmScreen extends StatefulWidget {
   const ThreeAmScreen({super.key});
@@ -14,10 +16,19 @@ class ThreeAmScreen extends StatefulWidget {
 }
 
 class _ThreeAmScreenState extends State<ThreeAmScreen> {
+  final _soundscape = SoundscapeService();
+
   @override
   void initState() {
     super.initState();
     context.read<ThreeAmProvider>().loadPosts();
+    _soundscape.play('white_noise');
+  }
+
+  @override
+  void dispose() {
+    _soundscape.stop();
+    super.dispose();
   }
 
   @override
@@ -82,7 +93,7 @@ class _ThreeAmScreenState extends State<ThreeAmScreen> {
         child: const Text(
           'Jeśli jesteś w kryzysie: SAMHSA 1-800-662-4357',
           textAlign: TextAlign.center,
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+          style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w600),
         ),
       ),
     );
@@ -98,16 +109,22 @@ class _ThreeAmScreenState extends State<ThreeAmScreen> {
           children: [
             Expanded(
               child: ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: AppColors.crisisRed, foregroundColor: Colors.white),
-                onPressed: () => _submitStruggling(provider),
+                style: ElevatedButton.styleFrom(backgroundColor: AppColors.crisisRed, foregroundColor: AppColors.textPrimary),
+                onPressed: () {
+                  HapticFeedback.lightImpact();
+                  _submitStruggling(provider);
+                },
                 child: const Text("I'm struggling"),
               ),
             ),
             const SizedBox(width: 12),
             Expanded(
               child: ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: AppColors.success, foregroundColor: Colors.white),
-                onPressed: () => _resolveDialog(provider),
+                style: ElevatedButton.styleFrom(backgroundColor: AppColors.success, foregroundColor: AppColors.textPrimary),
+                onPressed: () {
+                  HapticFeedback.lightImpact();
+                  _resolveDialog(provider);
+                },
                 child: const Text('I got through'),
               ),
             ),

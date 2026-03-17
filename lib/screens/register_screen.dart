@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../app/theme.dart';
+import '../constants/app_constants.dart';
 import '../providers/auth_provider.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -45,7 +47,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         const SizedBox(height: 16),
-        Icon(Icons.local_fire_department_rounded, size: 56, color: AppColors.gold)
+        Image.asset(
+          'assets/images/SoberStepsLogo.png',
+          height: 56,
+          width: 56,
+          fit: BoxFit.contain,
+          errorBuilder: (context, error, stackTrace) => Icon(Icons.local_fire_department_rounded, size: 56, color: AppColors.gold),
+        )
             .animate()
             .fadeIn(duration: 400.ms)
             .scale(begin: const Offset(0.5, 0.5)),
@@ -128,7 +136,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
         SizedBox(
           width: double.infinity,
           child: ElevatedButton(
-            onPressed: (_loading || !_agreedToTerms) ? null : _register,
+            onPressed: (_loading || !_agreedToTerms) ? null : () {
+              HapticFeedback.lightImpact();
+              _register();
+            },
             style: ElevatedButton.styleFrom(
               disabledBackgroundColor: AppColors.surfaceLight,
               disabledForegroundColor: AppColors.textSecondary,
@@ -152,7 +163,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ),
 
         const SizedBox(height: 32),
-        Text('Kontakt: sobersteps@pm.me', style: TextStyle(color: AppColors.textSecondary.withValues(alpha: 0.6), fontSize: 11)),
+        Text('Kontakt: ${AppConstants.contactEmail}', style: TextStyle(color: AppColors.textSecondary.withValues(alpha: 0.6), fontSize: 11)),
         const SizedBox(height: 16),
       ],
     );
@@ -209,7 +220,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Future<void> _register() async {
     final email = _emailController.text.trim();
     if (email.isEmpty || !email.contains('@')) {
-      setState(() => _error = 'Podaj poprawny adres email');
+      setState(() => _error = 'Sprawdź czy adres email jest poprawny');
       return;
     }
     setState(() {
@@ -219,11 +230,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
     try {
       await context.read<AuthProvider>().signInWithOtp(email);
       await context.read<AuthProvider>().insertEmailLead(email);
-      setState(() => _sent = true);
+      if (mounted) setState(() => _sent = true);
     } catch (_) {
-      setState(() => _sent = true);
+      if (mounted) setState(() => _sent = true);
+    } finally {
+      if (mounted) setState(() => _loading = false);
     }
-    setState(() => _loading = false);
   }
 
   Future<void> _socialSignIn(String provider) async {
@@ -233,9 +245,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
       } else {
         await context.read<AuthProvider>().signInWithApple();
       }
-    } catch (e) {
+    } catch (_) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Błąd logowania: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Nie udało się zalogować. Spróbuj ponownie.')));
       }
     }
   }

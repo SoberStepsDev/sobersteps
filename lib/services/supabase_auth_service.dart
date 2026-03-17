@@ -1,4 +1,5 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../constants/app_constants.dart';
 
 class SupabaseAuthService {
   final SupabaseClient _client = Supabase.instance.client;
@@ -8,7 +9,10 @@ class SupabaseAuthService {
   Stream<AuthState> get onAuthStateChange => _client.auth.onAuthStateChange;
 
   Future<void> signInWithOtp(String email) async {
-    await _client.auth.signInWithOtp(email: email);
+    await _client.auth.signInWithOtp(
+      email: email,
+      emailRedirectTo: AppConstants.authRedirectUrl,
+    );
   }
 
   Future<void> signInWithGoogle() async {
@@ -24,16 +28,18 @@ class SupabaseAuthService {
   }
 
   Future<void> ensureProfile() async {
-    final user = currentUser;
-    if (user == null) return;
-    final existing = await _client
-        .from('profiles')
-        .select('id')
-        .eq('id', user.id)
-        .maybeSingle();
-    if (existing == null) {
-      await _client.from('profiles').insert({'id': user.id});
-    }
+    try {
+      final user = currentUser;
+      if (user == null) return;
+      final existing = await _client
+          .from('profiles')
+          .select('id')
+          .eq('id', user.id)
+          .maybeSingle();
+      if (existing == null) {
+        await _client.from('profiles').insert({'id': user.id});
+      }
+    } catch (_) {}
   }
 
   Future<void> insertEmailLead(String email) async {

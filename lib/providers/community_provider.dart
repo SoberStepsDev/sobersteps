@@ -6,7 +6,7 @@ import '../constants/app_constants.dart';
 
 class CommunityProvider extends ChangeNotifier {
   final AnalyticsService _analytics = AnalyticsService();
-  Map<String, List<CommunityPost>> _posts = {};
+  final Map<String, List<CommunityPost>> _posts = {};
   bool _loading = false;
 
   List<CommunityPost> postsForCategory(String cat) => _posts[cat] ?? [];
@@ -14,7 +14,7 @@ class CommunityProvider extends ChangeNotifier {
 
   Future<void> loadPosts(String category) async {
     _loading = true;
-    notifyListeners();
+    WidgetsBinding.instance.addPostFrameCallback((_) => notifyListeners());
     try {
       final client = Supabase.instance.client;
       final data = await client
@@ -53,7 +53,7 @@ class CommunityProvider extends ChangeNotifier {
       await loadPosts(category);
       return null;
     } catch (e) {
-      return 'Błąd: $e';
+      return 'Coś poszło nie tak. Spróbuj ponownie.';
     }
   }
 

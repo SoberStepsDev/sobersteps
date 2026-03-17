@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -100,6 +101,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
+          Image.asset(
+            'assets/images/SoberStepsLogo.png',
+            height: 64,
+            width: 64,
+            fit: BoxFit.contain,
+            errorBuilder: (context, error, stackTrace) => Icon(Icons.local_fire_department, size: 64, color: AppColors.gold),
+          ),
+          const SizedBox(height: 16),
           Text(
             '${sobriety.daysSober}',
             style: const TextStyle(
@@ -122,6 +131,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             width: double.infinity,
             child: ElevatedButton(
               onPressed: () {
+                HapticFeedback.lightImpact();
                 sobriety.setSobrietyStartDate(DateTime.now());
                 _nextPage();
               },
@@ -189,6 +199,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               icon: const Icon(Icons.calendar_today),
               label: const Text('Wybierz datę'),
               onPressed: () async {
+                HapticFeedback.lightImpact();
                 final date = await showDatePicker(
                   context: context,
                   initialDate: sobriety.sobrietyStartDate ?? DateTime.now(),
@@ -234,6 +245,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             width: double.infinity,
             child: ElevatedButton(
               onPressed: () async {
+                HapticFeedback.lightImpact();
                 final email = _emailController.text.trim();
                 if (email.isNotEmpty) {
                   await context.read<AuthProvider>().insertEmailLead(email);
@@ -268,6 +280,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             width: double.infinity,
             child: ElevatedButton(
               onPressed: () async {
+                HapticFeedback.lightImpact();
                 await NotificationService().requestPermission();
                 _nextPage();
               },

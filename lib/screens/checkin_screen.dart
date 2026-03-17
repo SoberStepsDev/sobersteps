@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../app/theme.dart';
@@ -60,7 +61,10 @@ class _CheckinScreenState extends State<CheckinScreen> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: _saving ? null : _save,
+                  onPressed: _saving ? null : () {
+                HapticFeedback.lightImpact();
+                _save();
+              },
                   child: _saving
                       ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2))
                       : const Text('Zapisz check-in'),
@@ -85,7 +89,7 @@ class _CheckinScreenState extends State<CheckinScreen> {
             duration: const Duration(milliseconds: 200),
             child: Text(
               _moodEmojis[i],
-              style: TextStyle(fontSize: 40, color: selected ? null : Colors.white.withValues(alpha: 0.5)),
+              style: TextStyle(fontSize: 40, color: selected ? null : AppColors.textPrimary.withValues(alpha: 0.5)),
             ),
           ),
         );

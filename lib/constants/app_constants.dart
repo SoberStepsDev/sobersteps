@@ -1,12 +1,14 @@
 class AppConstants {
-  static const bool isDevelopment = true;
+  static const bool isDevelopment = false;
 
   static const String supabaseUrl = 'https://kznhbcwozpjflewlzxnu.supabase.co';
   static const String supabaseAnonKey =
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt6bmhiY3dvenBqZmxld2x6eG51Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwMTU4NTcsImV4cCI6MjA4NzU5MTg1N30.CRgPK-BExwci8l6EHmJ3V9jH-ElABom62hejiBqyN_4';
 
-  static const String revenueCatApiKey = 'YOUR_REVENUECAT_API_KEY';
-  static const String oneSignalAppId = 'YOUR_ONESIGNAL_APP_ID';
+  static String get revenueCatApiKey =>
+      String.fromEnvironment('REVENUE_CAT_KEY', defaultValue: 'test_yugqnTsxrHsXuQwYbZXcWIMMqsu');
+  static String get oneSignalAppId =>
+      String.fromEnvironment('ONESIGNAL_APP_ID', defaultValue: 'YOUR_ONESIGNAL_APP_ID');
 
   static const String monthlyProductId = 'sobersteps_monthly_699';
   static const String annualProductId = 'sobersteps_annual_5999';
@@ -20,6 +22,10 @@ class AppConstants {
   static const int maxOutcomeLength = 500;
 
   static const String contactEmail = 'sobersteps@pm.me';
+  /// Deep link for auth callback; must match Android/iOS intent filters. Do not use for arbitrary URLs.
+  static const String authRedirectScheme = 'com.patryk.sobersteps';
+  static const String authRedirectHost = 'login-callback';
+  static String get authRedirectUrl => '$authRedirectScheme://$authRedirectHost';
   static const String samhsaPhone = '1-800-662-4357';
 
   static final RegExp urlRegex = RegExp(r'(https?://|bit\.ly|t\.co)', caseSensitive: false);

@@ -61,7 +61,7 @@ class _MilestonesScreenState extends State<MilestonesScreen> {
 
     showDialog(
       context: context,
-      barrierColor: Colors.black.withValues(alpha: 0.85),
+      barrierColor: AppColors.background.withValues(alpha: 0.85),
       builder: (_) => AlertDialog(
         backgroundColor: AppColors.surface,
         content: Column(
@@ -123,7 +123,7 @@ class _MilestoneCard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Text(data.emoji, style: TextStyle(fontSize: 32, color: achieved ? null : Colors.white.withValues(alpha: 0.3))),
+          Text(data.emoji, style: TextStyle(fontSize: 32, color: achieved ? null : AppColors.textPrimary.withValues(alpha: 0.3))),
           const SizedBox(width: 16),
           Expanded(
             child: Column(

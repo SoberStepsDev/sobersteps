@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../app/theme.dart';
@@ -78,6 +79,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
               const SizedBox(height: 12),
               TextButton(
                 onPressed: () async {
+                  HapticFeedback.lightImpact();
                   await purchase.restore();
                   if (purchase.isPremium && mounted) Navigator.pop(context);
                 },
@@ -205,6 +207,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
           backgroundColor: AppColors.gold,
         ),
         onPressed: () async {
+          HapticFeedback.lightImpact();
           final success = await purchase.purchase(_selectedPlan);
           if (success && mounted) {
             Navigator.of(context).pushReplacementNamed('/premium-welcome');
@@ -212,6 +215,6 @@ class _PaywallScreenState extends State<PaywallScreen> {
         },
         child: const Text('Start Free Trial', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
       ),
-    ).animate(onPlay: (c) => c.repeat(period: 3000.ms)).shimmer(duration: 800.ms, color: Colors.white.withValues(alpha: 0.3));
+    ).animate(onPlay: (c) => c.repeat(period: 3000.ms)).shimmer(duration: 800.ms, color: AppColors.textPrimary.withValues(alpha: 0.3));
   }
 }

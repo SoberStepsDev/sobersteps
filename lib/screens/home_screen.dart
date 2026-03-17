@@ -14,6 +14,7 @@ import '../screens/three_am_screen.dart';
 import '../screens/milestones_screen.dart';
 import '../screens/community_screen.dart';
 import '../screens/profile_screen.dart';
+import '../models/future_letter.dart';
 import '../screens/future_letter_read_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -47,6 +48,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   Future<void> _initData() async {
     final sobriety = context.read<SobrietyProvider>();
     await sobriety.loadFromLocal();
+    if (!mounted) return;
     sobriety.loadFromSupabase();
     context.read<JournalProvider>().loadEntries();
     context.read<JournalProvider>().syncPendingData();
@@ -71,10 +73,18 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: IndexedStack(index: _navIndex, children: _screens),
+      body: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 200),
+        switchInCurve: Curves.easeInOut,
+        switchOutCurve: Curves.easeInOut,
+        child: KeyedSubtree(key: ValueKey<int>(_navIndex), child: _screens[_navIndex]),
+      ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _navIndex,
-        onTap: (i) => setState(() => _navIndex = i),
+        onTap: (i) {
+          HapticFeedback.lightImpact();
+          setState(() => _navIndex = i);
+        },
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home_rounded), label: 'Home'),
           BottomNavigationBarItem(icon: Icon(Icons.edit_note_rounded), label: 'Journal'),
@@ -98,8 +108,10 @@ class _HomeTab extends StatelessWidget {
     final isNight = DateTime.now().hour >= 22 || DateTime.now().hour < 6;
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (letterProvider.pendingDelivery != null) {
-        _showLetterDialog(context, letterProvider);
+      final letter = letterProvider.pendingDelivery;
+      if (letter != null) {
+        letterProvider.clearPendingDelivery();
+        _showLetterDialog(context, letter);
       }
     });
 
@@ -111,10 +123,19 @@ class _HomeTab extends StatelessWidget {
             child: Column(
               children: [
                 const SizedBox(height: 16),
-                Icon(
-                  Icons.shield_rounded,
-                  size: 48,
-                  color: purchase.isPremium ? AppColors.streakBlue : AppColors.textSecondary,
+                Hero(
+                  tag: 'app_logo',
+                  child: Image.asset(
+                    'assets/images/SoberStepsLogo.png',
+                    height: 48,
+                    width: 48,
+                    fit: BoxFit.contain,
+                    errorBuilder: (context, error, stackTrace) => Icon(
+                      Icons.shield_rounded,
+                      size: 48,
+                      color: purchase.isPremium ? AppColors.streakBlue : AppColors.textSecondary,
+                    ),
+                  ),
                 ).animate(onPlay: (c) => purchase.isPremium ? c.repeat() : null).shimmer(
                       duration: 2000.ms,
                       color: purchase.isPremium ? AppColors.streakBlue.withValues(alpha: 0.3) : Colors.transparent,
@@ -140,7 +161,10 @@ class _HomeTab extends StatelessWidget {
                   child: ElevatedButton.icon(
                     icon: const Icon(Icons.check_circle_outline),
                     label: const Text('Check-in Now'),
-                    onPressed: () => Navigator.of(context).pushNamed('/checkin'),
+                    onPressed: () {
+                      HapticFeedback.lightImpact();
+                      Navigator.of(context).pushNamed('/checkin');
+                    },
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -155,10 +179,7 @@ class _HomeTab extends StatelessWidget {
     );
   }
 
-  void _showLetterDialog(BuildContext context, FutureLetterProvider provider) {
-    final letter = provider.pendingDelivery;
-    if (letter == null) return;
-    provider.clearPendingDelivery();
+  void _showLetterDialog(BuildContext context, FutureLetter letter) {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
@@ -291,7 +312,10 @@ class _SosButton extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 16),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         ),
-        onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ThreeAmScreen())),
+        onPressed: () {
+          HapticFeedback.lightImpact();
+          Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ThreeAmScreen()));
+        },
       ),
     ).animate(onPlay: (c) => isNight ? c.repeat(reverse: true) : null).scale(
           begin: const Offset(0.96, 0.96),

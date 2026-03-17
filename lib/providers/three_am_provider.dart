@@ -15,7 +15,7 @@ class ThreeAmProvider extends ChangeNotifier {
 
   Future<void> loadPosts() async {
     _loading = true;
-    notifyListeners();
+    WidgetsBinding.instance.addPostFrameCallback((_) => notifyListeners());
     try {
       final client = Supabase.instance.client;
       final countResult = await client
@@ -56,7 +56,7 @@ class ThreeAmProvider extends ChangeNotifier {
       _analytics.track('three_am_wall_posted');
       return null;
     } catch (e) {
-      return 'Błąd: $e';
+      return 'Coś poszło nie tak. Spróbuj ponownie.';
     }
   }
 
@@ -64,13 +64,13 @@ class ThreeAmProvider extends ChangeNotifier {
     try {
       await Supabase.instance.client.from('three_am_wall').update({
         'resolved_at': DateTime.now().toIso8601String(),
-        if (outcomeText != null) 'outcome_text': outcomeText,
+        ...? (outcomeText != null ? {'outcome_text': outcomeText} : null),
       }).eq('id', postId);
       _analytics.track('three_am_wall_resolved');
       await loadPosts();
       return null;
     } catch (e) {
-      return 'Błąd: $e';
+      return 'Coś poszło nie tak. Spróbuj ponownie.';
     }
   }
 }

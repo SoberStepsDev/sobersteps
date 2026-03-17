@@ -26,16 +26,19 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   }
 
   Future<void> _load() async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _dailyCheckin = prefs.getBool('notif_daily_checkin') ?? true;
-      _milestoneReminder = prefs.getBool('notif_milestone') ?? true;
-      _streakWarning = prefs.getBool('notif_streak') ?? true;
-      _letterDelivery = prefs.getBool('notif_letter') ?? true;
-      _communityUpdates = prefs.getBool('notif_community') ?? false;
-      _nightReminder = prefs.getBool('notif_night') ?? false;
-      _reminderHour = prefs.getInt('checkin_reminder_hour') ?? 21;
-    });
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      if (!mounted) return;
+      setState(() {
+        _dailyCheckin = prefs.getBool('notif_daily_checkin') ?? true;
+        _milestoneReminder = prefs.getBool('notif_milestone') ?? true;
+        _streakWarning = prefs.getBool('notif_streak') ?? true;
+        _letterDelivery = prefs.getBool('notif_letter') ?? true;
+        _communityUpdates = prefs.getBool('notif_community') ?? false;
+        _nightReminder = prefs.getBool('notif_night') ?? false;
+        _reminderHour = prefs.getInt('checkin_reminder_hour') ?? 21;
+      });
+    } catch (_) {}
   }
 
   Future<void> _save(String key, bool value) async {
@@ -57,7 +60,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             _save('notif_daily_checkin', v);
           }),
           _buildTimeSelector(),
-          _buildSwitch('Ostrzeżenie o streaku', 'Gdy nie zrobiłeś check-inu godzinę po przypomnieniu', _streakWarning, (v) {
+          _buildSwitch('Ostrzeżenie o streaku', 'Gdy brak check-inu godzinę po przypomnieniu', _streakWarning, (v) {
             setState(() => _streakWarning = v);
             _save('notif_streak', v);
           }),
@@ -115,7 +118,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         title: Text(title, style: const TextStyle(color: AppColors.textPrimary, fontSize: 15)),
         subtitle: Text(subtitle, style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
         value: value,
-        activeColor: AppColors.primary,
+        activeThumbColor: AppColors.primary,
         onChanged: onChanged,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
