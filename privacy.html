@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SoberSteps — Privacy Policy</title>
+  <style>
+    :root { --bg: #0f0f0f; --surface: #1a1a1a; --text: #f0f0f0; --muted: #9a9a9a; --accent: #c8a96e; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; line-height: 1.7; }
+    .container { max-width: 760px; margin: 0 auto; padding: 48px 24px; }
+    .logo { font-size: 28px; font-weight: 800; color: var(--accent); letter-spacing: -1px; margin-bottom: 8px; }
+    .updated { font-size: 13px; color: var(--muted); margin-bottom: 40px; }
+    h1 { font-size: 32px; font-weight: 800; margin-bottom: 8px; }
+    h2 { font-size: 18px; font-weight: 700; color: var(--accent); margin: 36px 0 12px; }
+    p, li { font-size: 15px; color: #c8c8c8; margin-bottom: 10px; }
+    ul { padding-left: 20px; }
+    .crisis { background: #2a0e0e; border-left: 3px solid #e05555; padding: 16px 20px; border-radius: 8px; margin: 24px 0; }
+    .crisis p { color: #f08080; font-weight: 600; margin: 0; }
+    a { color: var(--accent); text-decoration: none; }
+    .lang-switch { position: fixed; top: 20px; right: 20px; display: flex; gap: 8px; }
+    .lang-btn { background: var(--surface); border: 1px solid #333; color: var(--muted); padding: 6px 14px; border-radius: 20px; cursor: pointer; font-size: 13px; }
+    .lang-btn.active { background: var(--accent); color: #000; border-color: var(--accent); }
+    [data-lang] { display: none; }
+    .divider { border: none; border-top: 1px solid #2a2a2a; margin: 40px 0; }
+  </style>
+</head>
+<body>
+
+<div class="lang-switch">
+  <button class="lang-btn active" onclick="setLang('en')">EN</button>
+  <button class="lang-btn" onclick="setLang('pl')">PL</button>
+</div>
+
+<div class="container">
+
+  <div class="logo">SoberSteps</div>
+
+  <!-- ENGLISH -->
+  <div data-lang="en" style="display:block">
+    <h1>Privacy Policy</h1>
+    <p class="updated">Last updated: March 1, 2026</p>
+
+    <div class="crisis">
+      <p>⚠ In crisis: SAMHSA 1-800-662-4357 &nbsp;|&nbsp; Helpline 116 123</p>
+    </div>
+
+    <p>SoberSteps is built by an indie developer who has been through recovery firsthand. Your privacy — especially your recovery data — is treated with the highest respect.</p>
+
+    <h2>1. Data Controller</h2>
+    <p>SoberSteps indie project. Contact: <a href="mailto:sobersteps@pm.me">sobersteps@pm.me</a><br>
+    Data is processed in accordance with the GDPR (EU) 2016/679.</p>
+
+    <h2>2. What We Collect</h2>
+    <p><strong>Account data:</strong></p>
+    <ul>
+      <li>Email address (for registration and magic link login)</li>
+      <li>Google / Apple OAuth identifier (if using social login)</li>
+    </ul>
+    <p><strong>Recovery data:</strong></p>
+    <ul>
+      <li>Sobriety start date</li>
+      <li>Addiction type / category</li>
+      <li>Daily check-ins (mood, craving level, triggers, notes)</li>
+      <li>Milestones achieved</li>
+      <li>Craving Surf sessions</li>
+      <li>3 AM Wall entries (anonymous)</li>
+      <li>Letters to future self</li>
+      <li>Return to Self progress</li>
+    </ul>
+    <p><strong>Technical data:</strong></p>
+    <ul>
+      <li>Install date, notification preferences, app language</li>
+    </ul>
+
+    <h2>3. Why We Process It</h2>
+    <ul>
+      <li>To run the app features (tracking, milestones, check-ins)</li>
+      <li>To send push notifications you opted into</li>
+      <li>To manage subscriptions via RevenueCat</li>
+      <li>To improve the app via anonymous usage stats</li>
+    </ul>
+
+    <h2>4. Security</h2>
+    <ul>
+      <li>Supabase database with encryption at rest and TLS/SSL in transit</li>
+      <li>Row Level Security (RLS) — you can only access your own data</li>
+      <li>No passwords stored — magic link or OAuth only</li>
+      <li>3 AM Wall entries are anonymous to other users</li>
+      <li>Check-in data is never visible to other users</li>
+    </ul>
+
+    <h2>5. Data Sharing</h2>
+    <p>We never sell your data. Data may be shared with:</p>
+    <ul>
+      <li><strong>Supabase Inc.</strong> — database hosting</li>
+      <li><strong>Google / Apple</strong> — OAuth and payments</li>
+      <li><strong>RevenueCat</strong> — subscription management</li>
+      <li><strong>OneSignal</strong> — push notifications (with your consent)</li>
+    </ul>
+
+    <h2>6. Retention</h2>
+    <p>Data is kept while your account is active. After account deletion:</p>
+    <ul>
+      <li>Personal data deleted within 30 days</li>
+      <li>Anonymous community posts may remain (unlinked from account)</li>
+      <li>Technical logs deleted after 90 days</li>
+    </ul>
+
+    <h2>7. Your Rights (GDPR)</h2>
+    <ul>
+      <li><strong>Access</strong> — email sobersteps@pm.me</li>
+      <li><strong>Rectification</strong> — edit in profile settings</li>
+      <li><strong>Erasure</strong> ("right to be forgotten") — email sobersteps@pm.me, deleted within 30 days</li>
+      <li><strong>Portability</strong> — export on request</li>
+      <li><strong>Withdraw consent</strong> — notifications off in phone settings</li>
+      <li><strong>Lodge complaint</strong> — UODO (Poland) or your local supervisory authority</li>
+    </ul>
+
+    <h2>8. Children</h2>
+    <p>SoberSteps is for users 18+. We do not knowingly collect data from minors. If you believe a minor has provided data, contact sobersteps@pm.me immediately.</p>
+
+    <h2>9. Contact</h2>
+    <p>Privacy questions: <a href="mailto:sobersteps@pm.me">sobersteps@pm.me</a></p>
+  </div>
+
+  <hr class="divider">
+
+  <!-- POLISH -->
+  <div data-lang="pl">
+    <h1>Polityka Prywatności</h1>
+    <p class="updated">Ostatnia aktualizacja: 1 marca 2026</p>
+
+    <div class="crisis">
+      <p>⚠ W kryzysie: Telefon Zaufania 116 123 &nbsp;|&nbsp; SAMHSA 1-800-662-4357</p>
+    </div>
+
+    <p>SoberSteps tworzony jest przez indie dewelopera, który sam przeszedł przez zdrowienie. Twoja prywatność — zwłaszcza dane dotyczące zdrowienia — są traktowane z najwyższym szacunkiem.</p>
+
+    <h2>1. Administrator danych</h2>
+    <p>Projekt indie SoberSteps. Kontakt: <a href="mailto:sobersteps@pm.me">sobersteps@pm.me</a><br>
+    Dane przetwarzane są zgodnie z RODO (UE) 2016/679.</p>
+
+    <h2>2. Jakie dane zbieramy</h2>
+    <p><strong>Dane konta:</strong></p>
+    <ul>
+      <li>Adres e-mail (rejestracja i magic link)</li>
+      <li>Identyfikator Google / Apple (logowanie OAuth)</li>
+    </ul>
+    <p><strong>Dane dotyczące zdrowienia:</strong></p>
+    <ul>
+      <li>Data rozpoczęcia trzeźwości</li>
+      <li>Typ uzależnienia / kategoria</li>
+      <li>Dzienne check-iny (nastrój, poziom głodu, triggery, notatki)</li>
+      <li>Osiągnięte kamienie milowe</li>
+      <li>Sesje Craving Surf</li>
+      <li>Wpisy 3 AM Wall (anonimowe)</li>
+      <li>Listy do przyszłego siebie</li>
+      <li>Postęp Return to Self</li>
+    </ul>
+    <p><strong>Dane techniczne:</strong></p>
+    <ul>
+      <li>Data instalacji, preferencje powiadomień, język aplikacji</li>
+    </ul>
+
+    <h2>3. Cel przetwarzania</h2>
+    <ul>
+      <li>Świadczenie funkcji aplikacji (śledzenie, milestones, check-iny)</li>
+      <li>Wysyłanie powiadomień push (za Twoją zgodą)</li>
+      <li>Obsługa subskrypcji przez RevenueCat</li>
+      <li>Ulepszanie aplikacji na podstawie anonimowych statystyk</li>
+    </ul>
+
+    <h2>4. Bezpieczeństwo</h2>
+    <ul>
+      <li>Baza danych Supabase z szyfrowaniem w spoczynku i TLS/SSL w transporcie</li>
+      <li>Row Level Security (RLS) — dostęp wyłącznie do własnych danych</li>
+      <li>Brak przechowywania haseł — magic link lub OAuth</li>
+      <li>Wpisy 3 AM Wall są anonimowe dla innych użytkowników</li>
+      <li>Dane check-inów są niewidoczne dla innych</li>
+    </ul>
+
+    <h2>5. Udostępnianie danych</h2>
+    <p>Nie sprzedajemy danych. Dane mogą być udostępniane:</p>
+    <ul>
+      <li><strong>Supabase Inc.</strong> — hosting bazy danych</li>
+      <li><strong>Google / Apple</strong> — OAuth i płatności</li>
+      <li><strong>RevenueCat</strong> — zarządzanie subskrypcjami</li>
+      <li><strong>OneSignal</strong> — powiadomienia push (za zgodą)</li>
+    </ul>
+
+    <h2>6. Przechowywanie danych</h2>
+    <ul>
+      <li>Dane osobowe usuwane w ciągu 30 dni od usunięcia konta</li>
+      <li>Anonimowe wpisy społecznościowe mogą pozostać (bez powiązania z kontem)</li>
+      <li>Logi techniczne usuwane po 90 dniach</li>
+    </ul>
+
+    <h2>7. Twoje prawa (RODO)</h2>
+    <ul>
+      <li><strong>Dostęp</strong> — napisz na sobersteps@pm.me</li>
+      <li><strong>Sprostowanie</strong> — edycja w ustawieniach profilu</li>
+      <li><strong>Usunięcie</strong> ("prawo do bycia zapomnianym") — napisz na sobersteps@pm.me, usunięcie w 30 dni</li>
+      <li><strong>Przenoszenie</strong> — eksport na żądanie</li>
+      <li><strong>Cofnięcie zgody</strong> — powiadomienia wyłącz w ustawieniach telefonu</li>
+      <li><strong>Skarga</strong> — UODO (Polska) lub właściwy organ nadzorczy</li>
+    </ul>
+
+    <h2>8. Dzieci</h2>
+    <p>SoberSteps jest dla użytkowników 18+. Nie zbieramy świadomie danych od nieletnich. Jeśli uważasz, że nieletni podał dane, napisz na sobersteps@pm.me.</p>
+
+    <h2>9. Kontakt</h2>
+    <p>Pytania o prywatność: <a href="mailto:sobersteps@pm.me">sobersteps@pm.me</a></p>
+  </div>
+
+</div>
+
+<script>
+  function setLang(lang) {
+    document.querySelectorAll('[data-lang]').forEach(el => el.style.display = 'none');
+    document.querySelector('[data-lang="' + lang + '"]').style.display = 'block';
+    document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+    event.target.classList.add('active');
+  }
+</script>
+</body>
+</html>
