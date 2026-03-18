@@ -47,4 +47,19 @@ class SupabaseAuthService {
       await _client.from('email_leads').upsert({'email': email}, onConflict: 'email');
     } catch (_) {}
   }
+
+  Future<void> signUpWithPassword(String email, String password) async {
+    await _client.auth.signUp(
+      email: email,
+      password: password,
+      data: {'created_at': DateTime.now().toIso8601String()},
+    );
+  }
+
+  Future<void> signInWithPassword(String email, String password) async {
+    await _client.auth.signInWithPassword(
+      email: email,
+      password: password,
+    );
+  }
 }

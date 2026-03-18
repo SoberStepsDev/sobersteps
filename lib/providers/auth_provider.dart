@@ -35,6 +35,16 @@ class AuthProvider extends ChangeNotifier {
     _analytics.track('magic_link_sent');
   }
 
+  Future<void> signUpWithPassword(String email, String password) async {
+    await _authService.signUpWithPassword(email, password);
+    _analytics.track('email_password_signup');
+  }
+
+  Future<void> signInWithPassword(String email, String password) async {
+    await _authService.signInWithPassword(email, password);
+    _analytics.track('email_password_signin');
+  }
+
   Future<void> signInWithGoogle() async {
     await _authService.signInWithGoogle();
     _analytics.track('google_sign_in');
@@ -43,6 +53,11 @@ class AuthProvider extends ChangeNotifier {
   Future<void> signInWithApple() async {
     await _authService.signInWithApple();
     _analytics.track('apple_sign_in');
+  }
+
+  Future<void> resetPassword(String email) async {
+    await _authService._client.auth.resetPasswordForEmail(email);
+    _analytics.track('password_reset_requested');
   }
 
   Future<void> signOut() async {

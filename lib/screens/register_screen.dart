@@ -15,14 +15,18 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
   bool _agreedToTerms = false;
   bool _loading = false;
-  bool _sent = false;
   String? _error;
+  bool _obscurePassword = true;
 
   @override
   void dispose() {
     _emailController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
 
@@ -36,7 +40,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 32),
-          child: _sent ? _buildSentView() : _buildRegisterView(),
+          child: _buildRegisterView(),
         ),
       ),
     );
@@ -52,11 +56,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
           height: 56,
           width: 56,
           fit: BoxFit.contain,
-          errorBuilder: (context, error, stackTrace) => Icon(Icons.local_fire_department_rounded, size: 56, color: AppColors.gold),
-        )
-            .animate()
-            .fadeIn(duration: 400.ms)
-            .scale(begin: const Offset(0.5, 0.5)),
+          errorBuilder: (context, error, stackTrace) =>
+              Icon(Icons.local_fire_department_rounded, size: 56, color: AppColors.gold),
+        ).animate().fadeIn(duration: 400.ms).scale(begin: const Offset(0.5, 0.5)),
         const SizedBox(height: 16),
         const Text('Zarejestruj się',
             style: TextStyle(fontSize: 28, fontWeight: FontWeight.w800, color: AppColors.textPrimary)),
@@ -66,27 +68,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             style: TextStyle(fontSize: 15, color: AppColors.textSecondary)),
         const SizedBox(height: 32),
 
-        // Social sign-in buttons
-        _buildSocialButton(
-          icon: Icons.g_mobiledata,
-          label: 'Kontynuuj z Google',
-          onTap: _agreedToTerms ? () => _socialSignIn('google') : null,
-        ),
-        const SizedBox(height: 12),
-        _buildSocialButton(
-          icon: Icons.apple,
-          label: 'Kontynuuj z Apple',
-          onTap: _agreedToTerms ? () => _socialSignIn('apple') : null,
-        ),
-
-        const SizedBox(height: 24),
-        const Row(children: [
-          Expanded(child: Divider(color: AppColors.surfaceLight)),
-          Padding(padding: EdgeInsets.symmetric(horizontal: 16), child: Text('lub email', style: TextStyle(color: AppColors.textSecondary, fontSize: 13))),
-          Expanded(child: Divider(color: AppColors.surfaceLight)),
-        ]),
-        const SizedBox(height: 24),
-
+        // Email
         TextField(
           controller: _emailController,
           keyboardType: TextInputType.emailAddress,
@@ -94,6 +76,32 @@ class _RegisterScreenState extends State<RegisterScreen> {
             hintText: 'Twój adres email',
             prefixIcon: const Icon(Icons.email_outlined, color: AppColors.textSecondary),
             errorText: _error,
+          ),
+        ),
+        const SizedBox(height: 16),
+
+        // Password
+        TextField(
+          controller: _passwordController,
+          obscureText: _obscurePassword,
+          decoration: InputDecoration(
+            hintText: 'Hasło (min. 6 znaków)',
+            prefixIcon: const Icon(Icons.lock_outlined, color: AppColors.textSecondary),
+            suffixIcon: IconButton(
+              icon: Icon(_obscurePassword ? Icons.visibility_off : Icons.visibility),
+              onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
+
+        // Confirm password
+        TextField(
+          controller: _confirmPasswordController,
+          obscureText: _obscurePassword,
+          decoration: const InputDecoration(
+            hintText: 'Powtórz hasło',
+            prefixIcon: Icon(Icons.lock_outlined, color: AppColors.textSecondary),
           ),
         ),
         const SizedBox(height: 20),
@@ -119,12 +127,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   const Text('Akceptuję ', style: TextStyle(color: AppColors.textSecondary, fontSize: 13)),
                   GestureDetector(
                     onTap: () => Navigator.pushNamed(context, '/terms'),
-                    child: const Text('Regulamin', style: TextStyle(color: AppColors.primary, fontSize: 13, decoration: TextDecoration.underline)),
+                    child: const Text('Regulamin',
+                        style: TextStyle(color: AppColors.primary, fontSize: 13, decoration: TextDecoration.underline)),
                   ),
                   const Text(' oraz ', style: TextStyle(color: AppColors.textSecondary, fontSize: 13)),
                   GestureDetector(
                     onTap: () => Navigator.pushNamed(context, '/privacy'),
-                    child: const Text('Politykę Prywatności', style: TextStyle(color: AppColors.primary, fontSize: 13, decoration: TextDecoration.underline)),
+                    child: const Text('Politykę Prywatności',
+                        style: TextStyle(color: AppColors.primary, fontSize: 13, decoration: TextDecoration.underline)),
                   ),
                 ],
               ),
@@ -136,16 +146,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
         SizedBox(
           width: double.infinity,
           child: ElevatedButton(
-            onPressed: (_loading || !_agreedToTerms) ? null : () {
-              HapticFeedback.lightImpact();
-              _register();
-            },
+            onPressed: (_loading || !_agreedToTerms) ? null : _register,
             style: ElevatedButton.styleFrom(
               disabledBackgroundColor: AppColors.surfaceLight,
               disabledForegroundColor: AppColors.textSecondary,
             ),
             child: _loading
-                ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.background))
+                ? const SizedBox(
+                    height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.background))
                 : const Text('Zarejestruj się'),
           ),
         ),
@@ -163,92 +171,48 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ),
 
         const SizedBox(height: 32),
-        Text('Kontakt: ${AppConstants.contactEmail}', style: TextStyle(color: AppColors.textSecondary.withValues(alpha: 0.6), fontSize: 11)),
+        Text('Kontakt: ${AppConstants.contactEmail}',
+            style: TextStyle(color: AppColors.textSecondary.withValues(alpha: 0.6), fontSize: 11)),
         const SizedBox(height: 16),
       ],
     );
   }
 
-  Widget _buildSentView() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        const SizedBox(height: 80),
-        const Icon(Icons.mark_email_read_rounded, size: 72, color: AppColors.success)
-            .animate()
-            .scale(begin: const Offset(0.3, 0.3), duration: 500.ms, curve: Curves.elasticOut),
-        const SizedBox(height: 24),
-        const Text('Sprawdź swoją skrzynkę!',
-            style: TextStyle(fontSize: 26, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
-        const SizedBox(height: 12),
-        Text('Wysłaliśmy link rejestracyjny na:\n${_emailController.text}',
-            textAlign: TextAlign.center,
-            style: const TextStyle(color: AppColors.textSecondary, fontSize: 15)),
-        const SizedBox(height: 32),
-        TextButton(
-          onPressed: () => setState(() {
-            _sent = false;
-            _error = null;
-          }),
-          child: const Text('Wyślij ponownie', style: TextStyle(color: AppColors.primary)),
-        ),
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Powrót', style: TextStyle(color: AppColors.textSecondary)),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildSocialButton({required IconData icon, required String label, VoidCallback? onTap}) {
-    return SizedBox(
-      width: double.infinity,
-      child: OutlinedButton.icon(
-        icon: Icon(icon, size: 26),
-        label: Text(label),
-        style: OutlinedButton.styleFrom(
-          foregroundColor: onTap != null ? AppColors.textPrimary : AppColors.textSecondary,
-          side: BorderSide(color: onTap != null ? AppColors.surfaceLight : AppColors.surfaceLight.withValues(alpha: 0.5)),
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        ),
-        onPressed: onTap,
-      ),
-    );
-  }
-
   Future<void> _register() async {
     final email = _emailController.text.trim();
+    final password = _passwordController.text;
+    final confirmPassword = _confirmPasswordController.text;
+
     if (email.isEmpty || !email.contains('@')) {
       setState(() => _error = 'Sprawdź czy adres email jest poprawny');
       return;
     }
+    if (password.length < 6) {
+      setState(() => _error = 'Hasło musi mieć min. 6 znaków');
+      return;
+    }
+    if (password != confirmPassword) {
+      setState(() => _error = 'Hasła się nie zgadzają');
+      return;
+    }
+
     setState(() {
       _loading = true;
       _error = null;
     });
+
     try {
-      await context.read<AuthProvider>().signInWithOtp(email);
-      await context.read<AuthProvider>().insertEmailLead(email);
-      if (mounted) setState(() => _sent = true);
-    } catch (_) {
-      if (mounted) setState(() => _sent = true);
+      await context.read<AuthProvider>().signUpWithPassword(email, password);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Konto utworzone! Zaloguj się.')),
+        );
+        Navigator.pushReplacementNamed(context, '/auth');
+      }
+    } catch (e) {
+      if (mounted) setState(() => _error = 'Błąd rejestracji. Spróbuj inny email.');
     } finally {
       if (mounted) setState(() => _loading = false);
-    }
-  }
-
-  Future<void> _socialSignIn(String provider) async {
-    try {
-      if (provider == 'google') {
-        await context.read<AuthProvider>().signInWithGoogle();
-      } else {
-        await context.read<AuthProvider>().signInWithApple();
-      }
-    } catch (_) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Nie udało się zalogować. Spróbuj ponownie.')));
-      }
     }
   }
 }
