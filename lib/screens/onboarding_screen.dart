@@ -8,6 +8,7 @@ import '../providers/auth_provider.dart';
 import '../providers/sobriety_provider.dart';
 import '../services/analytics_service.dart';
 import '../services/notification_service.dart';
+import '../constants/app_constants.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -22,6 +23,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   final _analytics = AnalyticsService();
   int _currentStep = 0;
   String? _substanceType;
+  String? _addictionCategory; // 'substance', 'behavioral', 'return_to_self'
+  bool _returnToSelfEnabled = false;
+  bool _showReturnToSelfQuestion = false;
 
   @override
   void dispose() {
@@ -43,7 +47,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   Future<void> _completeOnboarding() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('onboarding_complete', true);
-    _analytics.track('onboarding_complete', {'substance_type': _substanceType});
+    if (_addictionCategory != null) {
+      await prefs.setString('addiction_category', _addictionCategory!);
+    }
+    await prefs.setBool('return_to_self_enabled', _returnToSelfEnabled);
+    _analytics.track('onboarding_complete', {
+      'substance_type': _substanceType,
+      'addiction_category': _addictionCategory,
+      'return_to_self': _returnToSelfEnabled,
+    });
     if (mounted) Navigator.of(context).pushReplacementNamed('/home');
   }
 
@@ -144,39 +156,168 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   Widget _buildStep2() {
-    final substances = [
-      ('alcohol', 'Alkohol', Icons.local_bar),
-      ('drugs', 'Narkotyki', Icons.medication),
-      ('other', 'Inne', Icons.more_horiz),
-    ];
+    if (_showReturnToSelfQuestion) {
+      return _buildReturnToSelfQuestion();
+    }
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 16),
+            const Center(
+              child: Text('Co chcesz zostawić za sobą?',
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
+            ),
+            const SizedBox(height: 24),
+            // --- Substancje psychoaktywne ---
+            const Text('Substancje', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textSecondary, letterSpacing: 1)),
+            const SizedBox(height: 8),
+            ...AppConstants.substanceTypes.entries.map((e) => Padding(
+              padding: const EdgeInsets.only(bottom: 6),
+              child: _SubstanceCard(
+                label: e.value,
+                icon: _iconForSubstance(e.key),
+                selected: _substanceType == e.key,
+                onTap: () => _selectAddiction('substance', e.key),
+                compact: true,
+              ),
+            )),
+            const SizedBox(height: 16),
+            // --- Uzależnienia behawioralne ---
+            const Text('Behawioralne', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textSecondary, letterSpacing: 1)),
+            const SizedBox(height: 8),
+            ...AppConstants.behavioralTypes.entries.map((e) => Padding(
+              padding: const EdgeInsets.only(bottom: 6),
+              child: _SubstanceCard(
+                label: e.value,
+                icon: _iconForBehavioral(e.key),
+                selected: _substanceType == e.key,
+                onTap: () => _selectAddiction('behavioral', e.key),
+                compact: true,
+              ),
+            )),
+            const SizedBox(height: 16),
+            // --- Powrót do Siebie ---
+            const Text('Powrót do Siebie', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textSecondary, letterSpacing: 1)),
+            const SizedBox(height: 8),
+            ...AppConstants.returnToSelfTypes.entries.map((e) {
+              final isPro = AppConstants.returnToSelfProOnly.contains(e.key);
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 6),
+                child: _SubstanceCard(
+                  label: isPro ? '${e.value} (PRO)' : e.value,
+                  icon: _iconForReturnToSelf(e.key),
+                  selected: _substanceType == e.key,
+                  onTap: () => _selectAddiction('return_to_self', e.key),
+                  compact: true,
+                ),
+              );
+            }),
+            const SizedBox(height: 24),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildReturnToSelfQuestion() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 32),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text('Co chcesz zostawić za sobą?',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
+          const Icon(Icons.self_improvement, size: 64, color: AppColors.gold),
+          const SizedBox(height: 24),
+          const Text('Chcesz też pracować nad relacją z samym sobą?',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
+          const SizedBox(height: 12),
+          const Text('Moduł Return to Self — bezpłatna ścieżka pokonywania nienawiści do siebie.',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 15, color: AppColors.textSecondary)),
           const SizedBox(height: 32),
-          ...substances.map((s) => Padding(
-                padding: const EdgeInsets.only(bottom: 16),
-                child: SizedBox(
-                  width: double.infinity,
-                  child: _SubstanceCard(
-                    label: s.$2,
-                    icon: s.$3,
-                    selected: _substanceType == s.$1,
-                    onTap: () async {
-                      setState(() => _substanceType = s.$1);
-                      final prefs = await SharedPreferences.getInstance();
-                      await prefs.setString('substance_type', s.$1);
-                      _nextPage();
-                    },
-                  ),
-                ),
-              )),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () async {
+                setState(() => _returnToSelfEnabled = true);
+                final prefs = await SharedPreferences.getInstance();
+                await prefs.setBool('return_to_self_enabled', true);
+                setState(() => _showReturnToSelfQuestion = false);
+                _nextPage();
+              },
+              child: const Text('Tak, chcę'),
+            ),
+          ),
+          const SizedBox(height: 12),
+          TextButton(
+            onPressed: () {
+              setState(() {
+                _returnToSelfEnabled = false;
+                _showReturnToSelfQuestion = false;
+              });
+              _nextPage();
+            },
+            child: const Text('Nie teraz', style: TextStyle(color: AppColors.textSecondary)),
+          ),
         ],
       ),
     );
+  }
+
+  Future<void> _selectAddiction(String category, String type) async {
+    HapticFeedback.lightImpact();
+    setState(() {
+      _substanceType = type;
+      _addictionCategory = category;
+    });
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('substance_type', type);
+    await prefs.setString('addiction_category', category);
+    // If substance/behavioral → ask about Return to Self
+    if (category != 'return_to_self') {
+      setState(() => _showReturnToSelfQuestion = true);
+    } else {
+      setState(() => _returnToSelfEnabled = true);
+      await prefs.setBool('return_to_self_enabled', true);
+      _nextPage();
+    }
+  }
+
+  IconData _iconForSubstance(String key) {
+    return switch (key) {
+      'alcohol' => Icons.local_bar,
+      'marijuana_thc' => Icons.grass,
+      'cocaine' => Icons.flash_on,
+      'heroin' => Icons.warning_amber,
+      'crack' => Icons.warning_amber,
+      'methamphetamine' => Icons.bolt,
+      'opioids' => Icons.medication,
+      _ => Icons.more_horiz,
+    };
+  }
+
+  IconData _iconForBehavioral(String key) {
+    return switch (key) {
+      'gambling' => Icons.casino,
+      'sex_pornography' => Icons.visibility_off,
+      'social_media' => Icons.phone_android,
+      'shopping' => Icons.shopping_bag,
+      'gaming' => Icons.sports_esports,
+      'workaholism' => Icons.work,
+      _ => Icons.more_horiz,
+    };
+  }
+
+  IconData _iconForReturnToSelf(String key) {
+    return switch (key) {
+      'self_hatred' => Icons.heart_broken,
+      'perfectionism' => Icons.auto_awesome,
+      'toxic_relationships' => Icons.people_outline,
+      _ => Icons.self_improvement,
+    };
   }
 
   Widget _buildStep3(SobrietyProvider sobriety) {
@@ -303,26 +444,32 @@ class _SubstanceCard extends StatelessWidget {
   final IconData icon;
   final bool selected;
   final VoidCallback onTap;
+  final bool compact;
 
-  const _SubstanceCard({required this.label, required this.icon, required this.selected, required this.onTap});
+  const _SubstanceCard({required this.label, required this.icon, required this.selected, required this.onTap, this.compact = false});
 
   @override
   Widget build(BuildContext context) {
+    final pad = compact ? 12.0 : 24.0;
+    final iconSize = compact ? 24.0 : 32.0;
+    final fontSize = compact ? 15.0 : 18.0;
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.all(24),
+        padding: EdgeInsets.all(pad),
         decoration: BoxDecoration(
           color: selected ? AppColors.primary.withValues(alpha: 0.2) : AppColors.surface,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(12),
           border: Border.all(color: selected ? AppColors.primary : AppColors.surfaceLight, width: 2),
         ),
         child: Row(
           children: [
-            Icon(icon, size: 32, color: selected ? AppColors.primary : AppColors.textSecondary),
-            const SizedBox(width: 16),
-            Text(label, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: selected ? AppColors.primary : AppColors.textPrimary)),
+            Icon(icon, size: iconSize, color: selected ? AppColors.primary : AppColors.textSecondary),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(label, style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.w600, color: selected ? AppColors.primary : AppColors.textPrimary)),
+            ),
           ],
         ),
       ),

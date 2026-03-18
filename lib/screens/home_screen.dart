@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../app/theme.dart';
 import '../providers/sobriety_provider.dart';
@@ -97,8 +98,23 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   }
 }
 
-class _HomeTab extends StatelessWidget {
+class _HomeTab extends StatefulWidget {
   const _HomeTab();
+
+  @override
+  State<_HomeTab> createState() => _HomeTabState();
+}
+
+class _HomeTabState extends State<_HomeTab> {
+  bool _returnToSelfEnabled = false;
+
+  @override
+  void initState() {
+    super.initState();
+    SharedPreferences.getInstance().then((p) {
+      if (mounted) setState(() => _returnToSelfEnabled = p.getBool('return_to_self_enabled') ?? false);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -169,6 +185,10 @@ class _HomeTab extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 _SosButton(isNight: isNight),
+                if (_returnToSelfEnabled) ...[  
+                  const SizedBox(height: 16),
+                  _ReturnToSelfCard(),
+                ],
                 const SizedBox(height: 32),
               ],
             ),
@@ -292,6 +312,43 @@ class _SavingsCard extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class _ReturnToSelfCard extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.lightImpact();
+        Navigator.of(context).pushNamed('/return-to-self');
+      },
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.self_improvement, color: AppColors.primary, size: 28),
+            const SizedBox(width: 12),
+            const Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Return to Self', style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w700, fontSize: 15)),
+                  Text('Twoja 30-dniowa ścieżka', style: TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+                ],
+              ),
+            ),
+            const Icon(Icons.chevron_right, color: AppColors.textSecondary, size: 20),
+          ],
+        ),
+      ),
+    ).animate().fadeIn(duration: 400.ms);
   }
 }
 

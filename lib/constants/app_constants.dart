@@ -30,6 +30,39 @@ class AppConstants {
 
   static final RegExp urlRegex = RegExp(r'(https?://|bit\.ly|t\.co)', caseSensitive: false);
 
+  // --- Addiction categories (v2026 spec) ---
+  static const Map<String, String> substanceTypes = {
+    'alcohol': 'Alkohol',
+    'marijuana_thc': 'Marihuana / THC',
+    'cocaine': 'Kokaina',
+    'heroin': 'Heroina',
+    'crack': 'Crack',
+    'methamphetamine': 'Metamfetamina',
+    'opioids': 'Opioids',
+    'other_substance': 'Inne / własne',
+  };
+
+  static const Map<String, String> behavioralTypes = {
+    'gambling': 'Hazard',
+    'sex_pornography': 'Seks i Pornografia',
+    'social_media': 'Social Media / Scrolling',
+    'shopping': 'Zakupy',
+    'gaming': 'Gry wideo',
+    'workaholism': 'Pracoholizm',
+  };
+
+  static const Map<String, String> returnToSelfTypes = {
+    'self_hatred': 'Nienawiść do siebie',
+    'perfectionism': 'Perfekcjonizm',
+    'toxic_relationships': 'Toksyczne Relacje',
+  };
+
+  /// Return to Self types that require PRO subscription
+  static const Set<String> returnToSelfProOnly = {
+    'perfectionism',
+    'toxic_relationships',
+  };
+
   static const List<String> defaultTriggers = [
     'loneliness',
     'stress',
