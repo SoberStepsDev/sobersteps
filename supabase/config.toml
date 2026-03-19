@@ -1,4 +1,9 @@
 
+[functions.naomi-feedback]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/naomi-feedback/index.ts"
+
 [functions.moderate_three_am_post]
 enabled = true
 verify_jwt = true

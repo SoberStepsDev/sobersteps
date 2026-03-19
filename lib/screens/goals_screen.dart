@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../app/theme.dart';
 import '../providers/sobriety_provider.dart';
 import '../providers/journal_provider.dart';
+import '../l10n/strings.dart';
 
 class GoalsScreen extends StatefulWidget {
   const GoalsScreen({super.key});
@@ -27,24 +28,24 @@ class _GoalsScreenState extends State<GoalsScreen> {
     final goals = [
       _GoalItem(
         icon: Icons.edit_note_rounded,
-        title: 'Check-iny',
+        title: S.t(context, 'checkins'),
         current: checkinsThisWeek,
         target: 7,
-        unit: 'dni',
+        unit: S.t(context, 'days'),
       ),
       _GoalItem(
         icon: Icons.waves_rounded,
-        title: 'Craving Surf',
+        title: S.t(context, 'cravingSurf'),
         current: cravingSurfThisWeek,
         target: 3,
-        unit: 'sesje',
+        unit: S.t(context, 'sessions'),
       ),
       _GoalItem(
         icon: Icons.local_fire_department_rounded,
-        title: 'Streak',
+        title: S.t(context, 'streak'),
         current: streakDays,
         target: 7,
-        unit: 'dni',
+        unit: S.t(context, 'days'),
       ),
     ];
 
@@ -53,19 +54,19 @@ class _GoalsScreenState extends State<GoalsScreen> {
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(title: const Text('Cele i nagrody')),
+      appBar: AppBar(title: Text(S.t(context, 'goalsAndRewards'))),
       body: ListView(
         padding: const EdgeInsets.all(24),
         children: [
           if (nextMilestone != null) ...[
-            const Text('Następny milestone', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
+            Text(S.t(context, 'nextMilestone'), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
             const SizedBox(height: 12),
             LinearProgressIndicator(value: progress, backgroundColor: AppColors.surfaceLight, valueColor: const AlwaysStoppedAnimation<Color>(AppColors.gold)),
             const SizedBox(height: 8),
-            Text('${sobriety.daysSober} / $nextMilestone dni', style: const TextStyle(color: AppColors.textSecondary, fontSize: 14)),
+            Text('${sobriety.daysSober} / $nextMilestone ${S.t(context, 'days')}', style: const TextStyle(color: AppColors.textSecondary, fontSize: 14)),
             const SizedBox(height: 32),
           ],
-          const Text('Tygodniowe cele', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
+          Text(S.t(context, 'weeklyGoals'), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
           const SizedBox(height: 16),
           ...goals.map((g) => _GoalCard(
             icon: g.icon,

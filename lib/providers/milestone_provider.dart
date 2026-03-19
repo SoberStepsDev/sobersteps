@@ -7,9 +7,22 @@ class MilestoneProvider extends ChangeNotifier {
   final AnalyticsService _analytics = AnalyticsService();
   List<MilestoneAchieved> _achieved = [];
   bool _loading = false;
+  /// Set by deep links; consumed by [MilestonesScreen] inside [HomeScreen] tab bar.
+  int? deepLinkMilestoneFocusDays;
 
   List<MilestoneAchieved> get achieved => _achieved;
   bool get loading => _loading;
+
+  void setDeepLinkMilestoneFocus(int days) {
+    deepLinkMilestoneFocusDays = days;
+    notifyListeners();
+  }
+
+  void clearDeepLinkMilestoneFocus() {
+    if (deepLinkMilestoneFocusDays == null) return;
+    deepLinkMilestoneFocusDays = null;
+    notifyListeners();
+  }
 
   bool isAchieved(int days) => _achieved.any((m) => m.days == days);
 

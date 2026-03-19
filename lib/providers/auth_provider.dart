@@ -56,7 +56,7 @@ class AuthProvider extends ChangeNotifier {
   }
 
   Future<void> resetPassword(String email) async {
-    await _authService._client.auth.resetPasswordForEmail(email);
+    await _authService.resetPasswordForEmail(email);
     _analytics.track('password_reset_requested');
   }
 

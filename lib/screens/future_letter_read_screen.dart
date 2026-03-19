@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../app/theme.dart';
 import '../models/future_letter.dart';
+import '../l10n/strings.dart';
 
 class FutureLetterReadScreen extends StatelessWidget {
   final FutureLetter letter;
@@ -11,7 +12,7 @@ class FutureLetterReadScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(title: const Text('List od siebie')),
+      appBar: AppBar(title: Text(S.t(context, 'letterFromSelf'))),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(32),

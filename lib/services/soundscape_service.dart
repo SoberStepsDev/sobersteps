@@ -25,10 +25,14 @@ class SoundscapeService {
   Future<void> play(String key) async {
     _currentSoundscape = key;
     try {
-      await _player.play(AssetSource('audio/surf_$key.mp3'));
+      // Named craving tracks map directly; ambient tracks use same convention
+      final path = key == 'craving_wave'
+          ? 'audio/craving/craving_wave.mp3'
+          : 'audio/soundscapes/$key.mp3';
+      await _player.play(AssetSource(path));
       await _player.setReleaseMode(ReleaseMode.loop);
     } catch (_) {
-      // Asset may not exist yet
+      // Asset may not exist yet — silent fail
     }
   }
 

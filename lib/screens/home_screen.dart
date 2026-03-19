@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../app/theme.dart';
 import '../providers/sobriety_provider.dart';
+import '../providers/milestone_provider.dart';
 import '../providers/purchase_provider.dart';
 import '../providers/future_letter_provider.dart';
 import '../providers/journal_provider.dart';
@@ -29,22 +30,45 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   int _navIndex = 0;
   Timer? _timer;
-  final _screens = [
-    const _HomeTab(),
-    const CheckinScreen(),
-    MilestonesScreen(),
-    const CommunityScreen(),
-    const ProfileScreen(),
-  ];
+  late final MilestoneProvider _milestoneProvider;
+
+  List<Widget> _screens(int? milestoneFocus) => [
+        const _HomeTab(),
+        const CheckinScreen(),
+        MilestonesScreen(
+          key: ValueKey<int?>(milestoneFocus),
+          focusMilestoneDays: milestoneFocus,
+        ),
+        const CommunityScreen(),
+        const ProfileScreen(),
+      ];
 
   @override
   void initState() {
     super.initState();
+    _attachMilestoneListener();
     WidgetsBinding.instance.addObserver(this);
     _timer = Timer.periodic(const Duration(minutes: 1), (_) {
       context.read<SobrietyProvider>().refresh();
     });
     _initData();
+  }
+
+  void _attachMilestoneListener() {
+    _milestoneProvider = context.read<MilestoneProvider>();
+    _milestoneProvider.addListener(_onMilestoneDeepLink);
+    if (_milestoneProvider.deepLinkMilestoneFocusDays != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) setState(() => _navIndex = 2);
+      });
+    }
+  }
+
+  void _onMilestoneDeepLink() {
+    if (!mounted) return;
+    if (_milestoneProvider.deepLinkMilestoneFocusDays != null) {
+      setState(() => _navIndex = 2);
+    }
   }
 
   Future<void> _initData() async {
@@ -66,6 +90,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
   @override
   void dispose() {
+    _milestoneProvider.removeListener(_onMilestoneDeepLink);
     _timer?.cancel();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
@@ -73,13 +98,17 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
+    final milestoneFocus =
+        context.watch<MilestoneProvider>().deepLinkMilestoneFocusDays;
+    final screens = _screens(milestoneFocus);
     return Scaffold(
       backgroundColor: AppColors.background,
       body: AnimatedSwitcher(
         duration: const Duration(milliseconds: 200),
         switchInCurve: Curves.easeInOut,
         switchOutCurve: Curves.easeInOut,
-        child: KeyedSubtree(key: ValueKey<int>(_navIndex), child: _screens[_navIndex]),
+        child: KeyedSubtree(
+            key: ValueKey<int>(_navIndex), child: screens[_navIndex]),
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _navIndex,

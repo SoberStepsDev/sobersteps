@@ -28,10 +28,13 @@ class _SplashScreenState extends State<SplashScreen> {
       await sobriety.loadFromLocal();
 
       final prefs = await SharedPreferences.getInstance();
+      final disclaimerAccepted = prefs.getBool('disclaimer_accepted') ?? false;
       final onboarded = prefs.getBool('onboarding_complete') ?? false;
 
       if (!mounted) return;
-      if (!onboarded) {
+      if (!disclaimerAccepted) {
+        Navigator.of(context).pushReplacementNamed('/disclaimer');
+      } else if (!onboarded) {
         Navigator.of(context).pushReplacementNamed('/onboarding');
       } else if (auth.isLoggedIn) {
         Navigator.of(context).pushReplacementNamed('/home');

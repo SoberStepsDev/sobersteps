@@ -1,0 +1,17 @@
+name: notify_users cron
+on:
+  schedule:
+    - cron: '0 * * * *'
+  workflow_dispatch:
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: notify
+        run: |
+          H=$(date -u +%H)
+          B="Authorization: Bearer ${{ secrets.CRON_SECRET }}"
+          U="https://kznhbcwozpjflewlzxnu.supabase.co/functions/v1/notify_users"
+          curl -sf -H "$B" "${U}?type=checkin&hour=$H"
+          [ "$H" = "08" ] && curl -sf -H "$B" "${U}?type=letter"
+          [ "$H" = "20" ] && curl -sf -H "$B" "${U}?type=milestone"

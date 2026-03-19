@@ -1,0 +1,18 @@
+name: RLS Security Review
+on:
+  push:
+    branches: [main]
+    paths: ['supabase/migrations/**']
+jobs:
+  rls:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - name: Launch RLS agent
+        run: |
+          DIFF=$(git diff HEAD~1 HEAD -- supabase/migrations/ 2>/dev/null || true)
+          curl -s -X POST https://api.cursor.com/v0/agents -u "${{ secrets.CURSOR_API_KEY }}:" \
+            -H 'Content-Type: application/json' \
+            -d "{\"prompt\":{\"text\":\"Check this Supabase migration diff for RLS. Verify RLS enabled on new tables. Flag any policy missing own-only or public-SELECT pattern. Comment on PR if issue found.\n\nDiff:\n$DIFF\"},\"model\":\"claude-sonnet-4-6\",\"source\":{\"repository\":\"https://github.com/${{ github.repository }}\",\"ref\":\"main\"},\"target\":{\"autoCreatePr\":true}}"

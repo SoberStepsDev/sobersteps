@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../app/theme.dart';
 import '../providers/purchase_provider.dart';
 import '../providers/auth_provider.dart';
+import '../l10n/strings.dart';
 
 class AccountabilityScreen extends StatelessWidget {
   const AccountabilityScreen({super.key});
@@ -20,7 +21,7 @@ class AccountabilityScreen extends StatelessWidget {
   Widget _buildPremiumGate(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(title: const Text('Accountability Partner')),
+      appBar: AppBar(title: Text(S.t(context, 'accountabilityPartner'))),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(32),
@@ -62,7 +63,7 @@ class AccountabilityScreen extends StatelessWidget {
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(backgroundColor: AppColors.gold),
                   onPressed: () => Navigator.pushNamed(context, '/paywall'),
-                  child: const Text('Odblokuj z Recovery+'),
+                  child: Text(S.t(context, 'unlockWithRecovery')),
                 ),
               ),
             ],
@@ -75,16 +76,16 @@ class AccountabilityScreen extends StatelessWidget {
   Widget _buildLoginGate(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(title: const Text('Accountability Partner')),
+      appBar: AppBar(title: Text(S.t(context, 'accountabilityPartner'))),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Icon(Icons.login, size: 64, color: AppColors.primary),
             const SizedBox(height: 16),
-            const Text('Zaloguj się, aby używać tej funkcji', style: TextStyle(color: AppColors.textSecondary)),
+            Text(S.t(context, 'loginToUse'), style: const TextStyle(color: AppColors.textSecondary)),
             const SizedBox(height: 16),
-            ElevatedButton(onPressed: () => Navigator.pushNamed(context, '/auth'), child: const Text('Zaloguj się')),
+            ElevatedButton(onPressed: () => Navigator.pushNamed(context, '/auth'), child: Text(S.t(context, 'login'))),
           ],
         ),
       ),
@@ -94,7 +95,7 @@ class AccountabilityScreen extends StatelessWidget {
   Widget _buildMain(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(title: const Text('Accountability Partner')),
+      appBar: AppBar(title: Text(S.t(context, 'accountabilityPartner'))),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(32),
@@ -103,19 +104,18 @@ class AccountabilityScreen extends StatelessWidget {
             children: [
               const Icon(Icons.people_alt_rounded, size: 72, color: AppColors.primary),
               const SizedBox(height: 24),
-              const Text('Nie masz jeszcze partnera', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
+              Text(S.t(context, 'noPartner'), style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
               const SizedBox(height: 12),
-              const Text('Zaproś kogoś kodem lub znajdź partnera w społeczności.',
-                  textAlign: TextAlign.center, style: TextStyle(color: AppColors.textSecondary, fontSize: 15)),
+              Text(S.t(context, 'inviteCodeOrFind'), textAlign: TextAlign.center, style: const TextStyle(color: AppColors.textSecondary, fontSize: 15)),
               const SizedBox(height: 32),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
                   icon: const Icon(Icons.person_add),
-                  label: const Text('Zaproś partnera'),
+                  label: Text(S.t(context, 'invitePartner')),
                   onPressed: () {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Funkcja parowania będzie dostępna wkrótce!')),
+                      SnackBar(content: Text(S.t(context, 'pairingComingSoon'))),
                     );
                   },
                 ),
@@ -125,7 +125,7 @@ class AccountabilityScreen extends StatelessWidget {
                 width: double.infinity,
                 child: OutlinedButton.icon(
                   icon: const Icon(Icons.search),
-                  label: const Text('Znajdź w społeczności'),
+                  label: Text(S.t(context, 'findInCommunity')),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppColors.textPrimary,
                     side: const BorderSide(color: AppColors.surfaceLight),
@@ -134,7 +134,7 @@ class AccountabilityScreen extends StatelessWidget {
                   ),
                   onPressed: () {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Matching będzie dostępny wkrótce!')),
+                      SnackBar(content: Text(S.t(context, 'matchingSoon'))),
                     );
                   },
                 ),

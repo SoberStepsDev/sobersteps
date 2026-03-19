@@ -41,7 +41,10 @@ class _MilestonesScreenState extends State<MilestonesScreen> {
     final target = widget.focusMilestoneDays;
     if (target == null || _didScrollFocus) return;
     final idx = MilestoneData.all.indexWhere((d) => d.days == target);
-    if (idx < 0) return;
+    if (idx < 0) {
+      context.read<MilestoneProvider>().clearDeepLinkMilestoneFocus();
+      return;
+    }
     _didScrollFocus = true;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!_scrollController.hasClients) return;
@@ -51,6 +54,8 @@ class _MilestonesScreenState extends State<MilestonesScreen> {
         duration: const Duration(milliseconds: 400),
         curve: Curves.easeOutCubic,
       );
+      // Allow a later deep link to the same day to scroll again.
+      context.read<MilestoneProvider>().clearDeepLinkMilestoneFocus();
     });
   }
 

@@ -190,18 +190,18 @@ class _AuthScreenState extends State<AuthScreen> {
           TextButton(onPressed: () => Navigator.pop(ctx), child: Text(S.t(ctx, 'cancel'))),
           ElevatedButton(
             onPressed: () async {
-              final messenger = ScaffoldMessenger.of(context);
+              final messenger = ScaffoldMessenger.of(ctx);
               final dialogNav = Navigator.of(ctx);
-              final auth = context.read<AuthProvider>();
-              final sentLabel = S.t(context, 'resetPasswordSent');
-              final errorLabel = S.t(context, 'resetPasswordError');
+              final auth = ctx.read<AuthProvider>();
+              final sentLabel = S.t(ctx, 'resetPasswordSent');
+              final errorLabel = S.t(ctx, 'resetPasswordError');
               try {
                 await auth.resetPassword(resetEmailController.text.trim());
-                if (!context.mounted) return;
+                if (!ctx.mounted) return;
                 dialogNav.pop();
                 messenger.showSnackBar(SnackBar(content: Text(sentLabel)));
               } catch (e) {
-                if (!context.mounted) return;
+                if (!ctx.mounted) return;
                 messenger.showSnackBar(SnackBar(content: Text(errorLabel)));
               }
             },

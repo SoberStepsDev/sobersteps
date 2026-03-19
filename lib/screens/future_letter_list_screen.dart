@@ -5,6 +5,7 @@ import '../app/theme.dart';
 import '../providers/future_letter_provider.dart';
 import '../models/future_letter.dart';
 import 'future_letter_read_screen.dart';
+import '../l10n/strings.dart';
 
 class FutureLetterListScreen extends StatefulWidget {
   const FutureLetterListScreen({super.key});
@@ -25,7 +26,7 @@ class _FutureLetterListScreenState extends State<FutureLetterListScreen> {
     final provider = context.watch<FutureLetterProvider>();
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(title: const Text('Twoje listy')),
+      appBar: AppBar(title: Text(S.t(context, 'yourLetters'))),
       floatingActionButton: FloatingActionButton(
         backgroundColor: AppColors.primary,
         onPressed: () => Navigator.of(context).pushNamed('/future-letter-write'),
@@ -34,7 +35,7 @@ class _FutureLetterListScreenState extends State<FutureLetterListScreen> {
       body: provider.loading
           ? const Center(child: CircularProgressIndicator())
           : provider.letters.isEmpty
-              ? const Center(child: Text('Brak listów', style: TextStyle(color: AppColors.textSecondary)))
+              ? Center(child: Text(S.t(context, 'noLetters'), style: const TextStyle(color: AppColors.textSecondary)))
               : ListView.builder(
                   padding: const EdgeInsets.all(16),
                   itemCount: provider.letters.length,
@@ -78,13 +79,13 @@ class _LetterCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    letter.isDelivered ? 'Dostarczony!' : 'W drodze...',
+                    letter.isDelivered ? S.t(context, 'letterDelivered') : S.t(context, 'letterInTransit'),
                     style: TextStyle(
                       fontWeight: FontWeight.w600,
                       color: letter.isDelivered ? AppColors.gold : AppColors.textPrimary,
                     ),
                   ),
-                  Text('Dostawa: ${dateFormat.format(letter.deliverAt)}', style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+                  Text('${S.t(context, 'delivery')} ${dateFormat.format(letter.deliverAt)}', style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
                 ],
               ),
             ),

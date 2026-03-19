@@ -143,7 +143,22 @@ class _SoberStepsAppState extends State<SoberStepsApp> {
     }
     if (segs.length == 2 && segs[0] == 'milestone') {
       final days = int.tryParse(segs[1]);
-      if (days != null) nav.pushNamed('/milestones', arguments: days);
+      if (days != null) {
+        final ctx = _navigatorKey.currentContext;
+        if (ctx != null && ctx.mounted) {
+          ctx.read<MilestoneProvider>().setDeepLinkMilestoneFocus(days);
+        }
+        // Reach Home so bottom-nav Milestones tab receives [deepLinkMilestoneFocusDays].
+        nav.popUntil((route) {
+          final n = route.settings.name;
+          return n == '/home' || route.isFirst;
+        });
+        final ctx2 = _navigatorKey.currentContext;
+        if (ctx2 != null && ctx2.mounted) {
+          final topName = ModalRoute.of(ctx2)?.settings.name;
+          if (topName != '/home') nav.pushNamed('/home');
+        }
+      }
       return;
     }
     if (segs.length == 2 && segs[0] == 'letter') {

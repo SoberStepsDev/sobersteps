@@ -47,3 +47,13 @@ build/
 .dart_tool/
 .flutter-plugins
 .flutter-plugins-dependencies
+
+# Secrets
+.env
+
+# Landing page — osobne repo (sobersteps-landing), zarządzaj osobno
+landing/
+
+# Releases (binarne APK — nie commituj do głównego repo)
+releases/
+.env

@@ -7,7 +7,9 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../app/theme.dart';
 import '../providers/purchase_provider.dart';
 import '../services/soundscape_service.dart';
+import '../services/tts_service.dart';
 import '../services/analytics_service.dart';
+import '../l10n/strings.dart';
 
 class CravingSurfScreen extends StatefulWidget {
   const CravingSurfScreen({super.key});
@@ -35,6 +37,9 @@ class _CravingSurfScreenState extends State<CravingSurfScreen> {
   void _start() {
     setState(() => _running = true);
     _analytics.track('craving_surf_started', {'has_soundscape': _selectedSoundscape != null});
+    TtsService().playAsset('audio/craving/craving_intro.mp3');
+    // Extend audio: play craving_wave in loop during session when no soundscape selected
+    if (_selectedSoundscape == null) _soundscape.play('craving_wave');
     _insertSession();
     _fetchRidingCount();
     _timer = Timer.periodic(const Duration(seconds: 1), (t) {
@@ -80,6 +85,7 @@ class _CravingSurfScreenState extends State<CravingSurfScreen> {
 
   void _showComplete() {
     _soundscape.stop();
+    TtsService().playAsset('audio/craving/craving_end.mp3');
     _analytics.track('craving_surf_completed', {'duration_sec': 600, 'soundscape_used': _selectedSoundscape});
     showDialog(
       context: context,
@@ -90,10 +96,10 @@ class _CravingSurfScreenState extends State<CravingSurfScreen> {
           children: [
             const Icon(Icons.celebration, size: 64, color: AppColors.gold),
             const SizedBox(height: 16),
-            const Text('You rode the wave.', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
+            Text(S.t(context, 'youRodeTheWave'), style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
           ],
         ),
-        actions: [ElevatedButton(onPressed: () => Navigator.pop(context), child: const Text('OK'))],
+        actions: [ElevatedButton(onPressed: () => Navigator.pop(context), child: Text(S.t(context, 'ok')))],
       ),
     );
   }
@@ -107,14 +113,14 @@ class _CravingSurfScreenState extends State<CravingSurfScreen> {
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(title: const Text('Craving Surf')),
+      appBar: AppBar(title: Text(S.t(context, 'cravingSurf'))),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: Column(
             children: [
               if (_ridingNow > 0)
-                Text('$_ridingNow people riding the wave right now',
+                Text('$_ridingNow ${S.t(context, 'peopleRiding')}',
                     style: const TextStyle(color: AppColors.textSecondary, fontSize: 14)),
               const SizedBox(height: 16),
               _buildSoundscapePicker(isPremium),
@@ -145,7 +151,7 @@ class _CravingSurfScreenState extends State<CravingSurfScreen> {
                       _start();
                     }
                   },
-                  child: Text(_running ? 'Stop' : 'Start', style: const TextStyle(fontSize: 18)),
+                  child: Text(_running ? S.t(context, 'stop') : S.t(context, 'start'), style: const TextStyle(fontSize: 18)),
                 ),
               ),
             ],

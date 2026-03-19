@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1080, height=1920">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    width: 1080px; height: 1920px;
+    position: relative; overflow: hidden;
+    font-family: 'Libre Baskerville', serif;
+    background: #000;
+    transform-origin: top left;
+    transform: scale(0.5);
+  }
+  .bg {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    position: absolute; top: 0; left: 0;
+    filter: brightness(0.32) contrast(1.15) saturate(0.7);
+  }
+  .overlay {
+    position: absolute; top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: linear-gradient(
+      180deg,
+      rgba(10,10,15,0.6) 0%,
+      transparent 40%,
+      transparent 60%,
+      rgba(10,10,15,0.9) 100%
+    );
+  }
+  .content {
+    position: absolute;
+    bottom: 260px; left: 72px; right: 72px;
+    z-index: 2;
+  }
+  .line {
+    font-size: 44px;
+    font-weight: 400;
+    color: #E2E8F0;
+    line-height: 1.4;
+    margin-bottom: 12px;
+  }
+  .line.italic {
+    font-style: italic;
+    color: #FBBF24;
+    margin-top: 24px;
+    margin-bottom: 32px;
+  }
+  .small {
+    font-size: 24px;
+    color: #94A3B8;
+    line-height: 1.6;
+    font-style: normal;
+  }
+  .label {
+    position: absolute;
+    top: 80px; right: 60px;
+    font-size: 18px;
+    color: rgba(255,255,255,0.3);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    z-index: 2;
+  }
+</style>
+</head>
+<body>
+<img class="bg" src="bg.png" />
+<div class="overlay"></div>
+<div class="label">real. not a render.</div>
+<div class="content">
+  <div class="line">tired hands.</div>
+  <div class="line">cold coffee.</div>
+  <div class="line">quiet room.</div>
+  <div class="line italic">this is how it actually looks.</div>
+  <div class="small">
+    no studio. no team. just me,<br>
+    building something I needed<br>
+    and didn't find.
+  </div>
+</div>
+</body>
+</html>

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../app/theme.dart';
+import '../l10n/strings.dart';
 import '../providers/journal_provider.dart';
 import '../providers/purchase_provider.dart';
 
@@ -32,21 +33,21 @@ class TriggerTrackerScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(title: const Text('Analiza wzorców')),
+      appBar: AppBar(title: Text(S.t(context, 'triggerAnalysis'))),
       body: entries.isEmpty
-          ? const Center(child: Text('Wykonaj check-in, aby zobaczyć wzorce', style: TextStyle(color: AppColors.textSecondary)))
+          ? Center(child: Text(S.t(context, 'doCheckinToSee'), style: const TextStyle(color: AppColors.textSecondary)))
           : SingleChildScrollView(
               padding: const EdgeInsets.all(24),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Twoje triggery', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
+                  Text(S.t(context, 'yourTriggers'), style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
                   const SizedBox(height: 16),
                   if (sortedTriggers.isEmpty)
-                    const Text('Brak danych o triggerach', style: TextStyle(color: AppColors.textSecondary))
+                    Text(S.t(context, 'noTriggerData'), style: const TextStyle(color: AppColors.textSecondary))
                   else
                     ...sortedTriggers.map((e) => _TriggerBar(
-                          label: e.key,
+                          label: S.t(context, 'trigger_${e.key}'),
                           count: e.value,
                           maxCount: sortedTriggers.first.value,
                         )),
@@ -54,7 +55,7 @@ class TriggerTrackerScreen extends StatelessWidget {
                   const SizedBox(height: 32),
                   Row(
                     children: [
-                      const Expanded(child: Text('Craving wg dnia tygodnia', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: AppColors.textPrimary))),
+                      Expanded(child: Text(S.t(context, 'cravingByWeekday'), style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: AppColors.textPrimary))),
                       if (!isPremium) const Icon(Icons.lock, size: 16, color: AppColors.textSecondary),
                     ],
                   ),
@@ -63,14 +64,14 @@ class TriggerTrackerScreen extends StatelessWidget {
                     SizedBox(height: 200, child: _WeekChart(dataByDay: cravingByDay, maxVal: 10, color: AppColors.error))
                   else
                     _PremiumLock(
-                      label: 'Odblokuj wykresy 30-dniowe z Recovery+',
+                      label: S.t(context, 'unlock30DayCharts'),
                       onTap: () => Navigator.pushNamed(context, '/paywall'),
                     ),
 
                   const SizedBox(height: 32),
                   Row(
                     children: [
-                      const Expanded(child: Text('Nastrój wg dnia tygodnia', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: AppColors.textPrimary))),
+                      Expanded(child: Text(S.t(context, 'moodByWeekday'), style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: AppColors.textPrimary))),
                       if (!isPremium) const Icon(Icons.lock, size: 16, color: AppColors.textSecondary),
                     ],
                   ),
@@ -79,7 +80,7 @@ class TriggerTrackerScreen extends StatelessWidget {
                     SizedBox(height: 200, child: _WeekChart(dataByDay: moodByDay, maxVal: 5, color: AppColors.primary))
                   else
                     _PremiumLock(
-                      label: 'Odblokuj analizę nastroju z Recovery+',
+                      label: S.t(context, 'unlockMoodAnalysis'),
                       onTap: () => Navigator.pushNamed(context, '/paywall'),
                     ),
                   const SizedBox(height: 32),

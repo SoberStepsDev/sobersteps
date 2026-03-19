@@ -1,0 +1,15 @@
+name: Test Coverage
+on:
+  schedule:
+    - cron: '0 8 * * *'
+  workflow_dispatch:
+jobs:
+  coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Launch test coverage agent
+        run: |
+          curl -s -X POST https://api.cursor.com/v0/agents -u "${{ secrets.CURSOR_API_KEY }}:" \
+            -H 'Content-Type: application/json' \
+            -d '{"prompt":{"text":"Find Dart files in lib/services/ and lib/repositories/ with no corresponding test in test/. Generate minimal test shell for each. Open PR."},"model":"claude-sonnet-4-6","source":{"repository":"https://github.com/${{ github.repository }}","ref":"main"},"target":{"autoCreatePr":true}}'

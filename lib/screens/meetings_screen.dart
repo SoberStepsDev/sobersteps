@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../app/theme.dart';
+import '../l10n/strings.dart';
 
 class MeetingsScreen extends StatelessWidget {
   const MeetingsScreen({super.key});
@@ -9,7 +10,7 @@ class MeetingsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(title: const Text('Spotkania i wsparcie')),
+      appBar: AppBar(title: Text(S.t(context, 'meetingsAndSupport'))),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(
@@ -19,30 +20,30 @@ class MeetingsScreen extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(color: AppColors.primary.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(14)),
-              child: const Text('Nie jesteś sam/sama. Tysiące spotkań odbywa się każdego dnia — stacjonarnie i online.',
+              child: Text(S.t(context, 'meetingsIntro'),
                   style: TextStyle(color: AppColors.textPrimary, fontSize: 15)),
             ),
             const SizedBox(height: 24),
-            const Text('Znajdź spotkanie', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
+            Text(S.t(context, 'findMeeting'), style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
             const SizedBox(height: 16),
-            _MeetingCard(title: 'Anonimowi Alkoholicy (AA)', subtitle: 'Największa społeczność 12 kroków na świecie', url: 'https://www.aa.org/find-aa', icon: Icons.groups),
-            _MeetingCard(title: 'Anonimowi Narkomani (NA)', subtitle: 'Wsparcie dla osób uzależnionych od narkotyków', url: 'https://www.na.org/meetingsearch/', icon: Icons.groups),
-            _MeetingCard(title: 'SMART Recovery', subtitle: 'Podejście oparte na nauce i CBT. Spotkania online i stacjonarnie', url: 'https://www.smartrecovery.org/community/calendar.php', icon: Icons.psychology),
-            _MeetingCard(title: 'Refuge Recovery / Recovery Dharma', subtitle: 'Buddyjskie podejście do zdrowienia. Medytacja i uważność', url: 'https://recoverydharma.org/meetings', icon: Icons.self_improvement),
-            _MeetingCard(title: 'In The Rooms (Online)', subtitle: '130+ spotkań online tygodniowo. Darmowe. Bez wychodzenia z domu', url: 'https://www.intherooms.com', icon: Icons.computer),
+            _MeetingCard(titleKey: 'aa', subtitleKey: 'aaDesc', url: 'https://www.aa.org/find-aa', icon: Icons.groups),
+            _MeetingCard(titleKey: 'na', subtitleKey: 'naDesc', url: 'https://www.na.org/meetingsearch/', icon: Icons.groups),
+            _MeetingCard(titleKey: 'smart', subtitleKey: 'smartDesc', url: 'https://www.smartrecovery.org/community/calendar.php', icon: Icons.psychology),
+            _MeetingCard(titleKey: 'refuge', subtitleKey: 'refugeDesc', url: 'https://recoverydharma.org/meetings', icon: Icons.self_improvement),
+            _MeetingCard(titleKey: 'itr', subtitleKey: 'itrDesc', url: 'https://www.intherooms.com', icon: Icons.computer),
             const SizedBox(height: 32),
-            const Text('Linie kryzysowe', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
+            Text(S.t(context, 'crisisLines'), style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
             const SizedBox(height: 16),
-            _PhoneCard(title: 'SAMHSA National Helpline', phone: '1-800-662-4357', subtitle: 'USA — 24/7, darmowa, poufna'),
-            _PhoneCard(title: 'Telefon Zaufania', phone: '116 123', subtitle: 'Polska — wsparcie emocjonalne'),
-            _PhoneCard(title: 'Pogotowie ratunkowe', phone: '112', subtitle: 'Europa — nagłe wypadki'),
+            _PhoneCard(titleKey: 'samhsa', phone: '1-800-662-4357', subtitleKey: 'samhsaDesc'),
+            _PhoneCard(titleKey: 'helpline', phone: '116 123', subtitleKey: 'helplineDesc'),
+            _PhoneCard(titleKey: 'emergency', phone: '112', subtitleKey: 'emergencyDesc'),
             const SizedBox(height: 32),
-            const Text('Wskazówki', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
+            Text(S.t(context, 'tips'), style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
             const SizedBox(height: 12),
-            _tipTile('Nie musisz mówić na pierwszym spotkaniu. Wystarczy przyjść i słuchać.'),
-            _tipTile('Spróbuj minimum 3 różnych grup zanim zdecydujesz, która pasuje.'),
-            _tipTile('Spotkania online są tak samo wartościowe jak stacjonarne.'),
-            _tipTile('Sponsor to ktoś, kto przeszedł tę drogę — poproś o pomoc.'),
+            _tipTile(context, 'tip1'),
+            _tipTile(context, 'tip2'),
+            _tipTile(context, 'tip3'),
+            _tipTile(context, 'tip4'),
             const SizedBox(height: 32),
           ],
         ),
@@ -50,14 +51,14 @@ class MeetingsScreen extends StatelessWidget {
     );
   }
 
-  static Widget _tipTile(String text) {
+  static Widget _tipTile(BuildContext context, String key) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text('• ', style: TextStyle(color: AppColors.primary, fontSize: 16)),
-          Expanded(child: Text(text, style: const TextStyle(color: AppColors.textSecondary, fontSize: 14, height: 1.5))),
+          Expanded(child: Text(S.t(context, key), style: const TextStyle(color: AppColors.textSecondary, fontSize: 14, height: 1.5))),
         ],
       ),
     );
@@ -65,12 +66,12 @@ class MeetingsScreen extends StatelessWidget {
 }
 
 class _MeetingCard extends StatelessWidget {
-  final String title;
-  final String subtitle;
+  final String titleKey;
+  final String subtitleKey;
   final String url;
   final IconData icon;
 
-  const _MeetingCard({required this.title, required this.subtitle, required this.url, required this.icon});
+  const _MeetingCard({required this.titleKey, required this.subtitleKey, required this.url, required this.icon});
 
   @override
   Widget build(BuildContext context) {
@@ -93,9 +94,9 @@ class _MeetingCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: const TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w600, fontSize: 15)),
+                  Text(S.t(context, titleKey), style: const TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w600, fontSize: 15)),
                   const SizedBox(height: 2),
-                  Text(subtitle, style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+                  Text(S.t(context, subtitleKey), style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
                 ],
               ),
             ),
@@ -108,11 +109,11 @@ class _MeetingCard extends StatelessWidget {
 }
 
 class _PhoneCard extends StatelessWidget {
-  final String title;
+  final String titleKey;
   final String phone;
-  final String subtitle;
+  final String subtitleKey;
 
-  const _PhoneCard({required this.title, required this.phone, required this.subtitle});
+  const _PhoneCard({required this.titleKey, required this.phone, required this.subtitleKey});
 
   @override
   Widget build(BuildContext context) {
@@ -134,8 +135,8 @@ class _PhoneCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: const TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w600, fontSize: 15)),
-                  Text('$phone — $subtitle', style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+                  Text(S.t(context, titleKey), style: const TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w600, fontSize: 15)),
+                  Text('$phone — ${S.t(context, subtitleKey)}', style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
                 ],
               ),
             ),

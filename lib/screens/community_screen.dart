@@ -5,6 +5,7 @@ import '../app/theme.dart';
 import '../constants/app_constants.dart';
 import '../providers/community_provider.dart';
 import '../models/community_post.dart';
+import '../l10n/strings.dart';
 
 class CommunityScreen extends StatefulWidget {
   const CommunityScreen({super.key});
@@ -16,7 +17,7 @@ class CommunityScreen extends StatefulWidget {
 class _CommunityScreenState extends State<CommunityScreen> with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final _categories = ['wins', 'hard', 'advice', 'milestones'];
-  final _tabLabels = ['Sukcesy', 'Trudne chwile', 'Rady', 'Milestones'];
+  static const _tabKeys = ['successes', 'hardMoments', 'advice', 'milestones'];
   final _tabEmojis = ['🎉', '💪', '💡', '🏆'];
 
   @override
@@ -42,13 +43,13 @@ class _CommunityScreenState extends State<CommunityScreen> with SingleTickerProv
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Community'),
+        title: Text(S.t(context, 'community')),
         bottom: TabBar(
           controller: _tabController,
           labelColor: AppColors.primary,
           unselectedLabelColor: AppColors.textSecondary,
           indicatorColor: AppColors.primary,
-          tabs: List.generate(4, (i) => Tab(text: '${_tabEmojis[i]} ${_tabLabels[i]}')),
+          tabs: List.generate(4, (i) => Tab(text: '${_tabEmojis[i]} ${S.t(context, _tabKeys[i])}')),
           isScrollable: true,
           tabAlignment: TabAlignment.start,
         ),
@@ -79,13 +80,13 @@ class _CommunityScreenState extends State<CommunityScreen> with SingleTickerProv
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Nowy post', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
+            Text(S.t(context, 'newPost'), style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
             const SizedBox(height: 16),
             Wrap(
               spacing: 8,
               children: _categories.asMap().entries.map((e) {
                 return ChoiceChip(
-                  label: Text('${_tabEmojis[e.key]} ${_tabLabels[e.key]}'),
+                  label: Text('${_tabEmojis[e.key]} ${S.t(context, _tabKeys[e.key])}'),
                   selected: selectedCat == e.value,
                   selectedColor: AppColors.primary.withValues(alpha: 0.3),
                   backgroundColor: AppColors.surfaceLight,
@@ -102,7 +103,7 @@ class _CommunityScreenState extends State<CommunityScreen> with SingleTickerProv
               controller: controller,
               maxLength: AppConstants.maxPostLength,
               maxLines: 4,
-              decoration: const InputDecoration(hintText: 'Podziel się...'),
+              decoration: InputDecoration(hintText: S.t(context, 'share')),
             ),
             const SizedBox(height: 16),
             SizedBox(
@@ -118,7 +119,7 @@ class _CommunityScreenState extends State<CommunityScreen> with SingleTickerProv
                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(result)));
                   }
                 },
-                child: const Text('Opublikuj'),
+                child: Text(S.t(context, 'publish')),
               ),
             ),
             const SizedBox(height: 16),
@@ -139,7 +140,7 @@ class _PostsList extends StatelessWidget {
     final posts = provider.postsForCategory(category);
 
     if (provider.loading) return const Center(child: CircularProgressIndicator());
-    if (posts.isEmpty) return const Center(child: Text('Brak postów', style: TextStyle(color: AppColors.textSecondary)));
+    if (posts.isEmpty) return Center(child: Text(S.t(context, 'noPosts'), style: const TextStyle(color: AppColors.textSecondary)));
 
     return RefreshIndicator(
       onRefresh: () => provider.loadPosts(category),
@@ -204,11 +205,11 @@ class _PostCard extends StatelessWidget {
           children: [
             ListTile(
               leading: const Icon(Icons.flag, color: AppColors.error),
-              title: const Text('Zgłoś', style: TextStyle(color: AppColors.error)),
+              title: Text(S.t(context, 'report'), style: const TextStyle(color: AppColors.error)),
               onTap: () {
                 context.read<CommunityProvider>().flagPost(post.id);
                 Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Zgłoszono')));
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(S.t(context, 'reported'))));
               },
             ),
           ],
