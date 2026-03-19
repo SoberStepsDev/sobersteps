@@ -7,6 +7,8 @@ import '../constants/app_constants.dart';
 import '../providers/three_am_provider.dart';
 import '../providers/auth_provider.dart';
 import '../services/soundscape_service.dart';
+import '../services/tts_service.dart';
+import '../l10n/strings.dart';
 
 class ThreeAmScreen extends StatefulWidget {
   const ThreeAmScreen({super.key});
@@ -28,6 +30,7 @@ class _ThreeAmScreenState extends State<ThreeAmScreen> {
   @override
   void dispose() {
     _soundscape.stop();
+    TtsService().stop();
     super.dispose();
   }
 
@@ -38,14 +41,14 @@ class _ThreeAmScreenState extends State<ThreeAmScreen> {
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(title: const Text('3 AM Wall of Strength')),
+      appBar: AppBar(title: Text(S.t(context, 'threeAmWall'))),
       body: Column(
         children: [
           _buildSamhsaBanner(),
           Padding(
             padding: const EdgeInsets.all(16),
             child: Text(
-              '${provider.resolvedCount} people got through their 3 AM',
+              '${provider.resolvedCount} ${S.t(context, 'peopleGotThrough3am')}',
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
             ),
           ),
@@ -68,7 +71,7 @@ class _ThreeAmScreenState extends State<ThreeAmScreen> {
                               Text(post.outcomeText!, style: const TextStyle(color: AppColors.textPrimary)),
                             const SizedBox(height: 4),
                             Text(
-                              'Got through it',
+                              S.t(context, 'iGotThrough'),
                               style: TextStyle(color: AppColors.success, fontSize: 12),
                             ),
                           ],
@@ -90,8 +93,8 @@ class _ThreeAmScreenState extends State<ThreeAmScreen> {
         width: double.infinity,
         padding: const EdgeInsets.all(12),
         color: AppColors.crisisRed,
-        child: const Text(
-          'Jeśli jesteś w kryzysie: SAMHSA 1-800-662-4357',
+        child: Text(
+          S.t(context, 'samhsaCrisis'),
           textAlign: TextAlign.center,
           style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w600),
         ),
@@ -112,9 +115,10 @@ class _ThreeAmScreenState extends State<ThreeAmScreen> {
                 style: ElevatedButton.styleFrom(backgroundColor: AppColors.crisisRed, foregroundColor: AppColors.textPrimary),
                 onPressed: () {
                   HapticFeedback.lightImpact();
+                  TtsService().playAsset('audio/three_am/breath_guide.mp3');
                   _submitStruggling(provider);
                 },
-                child: const Text("I'm struggling"),
+                child: Text(S.t(context, 'iStruggling')),
               ),
             ),
             const SizedBox(width: 12),
@@ -125,7 +129,7 @@ class _ThreeAmScreenState extends State<ThreeAmScreen> {
                   HapticFeedback.lightImpact();
                   _resolveDialog(provider);
                 },
-                child: const Text('I got through'),
+                child: Text(S.t(context, 'iGotThrough')),
               ),
             ),
           ],
@@ -141,7 +145,7 @@ class _ThreeAmScreenState extends State<ThreeAmScreen> {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(result)));
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Trzymaj się. Jesteśmy tu z Tobą.')),
+        SnackBar(content: Text(S.t(context, 'holdOn'))),
       );
     }
   }
@@ -152,26 +156,26 @@ class _ThreeAmScreenState extends State<ThreeAmScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: AppColors.surface,
-        title: const Text('Dałeś radę!'),
+        title: Text(S.t(context, 'youMadeIt')),
         content: TextField(
           controller: controller,
           maxLength: AppConstants.maxOutcomeLength,
           maxLines: 3,
-          decoration: const InputDecoration(hintText: 'Jak się teraz czujesz? (opcjonalnie)'),
+          decoration: InputDecoration(hintText: S.t(context, 'howDoYouFeelNow')),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Anuluj')),
+          TextButton(onPressed: () => Navigator.pop(ctx), child: Text(S.t(context, 'cancel'))),
           ElevatedButton(
             onPressed: () => Navigator.pop(ctx, controller.text),
-            child: const Text('Zapisz'),
+            child: Text(S.t(context, 'save')),
           ),
         ],
       ),
     );
     controller.dispose();
     if (result == null) return;
-    // For resolving, we'd need the user's unresolved post ID — simplified here
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Gratulacje! Dałeś radę.')));
-    provider.loadPosts();
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(S.t(context, 'congrats'))));
+    await provider.loadPosts();
   }
 }

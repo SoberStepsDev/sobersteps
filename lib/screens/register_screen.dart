@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../app/theme.dart';
 import '../constants/app_constants.dart';
+import '../l10n/strings.dart';
 import '../providers/auth_provider.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -35,7 +35,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        leading: IconButton(icon: const Icon(Icons.arrow_back), onPressed: () => Navigator.pop(context)),
+        leading: Tooltip(
+          message: S.t(context, 'back'),
+          child: Semantics(
+            label: S.t(context, 'back'),
+            button: true,
+            child: IconButton(icon: const Icon(Icons.arrow_back), onPressed: () => Navigator.pop(context)),
+          ),
+        ),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -60,10 +67,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
               Icon(Icons.local_fire_department_rounded, size: 56, color: AppColors.gold),
         ).animate().fadeIn(duration: 400.ms).scale(begin: const Offset(0.5, 0.5)),
         const SizedBox(height: 16),
-        const Text('Zarejestruj się',
+        Text(S.t(context, 'register'),
             style: TextStyle(fontSize: 28, fontWeight: FontWeight.w800, color: AppColors.textPrimary)),
         const SizedBox(height: 8),
-        const Text('Dołącz do społeczności osób w drodze do zdrowienia',
+        Text(S.t(context, 'joinCommunity'),
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 15, color: AppColors.textSecondary)),
         const SizedBox(height: 32),
@@ -73,7 +80,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           controller: _emailController,
           keyboardType: TextInputType.emailAddress,
           decoration: InputDecoration(
-            hintText: 'Twój adres email',
+            hintText: S.t(context, 'registerEmailHint'),
             prefixIcon: const Icon(Icons.email_outlined, color: AppColors.textSecondary),
             errorText: _error,
           ),
@@ -85,11 +92,24 @@ class _RegisterScreenState extends State<RegisterScreen> {
           controller: _passwordController,
           obscureText: _obscurePassword,
           decoration: InputDecoration(
-            hintText: 'Hasło (min. 6 znaków)',
+            hintText: S.t(context, 'registerPasswordHint'),
             prefixIcon: const Icon(Icons.lock_outlined, color: AppColors.textSecondary),
-            suffixIcon: IconButton(
-              icon: Icon(_obscurePassword ? Icons.visibility_off : Icons.visibility),
-              onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+            suffixIcon: Tooltip(
+              message: S.t(
+                context,
+                _obscurePassword ? 'passwordVisibilityShow' : 'passwordVisibilityHide',
+              ),
+              child: Semantics(
+                label: S.t(
+                  context,
+                  _obscurePassword ? 'passwordVisibilityShow' : 'passwordVisibilityHide',
+                ),
+                button: true,
+                child: IconButton(
+                  icon: Icon(_obscurePassword ? Icons.visibility_off : Icons.visibility),
+                  onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                ),
+              ),
             ),
           ),
         ),
@@ -99,9 +119,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
         TextField(
           controller: _confirmPasswordController,
           obscureText: _obscurePassword,
-          decoration: const InputDecoration(
-            hintText: 'Powtórz hasło',
-            prefixIcon: Icon(Icons.lock_outlined, color: AppColors.textSecondary),
+          decoration: InputDecoration(
+            hintText: S.t(context, 'registerConfirmHint'),
+            prefixIcon: const Icon(Icons.lock_outlined, color: AppColors.textSecondary),
           ),
         ),
         const SizedBox(height: 20),
@@ -124,16 +144,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
             Expanded(
               child: Wrap(
                 children: [
-                  const Text('Akceptuję ', style: TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+                  Text('${S.t(context, 'accept')} ', style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
                   GestureDetector(
                     onTap: () => Navigator.pushNamed(context, '/terms'),
-                    child: const Text('Regulamin',
+                    child: Text(S.t(context, 'termsAnd'),
                         style: TextStyle(color: AppColors.primary, fontSize: 13, decoration: TextDecoration.underline)),
                   ),
-                  const Text(' oraz ', style: TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+                  Text(' ${S.t(context, 'and')} ', style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
                   GestureDetector(
                     onTap: () => Navigator.pushNamed(context, '/privacy'),
-                    child: const Text('Politykę Prywatności',
+                    child: Text(S.t(context, 'privacyPolicy'),
                         style: TextStyle(color: AppColors.primary, fontSize: 13, decoration: TextDecoration.underline)),
                   ),
                 ],
@@ -154,7 +174,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             child: _loading
                 ? const SizedBox(
                     height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.background))
-                : const Text('Zarejestruj się'),
+                : Text(S.t(context, 'register')),
           ),
         ),
 
@@ -162,16 +182,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text('Masz już konto? ', style: TextStyle(color: AppColors.textSecondary)),
+            Text('${S.t(context, 'haveAccount')} ', style: const TextStyle(color: AppColors.textSecondary)),
             GestureDetector(
               onTap: () => Navigator.pushReplacementNamed(context, '/auth'),
-              child: const Text('Zaloguj się', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w600)),
+              child: Text(S.t(context, 'login'), style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.w600)),
             ),
           ],
         ),
 
         const SizedBox(height: 32),
-        Text('Kontakt: ${AppConstants.contactEmail}',
+        Text('${S.t(context, 'contactLabel')} ${AppConstants.contactEmail}',
             style: TextStyle(color: AppColors.textSecondary.withValues(alpha: 0.6), fontSize: 11)),
         const SizedBox(height: 16),
       ],
@@ -184,15 +204,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final confirmPassword = _confirmPasswordController.text;
 
     if (email.isEmpty || !email.contains('@')) {
-      setState(() => _error = 'Sprawdź czy adres email jest poprawny');
+      setState(() => _error = S.t(context, 'emailInvalid'));
       return;
     }
     if (password.length < 6) {
-      setState(() => _error = 'Hasło musi mieć min. 6 znaków');
+      setState(() => _error = S.t(context, 'passwordMin'));
       return;
     }
     if (password != confirmPassword) {
-      setState(() => _error = 'Hasła się nie zgadzają');
+      setState(() => _error = S.t(context, 'passwordsMismatch'));
       return;
     }
 
@@ -205,12 +225,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
       await context.read<AuthProvider>().signUpWithPassword(email, password);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Konto utworzone! Zaloguj się.')),
+          SnackBar(content: Text(S.t(context, 'accountCreated'))),
         );
         Navigator.pushReplacementNamed(context, '/auth');
       }
     } catch (e) {
-      if (mounted) setState(() => _error = 'Błąd rejestracji. Spróbuj inny email.');
+      if (mounted) setState(() => _error = S.t(context, 'registerError'));
     } finally {
       if (mounted) setState(() => _loading = false);
     }

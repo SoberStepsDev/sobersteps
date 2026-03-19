@@ -5,7 +5,7 @@ class PurchaseService {
   factory PurchaseService() => _instance;
   PurchaseService._();
 
-  bool _isPremium = false;
+  bool _isPremium = false; // ignore: prefer_final_fields
   bool get isPremium => _isPremium;
 
   Future<void> init() async {
@@ -31,6 +31,9 @@ class PurchaseService {
     debugPrint('[PurchaseService] restore');
     return _isPremium;
   }
+
+  /// RevenueCat / store restore entry point (alias for [restore]).
+  Future<bool> restorePurchases() => restore();
 
   void setUserId(String userId) {
     debugPrint('[PurchaseService] setUserId $userId');

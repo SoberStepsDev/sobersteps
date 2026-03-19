@@ -17,6 +17,7 @@ import '../screens/community_screen.dart';
 import '../screens/profile_screen.dart';
 import '../models/future_letter.dart';
 import '../screens/future_letter_read_screen.dart';
+import '../l10n/strings.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -28,12 +29,12 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   int _navIndex = 0;
   Timer? _timer;
-  final _screens = const [
-    _HomeTab(),
-    CheckinScreen(),
+  final _screens = [
+    const _HomeTab(),
+    const CheckinScreen(),
     MilestonesScreen(),
-    CommunityScreen(),
-    ProfileScreen(),
+    const CommunityScreen(),
+    const ProfileScreen(),
   ];
 
   @override
@@ -146,6 +147,7 @@ class _HomeTabState extends State<_HomeTab> {
                     height: 48,
                     width: 48,
                     fit: BoxFit.contain,
+                    excludeFromSemantics: true,
                     errorBuilder: (context, error, stackTrace) => Icon(
                       Icons.shield_rounded,
                       size: 48,
@@ -176,7 +178,7 @@ class _HomeTabState extends State<_HomeTab> {
                   width: double.infinity,
                   child: ElevatedButton.icon(
                     icon: const Icon(Icons.check_circle_outline),
-                    label: const Text('Check-in Now'),
+                    label: Text(S.t(context, 'checkinNow')),
                     onPressed: () {
                       HapticFeedback.lightImpact();
                       Navigator.of(context).pushNamed('/checkin');
@@ -204,16 +206,16 @@ class _HomeTabState extends State<_HomeTab> {
       context: context,
       builder: (_) => AlertDialog(
         backgroundColor: AppColors.surface,
-        title: const Text('Masz list od siebie'),
-        content: const Text('Otworzyć?'),
+        title: Text(S.t(context, 'letterFromSelfNotify')),
+        content: Text(S.t(context, 'open')),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Później')),
+          TextButton(onPressed: () => Navigator.pop(context), child: Text(S.t(context, 'later'))),
           ElevatedButton(
             onPressed: () {
               Navigator.pop(context);
               Navigator.of(context).push(MaterialPageRoute(builder: (_) => FutureLetterReadScreen(letter: letter)));
             },
-            child: const Text('Otwórz'),
+            child: Text(S.t(context, 'openBtn')),
           ),
         ],
       ),
@@ -243,7 +245,7 @@ class _ProgressBar extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         Text(
-          nextMilestone != null ? '$daysToGo days to $nextMilestone-day milestone' : 'All milestones achieved!',
+          nextMilestone != null ? '$daysToGo ${S.t(context, 'daysToMilestone')} $nextMilestone${S.t(context, 'dayMilestone')}' : S.t(context, 'allMilestonesDone'),
           style: const TextStyle(color: AppColors.textSecondary, fontSize: 14),
         ),
       ],
@@ -302,8 +304,8 @@ class _SavingsCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('\$${(days * 15).toStringAsFixed(0)} zaoszczędzone', style: const TextStyle(color: AppColors.gold, fontWeight: FontWeight.w700, fontSize: 16)),
-                  const Text('Kliknij aby zobaczyć szczegóły zdrowia', style: TextStyle(color: AppColors.textSecondary, fontSize: 11)),
+                  Text('\$${(days * 15).toStringAsFixed(0)} ${S.t(context, 'saved')}', style: const TextStyle(color: AppColors.gold, fontWeight: FontWeight.w700, fontSize: 16)),
+                  Text(S.t(context, 'tapForHealth'), style: const TextStyle(color: AppColors.textSecondary, fontSize: 11)),
                 ],
               ),
             ),
@@ -335,12 +337,12 @@ class _ReturnToSelfCard extends StatelessWidget {
           children: [
             const Icon(Icons.self_improvement, color: AppColors.primary, size: 28),
             const SizedBox(width: 12),
-            const Expanded(
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Return to Self', style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w700, fontSize: 15)),
-                  Text('Twoja 30-dniowa ścieżka', style: TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+                  Text(S.t(context, 'returnToSelf'), style: const TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w700, fontSize: 15)),
+                  Text(S.t(context, 'rtsPath30'), style: Theme.of(context).textTheme.bodySmall),
                 ],
               ),
             ),
@@ -362,7 +364,7 @@ class _SosButton extends StatelessWidget {
       width: double.infinity,
       child: ElevatedButton.icon(
         icon: const Icon(Icons.sos_rounded),
-        label: const Text('3 AM SOS'),
+        label: Text(S.t(context, 'threeAmSos')),
         style: ElevatedButton.styleFrom(
           backgroundColor: isNight ? AppColors.crisisRed : AppColors.crisisRed.withValues(alpha: 0.7),
           foregroundColor: Colors.white,

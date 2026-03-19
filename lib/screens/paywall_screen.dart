@@ -6,6 +6,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../app/theme.dart';
 import '../constants/app_constants.dart';
 import '../providers/purchase_provider.dart';
+import '../l10n/strings.dart';
 import '../services/analytics_service.dart';
 
 class PaywallScreen extends StatefulWidget {
@@ -48,7 +49,14 @@ class _PaywallScreenState extends State<PaywallScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        leading: IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(context)),
+        leading: Tooltip(
+          message: S.t(context, 'cancel'),
+          child: Semantics(
+            label: S.t(context, 'cancel'),
+            button: true,
+            child: IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(context)),
+          ),
+        ),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -81,7 +89,8 @@ class _PaywallScreenState extends State<PaywallScreen> {
                 onPressed: () async {
                   HapticFeedback.lightImpact();
                   await purchase.restore();
-                  if (purchase.isPremium && mounted) Navigator.pop(context);
+                  if (!context.mounted) return;
+                  if (purchase.isPremium) Navigator.pop(context);
                 },
                 child: const Text('Przywróć zakupy', style: TextStyle(color: AppColors.textSecondary)),
               ),
@@ -195,7 +204,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
     final h = _remaining.inHours.toString().padLeft(2, '0');
     final m = (_remaining.inMinutes % 60).toString().padLeft(2, '0');
     final s = (_remaining.inSeconds % 60).toString().padLeft(2, '0');
-    return Text('Oferta trialu wygasa za $h:$m:$s', style: const TextStyle(color: AppColors.error, fontSize: 14, fontWeight: FontWeight.w600));
+    return Text('${S.t(context, 'trialExpiresIn')} $h:$m:$s', style: const TextStyle(color: AppColors.error, fontSize: 14, fontWeight: FontWeight.w600));
   }
 
   Widget _buildCtaButton(PurchaseProvider purchase) {
@@ -213,7 +222,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
             Navigator.of(context).pushReplacementNamed('/premium-welcome');
           }
         },
-        child: const Text('Start Free Trial', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+        child: Text(S.t(context, 'startFreeTrial'), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
       ),
     ).animate(onPlay: (c) => c.repeat(period: 3000.ms)).shimmer(duration: 800.ms, color: AppColors.textPrimary.withValues(alpha: 0.3));
   }

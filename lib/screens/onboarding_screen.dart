@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../app/theme.dart';
 import '../providers/auth_provider.dart';
+import '../l10n/strings.dart';
 import '../providers/sobriety_provider.dart';
 import '../services/analytics_service.dart';
 import '../services/notification_service.dart';
@@ -130,13 +131,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               color: AppColors.textPrimary,
             ),
           ).animate().fadeIn(duration: 600.ms).scale(begin: const Offset(0.5, 0.5)),
-          const Text('Days', style: TextStyle(fontSize: 24, color: AppColors.textSecondary)),
+          Text(S.t(context, 'days'), style: const TextStyle(fontSize: 24, color: AppColors.textSecondary)),
           const SizedBox(height: 16),
           Icon(Icons.local_fire_department, size: 64, color: AppColors.gold)
               .animate(onPlay: (c) => c.repeat())
               .shimmer(duration: 2000.ms, color: AppColors.gold.withValues(alpha: 0.3)),
           const SizedBox(height: 48),
-          const Text('Your journey starts now',
+          Text(S.t(context, 'yourJourneyStarts'),
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
           const SizedBox(height: 32),
           SizedBox(
@@ -147,7 +148,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 sobriety.setSobrietyStartDate(DateTime.now());
                 _nextPage();
               },
-              child: const Text('Zacznij liczyć dni'),
+              child: Text(S.t(context, 'startCounting')),
             ),
           ),
         ],
@@ -166,13 +167,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 16),
-            const Center(
-              child: Text('Co chcesz zostawić za sobą?',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
+            Center(
+              child: Text(S.t(context, 'whatDoYouWantToLeave'),
+                  style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
             ),
             const SizedBox(height: 24),
             // --- Substancje psychoaktywne ---
-            const Text('Substancje', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textSecondary, letterSpacing: 1)),
+            Text(S.t(context, 'onboardingSubstancesTitle'), style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textSecondary, letterSpacing: 1)),
             const SizedBox(height: 8),
             ...AppConstants.substanceTypes.entries.map((e) => Padding(
               padding: const EdgeInsets.only(bottom: 6),
@@ -186,7 +187,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             )),
             const SizedBox(height: 16),
             // --- Uzależnienia behawioralne ---
-            const Text('Behawioralne', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textSecondary, letterSpacing: 1)),
+            Text(S.t(context, 'onboardingBehavioralTitle'), style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textSecondary, letterSpacing: 1)),
             const SizedBox(height: 8),
             ...AppConstants.behavioralTypes.entries.map((e) => Padding(
               padding: const EdgeInsets.only(bottom: 6),
@@ -200,7 +201,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             )),
             const SizedBox(height: 16),
             // --- Powrót do Siebie ---
-            const Text('Powrót do Siebie', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textSecondary, letterSpacing: 1)),
+            Text(S.t(context, 'onboardingReturnToSelfTitle'), style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textSecondary, letterSpacing: 1)),
             const SizedBox(height: 8),
             ...AppConstants.returnToSelfTypes.entries.map((e) {
               final isPro = AppConstants.returnToSelfProOnly.contains(e.key);
@@ -230,11 +231,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         children: [
           const Icon(Icons.self_improvement, size: 64, color: AppColors.gold),
           const SizedBox(height: 24),
-          const Text('Chcesz też pracować nad relacją z samym sobą?',
+          Text(S.t(context, 'returnToSelfQuestion'),
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
           const SizedBox(height: 12),
-          const Text('Moduł Return to Self — bezpłatna ścieżka pokonywania nienawiści do siebie.',
+          Text(S.t(context, 'returnToSelfDesc'),
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 15, color: AppColors.textSecondary)),
           const SizedBox(height: 32),
@@ -248,7 +249,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 setState(() => _showReturnToSelfQuestion = false);
                 _nextPage();
               },
-              child: const Text('Tak, chcę'),
+              child: Text(S.t(context, 'yesIWant')),
             ),
           ),
           const SizedBox(height: 12),
@@ -260,7 +261,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               });
               _nextPage();
             },
-            child: const Text('Nie teraz', style: TextStyle(color: AppColors.textSecondary)),
+            child: Text(S.t(context, 'notNow'), style: const TextStyle(color: AppColors.textSecondary)),
           ),
         ],
       ),
@@ -326,7 +327,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text('Kiedy był Twój ostatni dzień?',
+          Text(S.t(context, 'whenWasLastDay'),
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
           const SizedBox(height: 16),
           Text(
@@ -338,7 +339,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             width: double.infinity,
             child: ElevatedButton.icon(
               icon: const Icon(Icons.calendar_today),
-              label: const Text('Wybierz datę'),
+              label: Text(S.t(context, 'chooseDate')),
               onPressed: () async {
                 HapticFeedback.lightImpact();
                 final date = await showDatePicker(
@@ -358,7 +359,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             ),
           ),
           const SizedBox(height: 24),
-          TextButton(onPressed: _nextPage, child: const Text('Dalej →', style: TextStyle(color: AppColors.primary, fontSize: 18))),
+          TextButton(onPressed: _nextPage, child: Text('${S.t(context, 'next')} →', style: const TextStyle(color: AppColors.primary, fontSize: 18))),
         ],
       ),
     );
@@ -372,14 +373,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         children: [
           const Icon(Icons.mail_outline, size: 64, color: AppColors.primary),
           const SizedBox(height: 24),
-          const Text('Wyślemy Ci list od siebie za 30 dni',
+          Text(S.t(context, 'letterIn30Days'),
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
           const SizedBox(height: 32),
           TextField(
             controller: _emailController,
             keyboardType: TextInputType.emailAddress,
-            decoration: const InputDecoration(hintText: 'Twój email'),
+            decoration: InputDecoration(hintText: S.t(context, 'yourEmail')),
           ),
           const SizedBox(height: 16),
           SizedBox(
@@ -395,11 +396,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 }
                 _nextPage();
               },
-              child: const Text('Kontynuuj'),
+              child: Text(S.t(context, 'continue')),
             ),
           ),
           const SizedBox(height: 16),
-          TextButton(onPressed: _nextPage, child: const Text('Pomiń', style: TextStyle(color: AppColors.textSecondary))),
+          TextButton(onPressed: _nextPage, child: Text(S.t(context, 'skip'), style: const TextStyle(color: AppColors.textSecondary))),
         ],
       ),
     );
@@ -413,7 +414,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         children: [
           const Icon(Icons.notifications_active, size: 64, color: AppColors.gold),
           const SizedBox(height: 24),
-          const Text('Powiadomimy Cię 1 dzień przed każdym milestone\'m.',
+          Text(S.t(context, 'notifyMilestones'),
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
           const SizedBox(height: 40),
@@ -425,13 +426,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 await NotificationService().requestPermission();
                 _nextPage();
               },
-              child: const Text('Tak, powiadamiaj'),
+              child: Text(S.t(context, 'yesNotify')),
             ),
           ),
           const SizedBox(height: 16),
           TextButton(
             onPressed: _nextPage,
-            child: const Text('Może później', style: TextStyle(color: AppColors.textSecondary)),
+            child: Text(S.t(context, 'maybeLater'), style: const TextStyle(color: AppColors.textSecondary)),
           ),
         ],
       ),

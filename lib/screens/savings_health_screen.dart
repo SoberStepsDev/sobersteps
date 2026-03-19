@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../app/theme.dart';
+import '../l10n/strings.dart';
 import '../providers/sobriety_provider.dart';
 
 class SavingsHealthScreen extends StatefulWidget {
@@ -40,7 +41,7 @@ class _SavingsHealthScreenState extends State<SavingsHealthScreen> {
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(title: const Text('Oszczędności i zdrowie')),
+      appBar: AppBar(title: Text(S.t(context, 'savingsHealth'))),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(
@@ -57,9 +58,9 @@ class _SavingsHealthScreenState extends State<SavingsHealthScreen> {
             const SizedBox(height: 24),
 
             // Health benefits
-            const Align(
+            Align(
               alignment: Alignment.centerLeft,
-              child: Text('Twoje ciało się regeneruje', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
+              child: Text(S.t(context, 'bodyHealing'), style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
             ),
             const SizedBox(height: 16),
             ..._healthTimeline.map((h) {
@@ -69,9 +70,9 @@ class _SavingsHealthScreenState extends State<SavingsHealthScreen> {
             const SizedBox(height: 24),
 
             // Stats grid
-            const Align(
+            Align(
               alignment: Alignment.centerLeft,
-              child: Text('W liczbach', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
+              child: Text(S.t(context, 'inNumbers'), style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
             ),
             const SizedBox(height: 12),
             Row(
@@ -84,9 +85,9 @@ class _SavingsHealthScreenState extends State<SavingsHealthScreen> {
             const SizedBox(height: 12),
             Row(
               children: [
-                Expanded(child: _StatCard(value: '${(days * 200).toStringAsFixed(0)}', label: 'kalorii mniej')),
+                Expanded(child: _StatCard(value: (days * 200).toStringAsFixed(0), label: 'kalorii mniej')),
                 const SizedBox(width: 12),
-                Expanded(child: _StatCard(value: '$days', label: 'dobrych decyzji')),
+                Expanded(child: _StatCard(value: days.toString(), label: 'dobrych decyzji')),
               ],
             ),
             const SizedBox(height: 32),
@@ -142,7 +143,7 @@ class _CostEditor extends StatelessWidget {
         children: [
           const Icon(Icons.edit, size: 16, color: AppColors.textSecondary),
           const SizedBox(width: 8),
-          const Text('Dzienny koszt: ', style: TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+          Text(S.t(context, 'dailyCost'), style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
           const Text('\$', style: TextStyle(color: AppColors.textPrimary)),
           SizedBox(
             width: 60,

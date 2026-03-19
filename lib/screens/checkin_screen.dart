@@ -5,6 +5,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../app/theme.dart';
 import '../providers/journal_provider.dart';
 import '../constants/app_constants.dart';
+import '../l10n/strings.dart';
 
 class CheckinScreen extends StatefulWidget {
   const CheckinScreen({super.key});
@@ -19,59 +20,159 @@ class _CheckinScreenState extends State<CheckinScreen> {
   final Set<String> _triggers = {};
   final _noteController = TextEditingController();
   bool _saving = false;
+  bool _showSearch = false;
+  final _searchController = TextEditingController();
 
   static const _moodEmojis = ['😔', '😕', '😐', '🙂', '😄'];
 
   @override
   void dispose() {
     _noteController.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final journal = context.watch<JournalProvider>();
+    final scaler = MediaQuery.textScalerOf(context);
+
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(title: const Text('Check-in')),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text('Jak się dziś czujesz?', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
-              const SizedBox(height: 16),
-              _buildMoodPicker(),
-              const SizedBox(height: 32),
-              const Text('Poziom głodu', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
-              const SizedBox(height: 8),
-              _buildCravingSlider(),
-              const SizedBox(height: 32),
-              const Text('Triggery', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
-              const SizedBox(height: 12),
-              _buildTriggerChips(),
-              const SizedBox(height: 32),
-              TextField(
-                controller: _noteController,
-                maxLength: AppConstants.maxNoteLength,
-                maxLines: 4,
-                decoration: const InputDecoration(hintText: 'Za co jesteś dziś wdzięczny?'),
+      appBar: AppBar(
+        title: Semantics(
+          header: true,
+          child: Text(S.t(context, 'checkin')),
+        ),
+        actions: [
+          Tooltip(
+            message: S.t(context, 'journalSearchTooltip'),
+            child: Semantics(
+              label: S.t(context, 'journalSearchTooltip'),
+              button: true,
+              child: IconButton(
+                icon: Icon(_showSearch ? Icons.close_rounded : Icons.search_rounded),
+                onPressed: () {
+                  setState(() {
+                    _showSearch = !_showSearch;
+                    if (!_showSearch) {
+                      _searchController.clear();
+                      journal.setSearchQuery('');
+                    }
+                  });
+                },
               ),
-              const SizedBox(height: 24),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: _saving ? null : () {
-                HapticFeedback.lightImpact();
-                _save();
-              },
-                  child: _saving
-                      ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                      : const Text('Zapisz check-in'),
+            ),
+          ),
+        ],
+      ),
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (_showSearch) ...[
+              Padding(
+                padding: const EdgeInsets.fromLTRB(24, 8, 24, 0),
+                child: TextField(
+                  controller: _searchController,
+                  onChanged: journal.setSearchQuery,
+                  style: Theme.of(context).textTheme.bodyLarge,
+                  decoration: InputDecoration(
+                    hintText: S.t(context, 'journalSearchHint'),
+                  ),
                 ),
               ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(24, 12, 24, 8),
+                child: Text(
+                  S.t(context, 'journalNotesForToday'),
+                  style: Theme.of(context).textTheme.titleSmall,
+                ),
+              ),
+              SizedBox(
+                height: scaler.scale(180).clamp(120.0, 320.0),
+                child: journal.filteredEntries.isEmpty
+                    ? Center(
+                        child: Text(
+                          journal.entries.isEmpty
+                              ? S.t(context, 'doCheckinToSee')
+                              : journal.searchQuery.trim().isEmpty
+                                  ? S.t(context, 'doCheckinToSee')
+                                  : S.t(context, 'journalNoNoteMatches'),
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                      )
+                    : ListView.separated(
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                        itemCount: journal.filteredEntries.length,
+                        separatorBuilder: (context, index) => const Divider(height: 1, color: AppColors.surfaceLight),
+                        itemBuilder: (context, i) {
+                          final e = journal.filteredEntries[i];
+                          final note = e.note?.trim();
+                          final preview = (note == null || note.isEmpty) ? '—' : note;
+                          return ListTile(
+                            contentPadding: EdgeInsets.zero,
+                            title: Text(
+                              preview,
+                              maxLines: 3,
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.textPrimary),
+                            ),
+                            subtitle: Text(
+                              '${e.createdAt.day}.${e.createdAt.month}.${e.createdAt.year}',
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                          );
+                        },
+                      ),
+              ),
             ],
-          ),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(S.t(context, 'howDoYouFeel'), style: Theme.of(context).textTheme.titleLarge),
+                    const SizedBox(height: 16),
+                    _buildMoodPicker(),
+                    const SizedBox(height: 32),
+                    Text(S.t(context, 'cravingLevel'), style: Theme.of(context).textTheme.titleLarge),
+                    const SizedBox(height: 8),
+                    _buildCravingSlider(),
+                    const SizedBox(height: 32),
+                    Text(S.t(context, 'triggers'), style: Theme.of(context).textTheme.titleLarge),
+                    const SizedBox(height: 12),
+                    _buildTriggerChips(),
+                    const SizedBox(height: 32),
+                    TextField(
+                      controller: _noteController,
+                      maxLength: AppConstants.maxNoteLength,
+                      maxLines: 4,
+                      style: Theme.of(context).textTheme.bodyLarge,
+                      decoration: InputDecoration(hintText: S.t(context, 'gratefulToday')),
+                    ),
+                    const SizedBox(height: 24),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: _saving
+                            ? null
+                            : () {
+                                HapticFeedback.lightImpact();
+                                _save();
+                              },
+                        child: _saving
+                            ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2))
+                            : Text(S.t(context, 'saveCheckin')),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -119,9 +220,9 @@ class _CheckinScreenState extends State<CheckinScreen> {
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: const [
-            Text('0 — brak', style: TextStyle(color: AppColors.textSecondary, fontSize: 12)),
-            Text('10 — ekstremalny', style: TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+          children: [
+            Text(S.t(context, 'scale0'), style: Theme.of(context).textTheme.bodySmall),
+            Text(S.t(context, 'scale10'), style: Theme.of(context).textTheme.bodySmall),
           ],
         ),
       ],
@@ -135,7 +236,7 @@ class _CheckinScreenState extends State<CheckinScreen> {
       children: AppConstants.defaultTriggers.map((t) {
         final selected = _triggers.contains(t);
         return FilterChip(
-          label: Text(t),
+          label: Text(S.t(context, 'trigger_$t')),
           selected: selected,
           selectedColor: AppColors.primary.withValues(alpha: 0.3),
           checkmarkColor: AppColors.primary,
@@ -168,7 +269,7 @@ class _CheckinScreenState extends State<CheckinScreen> {
 
     if (!mounted) return;
     if (result == 'offline') {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Zapisano lokalnie — zsynchronizujemy gdy będzie internet')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(S.t(context, 'savedOffline'))));
     } else if (result != null) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(result)));
       return;
@@ -188,31 +289,31 @@ class _CheckinScreenState extends State<CheckinScreen> {
     Color color;
 
     if (_mood <= 2) {
-      message = 'That was a hard day. I\'m here with you.';
+      message = S.t(context, 'checkinReactHard');
       icon = Icons.local_fire_department;
       color = AppColors.gold;
     } else if (_craving > 7) {
-      message = 'The wave will pass. Breathe with me.';
+      message = S.t(context, 'checkinReactWave');
       icon = Icons.waves;
       color = AppColors.primary;
     } else if (_triggers.contains('loneliness')) {
-      message = 'You\'re not alone. Many of us walked this road.';
+      message = S.t(context, 'checkinReactLonely');
       icon = Icons.local_fire_department;
       color = AppColors.gold;
     } else if (_mood >= 4 && _craving < 4) {
-      message = 'This day is YOURS.';
+      message = S.t(context, 'checkinReactYours');
       icon = Icons.celebration;
       color = AppColors.gold;
     } else if (hasGratitude) {
-      message = 'Beautiful. These things build your strength.';
+      message = S.t(context, 'checkinReactGratitude');
       icon = Icons.auto_awesome;
       color = AppColors.gold;
     } else if (consecutive == 3) {
-      message = '3 days in a row. This is how habits form.';
+      message = S.t(context, 'checkinReact3days');
       icon = Icons.auto_awesome;
       color = AppColors.primary;
     } else {
-      message = 'Check-in saved. One step at a time.';
+      message = S.t(context, 'checkinReactSaved');
       icon = Icons.check_circle;
       color = AppColors.success;
     }
@@ -226,10 +327,10 @@ class _CheckinScreenState extends State<CheckinScreen> {
           children: [
             Icon(icon, size: 64, color: color).animate().scale(begin: const Offset(0.3, 0.3), duration: 500.ms, curve: Curves.elasticOut),
             const SizedBox(height: 16),
-            Text(message, textAlign: TextAlign.center, style: const TextStyle(fontSize: 18, color: AppColors.textPrimary)),
+            Text(message, textAlign: TextAlign.center, style: Theme.of(context).textTheme.titleLarge),
           ],
         ),
-        actions: [ElevatedButton(onPressed: () => Navigator.pop(context), child: const Text('OK'))],
+        actions: [ElevatedButton(onPressed: () => Navigator.pop(context), child: Text(S.t(context, 'ok')))],
       ),
     );
   }

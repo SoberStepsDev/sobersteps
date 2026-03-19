@@ -11,8 +11,26 @@ class JournalProvider extends ChangeNotifier {
   List<JournalEntry> _entries = [];
   bool _loading = false;
   int _consecutiveCheckins = 0;
+  String _searchQuery = '';
 
   List<JournalEntry> get entries => _entries;
+  /// Check-ins whose note matches [searchQuery] (case-insensitive); offline-friendly client filter.
+  List<JournalEntry> get filteredEntries {
+    final q = _searchQuery.trim().toLowerCase();
+    if (q.isEmpty) return _entries;
+    return _entries
+        .where((e) => (e.note ?? '').toLowerCase().contains(q))
+        .toList();
+  }
+
+  String get searchQuery => _searchQuery;
+
+  void setSearchQuery(String value) {
+    if (_searchQuery == value) return;
+    _searchQuery = value;
+    notifyListeners();
+  }
+
   bool get loading => _loading;
   int get consecutiveCheckins => _consecutiveCheckins;
 

@@ -9,6 +9,15 @@ class AppConstants {
       String.fromEnvironment('REVENUE_CAT_KEY', defaultValue: 'test_yugqnTsxrHsXuQwYbZXcWIMMqsu');
   static String get oneSignalAppId =>
       String.fromEnvironment('ONESIGNAL_APP_ID', defaultValue: 'YOUR_ONESIGNAL_APP_ID');
+  static String get elevenLabsApiKey =>
+      String.fromEnvironment('ELEVENLABS_API_KEY', defaultValue: '');
+  /// Sentry; empty = disabled. Build: `--dart-define=SENTRY_DSN=...`
+  static String get sentryDsn =>
+      String.fromEnvironment('SENTRY_DSN', defaultValue: '');
+  /// Deep link host (Universal Links / App Links), without scheme.
+  static String get deepLinkDomain =>
+      String.fromEnvironment('DEEP_LINK_DOMAIN', defaultValue: 'sobersteps.app');
+  static const String elevenLabsVoiceId = '2Hw5QTX3wstf1sLYfhhk'; // Patryk
 
   static const String monthlyProductId = 'sobersteps_monthly_699';
   static const String annualProductId = 'sobersteps_annual_5999';

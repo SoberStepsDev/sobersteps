@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../app/theme.dart';
+import '../l10n/strings.dart';
 import '../services/notification_service.dart';
 
 class NotificationsScreen extends StatefulWidget {
@@ -50,37 +51,37 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(title: const Text('Powiadomienia')),
+      appBar: AppBar(title: Text(S.t(context, 'notificationsTitle'))),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          const _SectionHeader('Przypomnienia'),
-          _buildSwitch('Codzienny check-in', 'Przypomnienie o godzinie $_reminderHour:00', _dailyCheckin, (v) {
+          _SectionHeader(S.t(context, 'reminders')),
+          _buildSwitch(S.t(context, 'dailyCheckin'), S.t(context, 'atHour').replaceFirst(':00', '$_reminderHour:00'), _dailyCheckin, (v) {
             setState(() => _dailyCheckin = v);
             _save('notif_daily_checkin', v);
           }),
           _buildTimeSelector(),
-          _buildSwitch('Ostrzeżenie o streaku', 'Gdy brak check-inu godzinę po przypomnieniu', _streakWarning, (v) {
+          _buildSwitch(S.t(context, 'streakWarning'), S.t(context, 'streakWarningDesc'), _streakWarning, (v) {
             setState(() => _streakWarning = v);
             _save('notif_streak', v);
           }),
-          _buildSwitch('Nocne przypomnienie', 'O 22:30, jeśli nie było check-inu', _nightReminder, (v) {
+          _buildSwitch(S.t(context, 'nightReminder'), S.t(context, 'nightReminderDesc'), _nightReminder, (v) {
             setState(() => _nightReminder = v);
             _save('notif_night', v);
           }),
           const SizedBox(height: 16),
-          const _SectionHeader('Milestones i listy'),
-          _buildSwitch('Milestone (dzień wcześniej)', '\"Jutro: X dni. Jeden z tych dni które pamiętasz.\"', _milestoneReminder, (v) {
+          _SectionHeader(S.t(context, 'milestonesAndLetters')),
+          _buildSwitch(S.t(context, 'milestoneDayBefore'), S.t(context, 'milestoneTemplate'), _milestoneReminder, (v) {
             setState(() => _milestoneReminder = v);
             _save('notif_milestone', v);
           }),
-          _buildSwitch('Dostarczenie listu', 'Powiadomienie gdy list z przeszłości dotrze', _letterDelivery, (v) {
+          _buildSwitch(S.t(context, 'letterDelivery'), S.t(context, 'letterDeliveryDesc'), _letterDelivery, (v) {
             setState(() => _letterDelivery = v);
             _save('notif_letter', v);
           }),
           const SizedBox(height: 16),
-          const _SectionHeader('Społeczność'),
-          _buildSwitch('Aktualizacje społeczności', 'Nowe posty i polubienia', _communityUpdates, (v) {
+          _SectionHeader(S.t(context, 'community')),
+          _buildSwitch(S.t(context, 'communityNotif'), S.t(context, 'communityNotifDesc'), _communityUpdates, (v) {
             setState(() => _communityUpdates = v);
             _save('notif_community', v);
           }),
@@ -95,14 +96,13 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               ),
               onPressed: () async {
+                final messenger = ScaffoldMessenger.of(context);
+                final updatedLabel = S.t(context, 'permissionsUpdated');
                 await NotificationService().requestPermission();
-                if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Uprawnienia do powiadomień zaktualizowane')),
-                  );
-                }
+                if (!context.mounted) return;
+                messenger.showSnackBar(SnackBar(content: Text(updatedLabel)));
               },
-              child: const Text('Włącz/odśwież uprawnienia systemowe'),
+              child: Text(S.t(context, 'enableSystem')),
             ),
           ),
           const SizedBox(height: 32),
@@ -130,7 +130,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       margin: const EdgeInsets.only(bottom: 8, left: 16, right: 16),
       child: Row(
         children: [
-          const Text('Godzina przypomnienia: ', style: TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+          Text(S.t(context, 'reminderHour'), style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
           GestureDetector(
             onTap: () async {
               final time = await showTimePicker(

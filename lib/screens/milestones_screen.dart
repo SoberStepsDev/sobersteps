@@ -4,19 +4,27 @@ import 'package:share_plus/share_plus.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../app/theme.dart';
 import '../providers/milestone_provider.dart';
+import '../l10n/strings.dart';
 import '../providers/sobriety_provider.dart';
 import '../providers/purchase_provider.dart';
 import '../models/milestone.dart';
 import '../services/analytics_service.dart';
+import '../services/tts_service.dart';
 
 class MilestonesScreen extends StatefulWidget {
-  const MilestonesScreen({super.key});
+  /// When set (e.g. deep link), scrolls this milestone into view after layout.
+  final int? focusMilestoneDays;
+
+  const MilestonesScreen({super.key, this.focusMilestoneDays});
 
   @override
   State<MilestonesScreen> createState() => _MilestonesScreenState();
 }
 
 class _MilestonesScreenState extends State<MilestonesScreen> {
+  final _scrollController = ScrollController();
+  bool _didScrollFocus = false;
+
   @override
   void initState() {
     super.initState();
@@ -24,10 +32,34 @@ class _MilestonesScreenState extends State<MilestonesScreen> {
   }
 
   @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _maybeScrollToFocus() {
+    final target = widget.focusMilestoneDays;
+    if (target == null || _didScrollFocus) return;
+    final idx = MilestoneData.all.indexWhere((d) => d.days == target);
+    if (idx < 0) return;
+    _didScrollFocus = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!_scrollController.hasClients) return;
+      final offset = (idx * 120.0).clamp(0.0, _scrollController.position.maxScrollExtent);
+      _scrollController.animateTo(
+        offset,
+        duration: const Duration(milliseconds: 400),
+        curve: Curves.easeOutCubic,
+      );
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final milestoneProvider = context.watch<MilestoneProvider>();
     final sobriety = context.watch<SobrietyProvider>();
     final daysSober = sobriety.daysSober;
+    _maybeScrollToFocus();
 
     if (sobriety.pendingMilestone != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -38,8 +70,14 @@ class _MilestonesScreenState extends State<MilestonesScreen> {
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(title: const Text('Milestones')),
+      appBar: AppBar(
+        title: Semantics(
+          header: true,
+          child: Text(S.t(context, 'milestones')),
+        ),
+      ),
       body: ListView.builder(
+        controller: _scrollController,
         padding: const EdgeInsets.all(16),
         itemCount: MilestoneData.all.length,
         itemBuilder: (context, i) {
@@ -58,6 +96,11 @@ class _MilestonesScreenState extends State<MilestonesScreen> {
     final isPremium = context.read<PurchaseProvider>().isPremium;
     context.read<MilestoneProvider>().recordMilestone(days);
     AnalyticsService().track('milestone_celebrate', {'days': days});
+    TtsService().speakMilestone(
+      isPremium: isPremium,
+      days: days,
+      freeFallback: data.message,
+    );
 
     showDialog(
       context: context,
@@ -82,7 +125,7 @@ class _MilestonesScreenState extends State<MilestonesScreen> {
           if (data.shareText.isNotEmpty)
             TextButton.icon(
               icon: const Icon(Icons.share),
-              label: const Text('Quick Share'),
+              label: Text(S.t(context, 'quickShare')),
               onPressed: () => Share.share(data.shareText),
             ),
           if (!isPremium)
@@ -91,9 +134,9 @@ class _MilestonesScreenState extends State<MilestonesScreen> {
                 Navigator.pop(context);
                 Navigator.of(context).pushNamed('/paywall');
               },
-              child: const Text('Odblokuj Recovery+', style: TextStyle(color: AppColors.gold)),
+              child: Text(S.t(context, 'unlockRecoveryPlus'), style: const TextStyle(color: AppColors.gold)),
             ),
-          ElevatedButton(onPressed: () => Navigator.pop(context), child: const Text('OK')),
+          ElevatedButton(onPressed: () => Navigator.pop(context), child: Text(S.t(context, 'ok'))),
         ],
       ),
     );
@@ -131,11 +174,11 @@ class _MilestoneCard extends StatelessWidget {
               children: [
                 Text(data.title, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: achieved ? AppColors.gold : AppColors.textPrimary)),
                 if (achieved)
-                  const Text('Achieved!', style: TextStyle(color: AppColors.success, fontSize: 12))
+                  Text(S.t(context, 'achieved'), style: const TextStyle(color: AppColors.success, fontSize: 12))
                 else if (isNext)
                   Text('${data.days - daysSober} days to go', style: const TextStyle(color: AppColors.primary, fontSize: 12))
                 else
-                  const Text('Locked', style: TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+                  Text(S.t(context, 'locked'), style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
               ],
             ),
           ),

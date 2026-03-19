@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../app/theme.dart';
 import '../providers/auth_provider.dart';
+import '../l10n/strings.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
@@ -29,7 +30,7 @@ class _AuthScreenState extends State<AuthScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(title: const Text('Zaloguj się')),
+      appBar: AppBar(title: Text(S.t(context, 'login'))),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(32),
@@ -46,7 +47,7 @@ class _AuthScreenState extends State<AuthScreen> {
                   errorBuilder: (context, error, stackTrace) => const Icon(Icons.lock_open_rounded, size: 64, color: AppColors.primary),
                 ),
                 const SizedBox(height: 24),
-                const Text('Zaloguj się do SoberSteps',
+                Text(S.t(context, 'loginToSoberSteps'),
                     textAlign: TextAlign.center,
                     style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
                 const SizedBox(height: 32),
@@ -54,7 +55,7 @@ class _AuthScreenState extends State<AuthScreen> {
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
                   decoration: InputDecoration(
-                    hintText: 'Email',
+                    hintText: S.t(context, 'email'),
                     errorText: _error,
                   ),
                 ),
@@ -63,10 +64,23 @@ class _AuthScreenState extends State<AuthScreen> {
                   controller: _passwordController,
                   obscureText: _obscurePassword,
                   decoration: InputDecoration(
-                    hintText: 'Hasło',
-                    suffixIcon: IconButton(
-                      icon: Icon(_obscurePassword ? Icons.visibility_off : Icons.visibility),
-                      onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                    hintText: S.t(context, 'password'),
+                    suffixIcon: Tooltip(
+                      message: S.t(
+                        context,
+                        _obscurePassword ? 'passwordVisibilityShow' : 'passwordVisibilityHide',
+                      ),
+                      child: Semantics(
+                        label: S.t(
+                          context,
+                          _obscurePassword ? 'passwordVisibilityShow' : 'passwordVisibilityHide',
+                        ),
+                        button: true,
+                        child: IconButton(
+                          icon: Icon(_obscurePassword ? Icons.visibility_off : Icons.visibility),
+                          onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -77,28 +91,28 @@ class _AuthScreenState extends State<AuthScreen> {
                     onPressed: _loading ? null : _signIn,
                     child: _loading
                         ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                        : const Text('Zaloguj się'),
+                        : Text(S.t(context, 'login')),
                   ),
                 ),
                 const SizedBox(height: 12),
                 Center(
                   child: GestureDetector(
                     onTap: () => _showResetPasswordDialog(),
-                    child: const Text('Zapomniałeś hasła?', style: TextStyle(color: AppColors.primary, fontSize: 14)),
+                    child: Text(S.t(context, 'forgotPassword'), style: const TextStyle(color: AppColors.primary, fontSize: 14)),
                   ),
                 ),
                 const SizedBox(height: 32),
-                const Row(children: [
-                  Expanded(child: Divider(color: AppColors.surfaceLight)),
-                  Padding(padding: EdgeInsets.symmetric(horizontal: 16), child: Text('lub', style: TextStyle(color: AppColors.textSecondary))),
-                  Expanded(child: Divider(color: AppColors.surfaceLight)),
+                Row(children: [
+                  const Expanded(child: Divider(color: AppColors.surfaceLight)),
+                  Padding(padding: const EdgeInsets.symmetric(horizontal: 16), child: Text(S.t(context, 'or'), style: const TextStyle(color: AppColors.textSecondary))),
+                  const Expanded(child: Divider(color: AppColors.surfaceLight)),
                 ]),
                 const SizedBox(height: 24),
                 SizedBox(
                   width: double.infinity,
                   child: OutlinedButton.icon(
                     icon: const Icon(Icons.g_mobiledata, size: 28),
-                    label: const Text('Zaloguj przez Google'),
+                    label: Text(S.t(context, 'loginGoogle')),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: AppColors.textPrimary,
                       side: const BorderSide(color: AppColors.surfaceLight),
@@ -115,10 +129,10 @@ class _AuthScreenState extends State<AuthScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text('Nie masz konta? ', style: TextStyle(color: AppColors.textSecondary)),
+                    Text('${S.t(context, 'noAccount')} ', style: const TextStyle(color: AppColors.textSecondary)),
                     GestureDetector(
                       onTap: () => Navigator.pushReplacementNamed(context, '/register'),
-                      child: const Text('Zarejestruj się', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w600)),
+                      child: Text(S.t(context, 'register'), style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.w600)),
                     ),
                   ],
                 ),
@@ -136,7 +150,7 @@ class _AuthScreenState extends State<AuthScreen> {
     final password = _passwordController.text;
 
     if (email.isEmpty || password.isEmpty) {
-      setState(() => _error = 'Wpisz email i hasło');
+      setState(() => _error = S.t(context, 'enterEmailPassword'));
       return;
     }
 
@@ -147,8 +161,14 @@ class _AuthScreenState extends State<AuthScreen> {
 
     try {
       await context.read<AuthProvider>().signInWithPassword(email, password);
+      if (!mounted) return;
+      if (Navigator.of(context).canPop()) {
+        Navigator.of(context).pop();
+      } else {
+        Navigator.of(context).pushReplacementNamed('/home');
+      }
     } catch (e) {
-      if (mounted) setState(() => _error = 'Błąd logowania. Sprawdź email i hasło.');
+      if (mounted) setState(() => _error = S.t(context, 'loginError'));
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -158,38 +178,34 @@ class _AuthScreenState extends State<AuthScreen> {
     final resetEmailController = TextEditingController();
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
+      builder: (ctx) => AlertDialog(
         backgroundColor: AppColors.surface,
-        title: const Text('Resetuj hasło'),
+        title: Text(S.t(ctx, 'resetPassword')),
         content: TextField(
           controller: resetEmailController,
           keyboardType: TextInputType.emailAddress,
-          decoration: const InputDecoration(hintText: 'Wpisz email'),
+          decoration: InputDecoration(hintText: S.t(ctx, 'resetPasswordHint')),
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Anuluj'),
-          ),
+          TextButton(onPressed: () => Navigator.pop(ctx), child: Text(S.t(ctx, 'cancel'))),
           ElevatedButton(
             onPressed: () async {
+              final messenger = ScaffoldMessenger.of(context);
+              final dialogNav = Navigator.of(ctx);
+              final auth = context.read<AuthProvider>();
+              final sentLabel = S.t(context, 'resetPasswordSent');
+              final errorLabel = S.t(context, 'resetPasswordError');
               try {
-                await context.read<AuthProvider>().resetPassword(resetEmailController.text.trim());
-                if (mounted) {
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Link do resetowania hasła wysłany na email')),
-                  );
-                }
+                await auth.resetPassword(resetEmailController.text.trim());
+                if (!context.mounted) return;
+                dialogNav.pop();
+                messenger.showSnackBar(SnackBar(content: Text(sentLabel)));
               } catch (e) {
-                if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Błąd. Sprawdź email.')),
-                  );
-                }
+                if (!context.mounted) return;
+                messenger.showSnackBar(SnackBar(content: Text(errorLabel)));
               }
             },
-            child: const Text('Wyślij link'),
+            child: Text(S.t(ctx, 'sendLink')),
           ),
         ],
       ),

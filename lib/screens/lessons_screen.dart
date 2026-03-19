@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../app/theme.dart';
+import '../l10n/strings.dart';
 import '../providers/purchase_provider.dart';
 
 class LessonsScreen extends StatefulWidget {
@@ -38,7 +39,7 @@ class _LessonsScreenState extends State<LessonsScreen> {
     final isPremium = context.watch<PurchaseProvider>().isPremium;
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(title: const Text('Mini-lekcje')),
+      appBar: AppBar(title: Text(S.t(context, 'miniLessons'))),
       body: ListView.builder(
         padding: const EdgeInsets.all(16),
         itemCount: _lessons.length,
@@ -115,7 +116,7 @@ class _LessonsScreenState extends State<LessonsScreen> {
                     _markCompleted(idx);
                     Navigator.pop(context);
                   },
-                  child: const Text('Przeczytane ✓'),
+                  child: Text(S.t(context, 'readCheck')),
                 ),
               ),
               const SizedBox(height: 16),
@@ -211,7 +212,7 @@ const _lessons = [
       'Craving (głód substancji) to intensywna potrzeba użycia. Przychodzi jak fala — narasta, osiąga szczyt i opada. Przeciętny craving trwa 15-30 minut.\n\n„Surfing" polega na obserwowaniu cravingu bez reagowania na niego. Wyobraź sobie, że siedzisz na desce surfingowej i pozwalasz fali przejść pod Tobą.\n\nTechnika STOP:\n• S — Stop. Zatrzymaj się.\n• T — Take a breath. Weź 3 głębokie oddechy.\n• O — Observe. Obserwuj co czujesz w ciele.\n• P — Proceed. Podejmij świadomą decyzję.\n\nKażdy przesurfowany craving wzmacnia ścieżki neuronowe samokontroli. Z czasem cravings stają się słabsze i rzadsze.',
       'Craving jest jak fala — trwa 15-30 minut i zawsze mija. Nie musisz walczyć, wystarczy przeczekać.'),
   _Lesson('Trigger — rozpoznaj wroga', '🎯', 2,
-      'Trigger to bodziec, który uruchamia chęć użycia. Mogą być wewnętrzne (emocje) i zewnętrzne (sytuacje).\n\nNajczęstsze triggery:\n• Stres i lęk\n• Samotność i nuda\n• Miejsca gdzie używałeś\n• Ludzie z którymi używałeś\n• Piątkowy wieczór / weekend\n• Pory roku (święta, lato)\n• Sukcesy (! — \"zasłużyłem\")\n• Złość i frustracja\n\nPlan działania:\n1. Identyfikuj — zapisuj każdy trigger w check-inie\n2. Unikaj — na początku unikaj sytuacji high-risk\n3. Radzij sobie — miej plan B na każdy trigger\n4. Analizuj — po miesiącu zobacz wzorce\n\nŚwiadomość triggera to połowa sukcesu.',
+      'Trigger to bodziec, który uruchamia chęć użycia. Mogą być wewnętrzne (emocje) i zewnętrzne (sytuacje).\n\nNajczęstsze triggery:\n• Stres i lęk\n• Samotność i nuda\n• Miejsca gdzie używałeś\n• Ludzie z którymi używałeś\n• Piątkowy wieczór / weekend\n• Pory roku (święta, lato)\n• Sukcesy (! — "zasłużyłem")\n• Złość i frustracja\n\nPlan działania:\n1. Identyfikuj — zapisuj każdy trigger w check-inie\n2. Unikaj — na początku unikaj sytuacji high-risk\n3. Radzij sobie — miej plan B na każdy trigger\n4. Analizuj — po miesiącu zobacz wzorce\n\nŚwiadomość triggera to połowa sukcesu.',
       'Zapisuj triggery konsekwentnie. Wzorce ujawnią się po 2-3 tygodniach.'),
   _Lesson('Sen w trzeźwości', '😴', 2,
       'Uzależnienie niszczy architekturę snu. Alkohol np. pomaga zasnąć, ale eliminuje fazę REM — tę odpowiedzialną za przetwarzanie emocji i pamięć.\n\nPo odstawieniu sen jest często okropny przez pierwsze 1-4 tygodnie. To normalne.\n\nJak poprawić sen w trzeźwości:\n• Stała pora wstawania (nawet w weekend)\n• Żadnych ekranów 30 min przed snem\n• Chłodna sypialnia (18-20°C)\n• Magnez przed snem\n• 4-7-8 oddychanie: wdech 4s, wstrzymaj 7s, wydech 8s\n• Ruch w ciągu dnia (nie przed snem)\n\nPo 2-4 tygodniach abstynencji sen staje się głębszy i bardziej regenerujący niż kiedykolwiek podczas używania.',
@@ -227,7 +228,7 @@ const _lessons = [
       'Samotność to najsilniejszy trigger nawrotów. Ale jest różnica między byciem samemu a samotnością.\n\nBycie samemu = wybór. Czas z sobą, refleksja, regeneracja.\nSamotność = poczucie odcięcia nawet wśród ludzi.\n\nW uzależnieniu często otaczamy się ludźmi, ale jesteśmy samotni. W trzeźwości możemy być sami, ale czuć się połączeni.\n\nPlan na samotność:\n• Miej listę 3 osób, do których możesz zadzwonić o każdej porze\n• Pisz na 3 AM Wall — nie jesteś sam\n• Chodź na spotkania (nawet online)\n• Wolontariat — pomaganie innym leczy samotność\n• Przyjmij, że samotność to emocja, nie fakt. Przejdzie jak craving.',
       'Samotność to emocja, nie rzeczywistość. Masz 3 AM Wall i całą społeczność.'),
   _Lesson('Nawrót nie jest porażką', '🔁', 2,
-      'Nawrót (relapse) jest częścią procesu zdrowienia dla wielu osób. To NIE jest powód do wstydu ani porażka.\n\nModel nawrotu Marlatta:\n1. Nawrót emocjonalny (tygodnie wcześniej): izolacja, tłumienie emocji, zaniedbywanie siebie\n2. Nawrót mentalny (dni wcześniej): fantazjowanie o używaniu, myślenie \"jeden raz\", planowanie\n3. Nawrót fizyczny: użycie substancji\n\nJeśli doszło do nawrotu:\n• Natychmiast zatrzymaj się — jeden raz nie musi stać się ciągiem\n• Zadzwoń do kogoś: sponsor, przyjaciel, linia kryzysowa\n• Nie usuwaj aplikacji. Zresetuj licznik. Zacznij od zera — z doświadczeniem\n• Zapytaj się: co było triggerem? Czego mogę się nauczyć?\n\nKażdy dzień trzeźwości się liczy — nawet jeśli nie są po kolei.',
+      'Nawrót (relapse) jest częścią procesu zdrowienia dla wielu osób. To NIE jest powód do wstydu ani porażka.\n\nModel nawrotu Marlatta:\n1. Nawrót emocjonalny (tygodnie wcześniej): izolacja, tłumienie emocji, zaniedbywanie siebie\n2. Nawrót mentalny (dni wcześniej): fantazjowanie o używaniu, myślenie "jeden raz", planowanie\n3. Nawrót fizyczny: użycie substancji\n\nJeśli doszło do nawrotu:\n• Natychmiast zatrzymaj się — jeden raz nie musi stać się ciągiem\n• Zadzwoń do kogoś: sponsor, przyjaciel, linia kryzysowa\n• Nie usuwaj aplikacji. Zresetuj licznik. Zacznij od zera — z doświadczeniem\n• Zapytaj się: co było triggerem? Czego mogę się nauczyć?\n\nKażdy dzień trzeźwości się liczy — nawet jeśli nie są po kolei.',
       'Nawrót to informacja, nie wyrok. Najważniejsze co robisz następnego dnia.'),
   _Lesson('Gniew i frustracja bez substancji', '😤', 2,
       'Wiele osób pije/używa, żeby stłumić gniew. Bez substancji emocje wracają ze zdwojoną siłą.\n\nDlaczego gniew jest taki silny w trzeźwości:\n• Lata tłumionych emocji wracają\n• Mózg uczy się od nowa regulacji emocji\n• Frustracja z powodu trudności trzeźwości\n\nZdrowe sposoby na gniew:\n• Ruch fizyczny: bieg, boks, pompki\n• Lodowa technika: trzymaj kostkę lodu w dłoni — ból odwraca uwagę od gniewu\n• Journaling: napisz list do osoby, na którą się gniewasz (nie wysyłaj)\n• 5-4-3-2-1: Znajdź 5 rzeczy, które widzisz, 4 słyszysz, 3 czujesz, 2 wąchasz, 1 smakujesz\n• Box breathing: 4s wdech, 4s pauza, 4s wydech, 4s pauza',
@@ -239,6 +240,6 @@ const _lessons = [
       'Nuda jest jednym z najczęstszych, a zarazem najczęściej ignorowanych triggerów. Dlaczego?\n\nSubstancje sztucznie stymulują układ nagrody. Bez nich „normalne" aktywności wydają się nijakie. To anhedonia — tymczasowa niezdolność do odczuwania przyjemności z codziennych rzeczy.\n\nCo robić:\n• Zrób listę 20 rzeczy, które możesz zrobić zamiast (miej ją w telefonie)\n• Flow state: znajdź aktywność tak angażującą, że tracisz poczucie czasu\n• Zaakceptuj nudę: nie każda minuta musi być wypełniona\n• Naucz się czegoś nowego: instrument, język, gotowanie\n• Pomagaj innym: wolontariat zabija nudę i buduje sens\n\nAnhedonia mija. Po 3-6 miesiącach trzeźwości mózg przywraca naturalne receptory dopaminy i „normalne" czynności znów dają radość.',
       'Nuda to tymczasowa anhedonia. Mija z czasem. Miej listę 20 alternatyw w telefonie.'),
   _Lesson('Wdzięczność jako narzędzie', '🙏', 2,
-      'Wdzięczność to nie banalny slogan z Instagrama. To neurologicznie udowodnione narzędzie regulacji emocji.\n\nCo mówi nauka:\n• Wdzięczność aktywuje prefrontal cortex i nucleus accumbens — te same obszary, które osłabło uzależnienie\n• Regularna praktyka wdzięczności zwiększa produkcję serotoniny i dopaminy — naturalnie\n• Zmniejsza kortyzol (hormon stresu) o 23%\n\nPraktyka:\n• Codzienne 3 rzeczy w check-inie (pole \"Za co jesteś dziś wdzięczny?\")\n• List do kogoś, kto Ci pomógł (nie musisz go wysyłać)\n• \"Cicha wdzięczność\": zauważ jedną dobrą rzecz w tej chwili\n\nTo nie jest ignorowanie problemów. To poszerzanie perspektywy — widzisz trudne I dobre jednocześnie.',
+      'Wdzięczność to nie banalny slogan z Instagrama. To neurologicznie udowodnione narzędzie regulacji emocji.\n\nCo mówi nauka:\n• Wdzięczność aktywuje prefrontal cortex i nucleus accumbens — te same obszary, które osłabło uzależnienie\n• Regularna praktyka wdzięczności zwiększa produkcję serotoniny i dopaminy — naturalnie\n• Zmniejsza kortyzol (hormon stresu) o 23%\n\nPraktyka:\n• Codzienne 3 rzeczy w check-inie (pole "Za co jesteś dziś wdzięczny?")\n• List do kogoś, kto Ci pomógł (nie musisz go wysyłać)\n• "Cicha wdzięczność": zauważ jedną dobrą rzecz w tej chwili\n\nTo nie jest ignorowanie problemów. To poszerzanie perspektywy — widzisz trudne I dobre jednocześnie.',
       'Wdzięczność zmienia mózg na poziomie neurochemicznym. 3 rzeczy dziennie wystarczą.'),
 ];

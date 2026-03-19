@@ -3,7 +3,9 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../app/theme.dart';
 import '../constants/app_constants.dart';
+import '../l10n/strings.dart';
 import '../providers/auth_provider.dart';
+import '../providers/locale_provider.dart';
 import '../providers/sobriety_provider.dart';
 import '../providers/purchase_provider.dart';
 
@@ -13,47 +15,54 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
+    final loc = context.watch<LocaleProvider>();
     final sobriety = context.watch<SobrietyProvider>();
     final purchase = context.watch<PurchaseProvider>();
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(title: const Text('Profil')),
+      appBar: AppBar(title: Text(S.t(context, 'profile'))),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
           _buildHeader(context, auth, sobriety, purchase),
           const SizedBox(height: 24),
-          if (!auth.isLoggedIn) _tile(context, Icons.login, 'Zaloguj się', () => Navigator.pushNamed(context, '/auth')),
-          if (!auth.isLoggedIn) _tile(context, Icons.person_add, 'Zarejestruj się', () => Navigator.pushNamed(context, '/register')),
-          if (!purchase.isPremium) _tile(context, Icons.star, 'Recovery+', () => Navigator.pushNamed(context, '/paywall'), color: AppColors.gold),
-          const _SectionLabel('Narzędzia'),
-          _tile(context, Icons.savings_rounded, 'Oszczędności i zdrowie', () => Navigator.pushNamed(context, '/savings')),
-          _tile(context, Icons.bar_chart_rounded, 'Analiza wzorców', () => Navigator.pushNamed(context, '/triggers')),
-          _tile(context, Icons.school_rounded, 'Mini-lekcje', () => Navigator.pushNamed(context, '/lessons')),
-          _tile(context, Icons.map_rounded, 'Spotkania AA/NA/SMART', () => Navigator.pushNamed(context, '/meetings')),
-          _tile(context, Icons.people_alt_rounded, 'Accountability Partner', () => Navigator.pushNamed(context, '/accountability'),
+          if (!auth.isLoggedIn) _tile(context, Icons.login, S.t(context, 'login'), () => Navigator.pushNamed(context, '/auth')),
+          if (!auth.isLoggedIn) _tile(context, Icons.person_add, S.t(context, 'register'), () => Navigator.pushNamed(context, '/register')),
+          if (!purchase.isPremium) _tile(context, Icons.star, S.t(context, 'recoveryPlus'), () => Navigator.pushNamed(context, '/paywall'), color: AppColors.gold),
+          _tile(context, Icons.subscriptions_outlined, S.t(context, 'subscriptionTitle'), () => Navigator.pushNamed(context, '/subscription')),
+          _SectionLabel(S.t(context, 'tools')),
+          _tile(context, Icons.savings_rounded, S.t(context, 'savingsHealth'), () => Navigator.pushNamed(context, '/savings')),
+          _tile(context, Icons.bar_chart_rounded, S.t(context, 'triggerAnalysis'), () => Navigator.pushNamed(context, '/triggers')),
+          _tile(context, Icons.school_rounded, S.t(context, 'miniLessons'), () => Navigator.pushNamed(context, '/lessons')),
+          _tile(context, Icons.map_rounded, S.t(context, 'meetings'), () => Navigator.pushNamed(context, '/meetings')),
+          _tile(context, Icons.auto_awesome_outlined, S.t(context, 'returnToSelf'), () => Navigator.pushNamed(context, '/return-to-self')),
+          _tile(context, Icons.face_retouching_natural, S.t(context, 'mirrorMoment'), () => Navigator.pushNamed(context, '/mirror-moment')),
+          _tile(context, Icons.people_alt_rounded, S.t(context, 'accountabilityPartner'), () => Navigator.pushNamed(context, '/accountability'),
               badge: purchase.isPremium ? null : 'PRO'),
-          _tile(context, Icons.mail_outline, 'Listy do siebie', () => Navigator.pushNamed(context, '/future-letter-list')),
-          _tile(context, Icons.waves, 'Craving Surf', () => Navigator.pushNamed(context, '/craving-surf')),
-          const _SectionLabel('Ustawienia'),
-          _tile(context, Icons.calendar_today, 'Zmień datę trzeźwości', () => _showDatePicker(context, sobriety)),
-          _tile(context, Icons.notifications_outlined, 'Powiadomienia', () => Navigator.pushNamed(context, '/notifications')),
-          const _SectionLabel('Informacje'),
-          _tile(context, Icons.description_outlined, 'Regulamin', () => Navigator.pushNamed(context, '/terms')),
-          _tile(context, Icons.privacy_tip_outlined, 'Polityka prywatności', () => Navigator.pushNamed(context, '/privacy')),
-          _tile(context, Icons.email_outlined, 'Kontakt: sobersteps@pm.me', () => launchUrl(Uri.parse('mailto:${AppConstants.contactEmail}'))),
+          _tile(context, Icons.mail_outline, S.t(context, 'lettersToSelf'), () => Navigator.pushNamed(context, '/future-letter-list')),
+          _tile(context, Icons.waves, S.t(context, 'cravingSurf'), () => Navigator.pushNamed(context, '/craving-surf')),
+          _SectionLabel(S.t(context, 'settings')),
+          _tile(context, Icons.calendar_today, S.t(context, 'changeSobrietyDate'), () => _showDatePicker(context, sobriety)),
+          _tile(context, Icons.notifications_outlined, S.t(context, 'notifications'), () => Navigator.pushNamed(context, '/notifications')),
+          _SectionLabel(S.t(context, 'info')),
+          _tile(context, Icons.language, S.t(context, 'language'), () => _showLocalePicker(context, loc)),
+          _tile(context, Icons.person_outline, S.t(context, 'aboutCreator'), () => Navigator.pushNamed(context, '/about')),
+          _tile(context, Icons.description_outlined, S.t(context, 'terms'), () => Navigator.pushNamed(context, '/terms')),
+          _tile(context, Icons.privacy_tip_outlined, S.t(context, 'privacy'), () => Navigator.pushNamed(context, '/privacy')),
+          _tile(context, Icons.email_outlined, S.t(context, 'contactEmail'), () => launchUrl(Uri.parse('mailto:${AppConstants.contactEmail}'))),
           _tile(context, Icons.phone, 'SAMHSA: 1-800-662-4357', () => launchUrl(Uri.parse('tel:1-800-662-4357')), color: AppColors.crisisRed),
           if (auth.isLoggedIn) ...[
             const SizedBox(height: 16),
-            _tile(context, Icons.restore, 'Przywróć zakupy', () => purchase.restore()),
-            _tile(context, Icons.logout, 'Wyloguj', () async {
+            _tile(context, Icons.restore, S.t(context, 'restorePurchases'), () => purchase.restore()),
+            _tile(context, Icons.delete_forever_outlined, S.t(context, 'deleteAccount'), () => launchUrl(Uri.parse('mailto:${AppConstants.contactEmail}?subject=Usunięcie%20konta%20-%20SoberSteps')), color: AppColors.textSecondary),
+            _tile(context, Icons.logout, S.t(context, 'logout'), () async {
               await auth.signOut();
               if (context.mounted) Navigator.pushReplacementNamed(context, '/onboarding');
             }, color: AppColors.error),
           ],
           const SizedBox(height: 32),
-          const Center(child: Text('SoberSteps v1.0.0', style: TextStyle(color: AppColors.textSecondary, fontSize: 12))),
+          Center(child: Text(S.t(context, 'version'), style: const TextStyle(color: AppColors.textSecondary, fontSize: 12))),
         ],
       ),
     );
@@ -71,15 +80,15 @@ class ProfileScreen extends StatelessWidget {
             child: Icon(purchase.isPremium ? Icons.shield : Icons.person, size: 36, color: AppColors.background),
           ),
           const SizedBox(height: 12),
-          Text(auth.user?.email ?? 'Gość', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
+          Text(auth.user?.email ?? S.t(context, 'guest'), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
           const SizedBox(height: 4),
-          Text('${sobriety.daysSober} dni trzeźwości', style: const TextStyle(color: AppColors.textSecondary)),
+          Text('${sobriety.daysSober} ${S.t(context, 'daysSober')}', style: const TextStyle(color: AppColors.textSecondary)),
           if (purchase.isPremium) ...[
             const SizedBox(height: 8),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
               decoration: BoxDecoration(color: AppColors.gold.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(12)),
-              child: const Text('Recovery+', style: TextStyle(color: AppColors.gold, fontWeight: FontWeight.w600, fontSize: 12)),
+              child: Text(S.t(context, 'recoveryPlus'), style: const TextStyle(color: AppColors.gold, fontWeight: FontWeight.w600, fontSize: 12)),
             ),
           ],
         ],
@@ -105,6 +114,35 @@ class ProfileScreen extends StatelessWidget {
       ),
       onTap: onTap,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    );
+  }
+
+  void _showLocalePicker(BuildContext context, LocaleProvider loc) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.surface,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: ['en', 'pl', 'es', 'fr', 'ru', 'nl'].map((code) {
+            final names = {
+              'en': 'English',
+              'pl': 'Polski',
+              'es': 'Español',
+              'fr': 'Français',
+              'ru': 'Русский',
+              'nl': 'Nederlands',
+            };
+            return ListTile(
+              title: Text(names[code] ?? code),
+              onTap: () {
+                loc.setLocale(Locale(code));
+                Navigator.pop(ctx);
+              },
+            );
+          }).toList(),
+        ),
+      ),
     );
   }
 
