@@ -9,9 +9,21 @@ jobs:
     steps:
       - name: notify
         run: |
+          set +e
           H=$(date -u +%H)
           B="Authorization: Bearer ${{ secrets.CRON_SECRET }}"
           U="https://kznhbcwozpjflewlzxnu.supabase.co/functions/v1/notify_users"
-          curl -sf -H "$B" "${U}?type=checkin&hour=$H"
-          [ "$H" = "08" ] && curl -sf -H "$B" "${U}?type=letter"
-          [ "$H" = "20" ] && curl -sf -H "$B" "${U}?type=milestone"
+
+          curl -sf -H "$B" "${U}?type=checkin&hour=$H" \
+            && echo "checkin OK" || echo "::warning::checkin failed (hour=$H)"
+
+          [ "$H" = "08" ] && { curl -sf -H "$B" "${U}?type=letter" \
+            && echo "letter OK" || echo "::warning::letter failed"; }
+
+          [ "$H" = "09" ] && { curl -sf -H "$B" "${U}?type=path" \
+            && echo "path OK" || echo "::warning::path failed"; }
+
+          [ "$H" = "20" ] && { curl -sf -H "$B" "${U}?type=milestone" \
+            && echo "milestone OK" || echo "::warning::milestone failed"; }
+
+          exit 0
