@@ -1,8 +1,11 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:purchases_flutter/purchases_flutter.dart';
+
 import '../app/theme.dart';
 import '../constants/app_constants.dart';
 import '../providers/purchase_provider.dart';
@@ -18,10 +21,32 @@ class PaywallScreen extends StatefulWidget {
 }
 
 class _PaywallScreenState extends State<PaywallScreen> {
-  String _selectedPlan = AppConstants.annualProductId;
+  Package? _selected;
   Timer? _fomoTimer;
   Duration _remaining = const Duration(hours: 23, minutes: 59, seconds: 59);
   final _analytics = AnalyticsService();
+
+  static int _packageRank(Package a) {
+    final id = a.storeProduct.identifier;
+    if (id == AppConstants.annualProductId) return 0;
+    if (id == AppConstants.monthlyProductId) return 1;
+    if (id == AppConstants.familyProductId) return 2;
+    if (id == AppConstants.lifetimeProductId) return 3;
+    return 4;
+  }
+
+  bool _packageVisible(Package p, PurchaseProvider purchase) {
+    if (p.storeProduct.identifier == AppConstants.lifetimeProductId) {
+      return purchase.daysSinceInstall >= 90;
+    }
+    return true;
+  }
+
+  List<Package> _visiblePackages(PurchaseProvider purchase) {
+    final list = purchase.paywallPackages.where((p) => _packageVisible(p, purchase)).toList();
+    list.sort((a, b) => _packageRank(a).compareTo(_packageRank(b)));
+    return list;
+  }
 
   @override
   void initState() {
@@ -35,6 +60,22 @@ class _PaywallScreenState extends State<PaywallScreen> {
         }
       });
     }
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await purchase.loadOfferings();
+      if (!mounted) return;
+      final pkgs = _visiblePackages(purchase);
+      if (pkgs.isEmpty) return;
+      setState(() {
+        Package? annual;
+        for (final p in pkgs) {
+          if (p.storeProduct.identifier == AppConstants.annualProductId) {
+            annual = p;
+            break;
+          }
+        }
+        _selected = annual ?? pkgs.first;
+      });
+    });
   }
 
   @override
@@ -43,9 +84,29 @@ class _PaywallScreenState extends State<PaywallScreen> {
     super.dispose();
   }
 
+  String _periodLabel(BuildContext context, Package p) {
+    switch (p.packageType) {
+      case PackageType.monthly:
+        return S.t(context, 'subPeriodMonthly');
+      case PackageType.annual:
+        return S.t(context, 'subPeriodAnnual');
+      case PackageType.weekly:
+        return S.t(context, 'subPeriodWeekly');
+      case PackageType.lifetime:
+        return S.t(context, 'subPeriodLifetime');
+      default:
+        return '';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final purchase = context.watch<PurchaseProvider>();
+    final pkgs = _visiblePackages(purchase);
+    if (_selected != null && !pkgs.contains(_selected)) {
+      _selected = pkgs.isNotEmpty ? pkgs.first : null;
+    }
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -59,45 +120,81 @@ class _PaywallScreenState extends State<PaywallScreen> {
         ),
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Column(
-            children: [
-              _buildHeadline(purchase.abVariant),
-              const SizedBox(height: 24),
-              ..._buildBenefitCards(),
-              const SizedBox(height: 24),
-              _buildSocialProof(),
-              const SizedBox(height: 24),
-              _buildPlanCard('Monthly', '\$6.99/mo', AppConstants.monthlyProductId, false),
-              const SizedBox(height: 12),
-              _buildPlanCard('Annual', '\$59.99/yr', AppConstants.annualProductId, true, badge: 'BEST VALUE', strikethrough: '\$83.88'),
-              const SizedBox(height: 12),
-              _buildPlanCard('Family', '\$9.99/mo', AppConstants.familyProductId, false),
-              if (purchase.daysSinceInstall >= 90) ...[
-                const SizedBox(height: 12),
-                _buildPlanCard('Lifetime', '\$89.99', AppConstants.lifetimeProductId, false, subtitle: '234 osoby wybrały trzeźwość na zawsze'),
-              ],
-              if (purchase.daysSinceInstall > 3) ...[
-                const SizedBox(height: 16),
-                _buildFomoTimer(),
-              ],
-              const SizedBox(height: 24),
-              _buildCtaButton(purchase),
-              const SizedBox(height: 12),
-              TextButton(
-                onPressed: () async {
-                  HapticFeedback.lightImpact();
-                  await purchase.restore();
-                  if (!context.mounted) return;
-                  if (purchase.isPremium) Navigator.pop(context);
-                },
-                child: const Text('Przywróć zakupy', style: TextStyle(color: AppColors.textSecondary)),
+        child: purchase.offeringsLoading && pkgs.isEmpty
+            ? Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const CircularProgressIndicator(color: AppColors.primary),
+                    const SizedBox(height: 16),
+                    Text(S.t(context, 'paywallLoadingOfferings'), style: const TextStyle(color: AppColors.textSecondary)),
+                  ],
+                ),
+              )
+            : SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Column(
+                  children: [
+                    _buildHeadline(purchase.abVariant),
+                    const SizedBox(height: 24),
+                    ..._buildBenefitCards(),
+                    const SizedBox(height: 24),
+                    _buildSocialProof(),
+                    const SizedBox(height: 24),
+                    if (pkgs.isEmpty)
+                      Text(
+                        S.t(context, 'paywallNoPlans'),
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(color: AppColors.textSecondary),
+                      )
+                    else
+                      ...pkgs.map((p) {
+                        final sel = _selected?.identifier == p.identifier;
+                        final best = p.storeProduct.identifier == AppConstants.annualProductId;
+                        final period = _periodLabel(context, p);
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: _buildPlanCard(
+                            context,
+                            p,
+                            selected: sel,
+                            bestValue: best,
+                            period: period,
+                          ),
+                        );
+                      }),
+                    if (purchase.daysSinceInstall > 3) ...[
+                      const SizedBox(height: 16),
+                      _buildFomoTimer(),
+                    ],
+                    const SizedBox(height: 24),
+                    _buildCtaButton(context, purchase, pkgs),
+                    const SizedBox(height: 12),
+                    TextButton(
+                      onPressed: () async {
+                        HapticFeedback.lightImpact();
+                        await purchase.restore();
+                        if (!context.mounted) return;
+                        final rk = purchase.restoreErrorKey;
+                        if (rk != null) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(S.t(context, rk))),
+                          );
+                          purchase.clearPurchaseUiErrors();
+                        } else if (purchase.isPremium) {
+                          Navigator.pop(context);
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(S.t(context, 'restoreNoEntitlementFound'))),
+                          );
+                        }
+                      },
+                      child: Text(S.t(context, 'restorePurchases'), style: const TextStyle(color: AppColors.textSecondary)),
+                    ),
+                    const SizedBox(height: 32),
+                  ],
+                ),
               ),
-              const SizedBox(height: 32),
-            ],
-          ),
-        ),
       ),
     );
   }
@@ -122,20 +219,22 @@ class _PaywallScreenState extends State<PaywallScreen> {
       (Icons.mail_outline, 'Napisz list do siebie za 6 miesięcy'),
       (Icons.shield, 'Nie pozwól jednej ciężkiej nocy zniszczyć streaka'),
     ];
-    return benefits.map((b) => Padding(
-          padding: const EdgeInsets.only(bottom: 12),
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(12)),
-            child: Row(
-              children: [
-                Icon(b.$1, color: AppColors.primary, size: 28),
-                const SizedBox(width: 12),
-                Expanded(child: Text(b.$2, style: const TextStyle(color: AppColors.textPrimary, fontSize: 15))),
-              ],
-            ),
-          ),
-        )).toList();
+    return benefits
+        .map((b) => Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(12)),
+                child: Row(
+                  children: [
+                    Icon(b.$1, color: AppColors.primary, size: 28),
+                    const SizedBox(width: 12),
+                    Expanded(child: Text(b.$2, style: const TextStyle(color: AppColors.textPrimary, fontSize: 15))),
+                  ],
+                ),
+              ),
+            ))
+        .toList();
   }
 
   Widget _buildSocialProof() {
@@ -146,10 +245,16 @@ class _PaywallScreenState extends State<PaywallScreen> {
     );
   }
 
-  Widget _buildPlanCard(String name, String price, String productId, bool highlighted, {String? badge, String? strikethrough, String? subtitle}) {
-    final selected = _selectedPlan == productId;
+  Widget _buildPlanCard(
+    BuildContext context,
+    Package package, {
+    required bool selected,
+    required bool bestValue,
+    required String period,
+  }) {
+    final sp = package.storeProduct;
     return GestureDetector(
-      onTap: () => setState(() => _selectedPlan = productId),
+      onTap: () => setState(() => _selected = package),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.all(16),
@@ -157,8 +262,8 @@ class _PaywallScreenState extends State<PaywallScreen> {
           color: selected ? AppColors.primary.withValues(alpha: 0.15) : AppColors.surface,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: highlighted ? AppColors.gold : (selected ? AppColors.primary : AppColors.surfaceLight),
-            width: highlighted ? 2 : 1,
+            color: bestValue ? AppColors.gold : (selected ? AppColors.primary : AppColors.surfaceLight),
+            width: bestValue ? 2 : 1,
           ),
         ),
         child: Row(
@@ -172,28 +277,31 @@ class _PaywallScreenState extends State<PaywallScreen> {
                 children: [
                   Row(
                     children: [
-                      Text(name, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
-                      if (badge != null) ...[
+                      Expanded(
+                        child: Text(
+                          sp.title,
+                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+                        ),
+                      ),
+                      if (bestValue) ...[
                         const SizedBox(width: 8),
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                           decoration: BoxDecoration(color: AppColors.gold, borderRadius: BorderRadius.circular(8)),
-                          child: Text(badge, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.background)),
+                          child: Text(
+                            S.t(context, 'subscriptionBadgeBestValue'),
+                            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.background),
+                          ),
                         ),
                       ],
                     ],
                   ),
-                  if (subtitle != null) Text(subtitle, style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                  if (period.isNotEmpty)
+                    Text(period, style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
                 ],
               ),
             ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                if (strikethrough != null) Text(strikethrough, style: const TextStyle(fontSize: 12, color: AppColors.textSecondary, decoration: TextDecoration.lineThrough)),
-                Text(price, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: highlighted ? AppColors.gold : AppColors.textPrimary)),
-              ],
-            ),
+            Text(sp.priceString, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: bestValue ? AppColors.gold : AppColors.textPrimary)),
           ],
         ),
       ),
@@ -207,7 +315,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
     return Text('${S.t(context, 'trialExpiresIn')} $h:$m:$s', style: const TextStyle(color: AppColors.error, fontSize: 14, fontWeight: FontWeight.w600));
   }
 
-  Widget _buildCtaButton(PurchaseProvider purchase) {
+  Widget _buildCtaButton(BuildContext context, PurchaseProvider purchase, List<Package> pkgs) {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
@@ -215,13 +323,21 @@ class _PaywallScreenState extends State<PaywallScreen> {
           padding: const EdgeInsets.symmetric(vertical: 18),
           backgroundColor: AppColors.gold,
         ),
-        onPressed: () async {
-          HapticFeedback.lightImpact();
-          final success = await purchase.purchase(_selectedPlan);
-          if (success && mounted) {
-            Navigator.of(context).pushReplacementNamed('/premium-welcome');
-          }
-        },
+        onPressed: _selected == null || pkgs.isEmpty
+            ? null
+            : () async {
+                HapticFeedback.lightImpact();
+                final pkg = _selected!;
+                final success = await purchase.purchasePackage(pkg);
+                if (!context.mounted) return;
+                final err = purchase.purchaseErrorKey;
+                if (err != null) {
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(S.t(context, err))));
+                  purchase.clearPurchaseUiErrors();
+                } else if (success) {
+                  Navigator.of(context).pushReplacementNamed('/premium-welcome');
+                }
+              },
         child: Text(S.t(context, 'startFreeTrial'), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
       ),
     ).animate(onPlay: (c) => c.repeat(period: 3000.ms)).shimmer(duration: 800.ms, color: AppColors.textPrimary.withValues(alpha: 0.3));

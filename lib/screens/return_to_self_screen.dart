@@ -6,7 +6,9 @@ import '../core/philosophy_core.dart';
 import '../l10n/strings.dart';
 import '../models/return_to_self.dart';
 import '../providers/auth_provider.dart';
+import '../providers/purchase_provider.dart';
 import '../providers/return_to_self_provider.dart';
+import 'paywall_screen.dart';
 import '../services/analytics_service.dart';
 
 /// Philosophy applied: 30-day path as curiosity journey, not challenge
@@ -18,13 +20,26 @@ class ReturnToSelfScreen extends StatefulWidget {
 }
 
 class _ReturnToSelfScreenState extends State<ReturnToSelfScreen> {
+  bool _routedPaywall = false;
+
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<ReturnToSelfProvider>().loadProgress();
-    });
+    WidgetsBinding.instance.addPostFrameCallback((_) => _ensureProReturnToSelf());
     AnalyticsService().track('return_to_self_opened');
+  }
+
+  void _ensureProReturnToSelf() {
+    if (!mounted || _routedPaywall) return;
+    if (!context.read<AuthProvider>().isLoggedIn) return;
+    if (!context.read<PurchaseProvider>().isPro) {
+      _routedPaywall = true;
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute<void>(builder: (_) => const PaywallScreen(trigger: 'return_to_self')),
+      );
+      return;
+    }
+    context.read<ReturnToSelfProvider>().loadProgress();
   }
 
   static const _phases = [

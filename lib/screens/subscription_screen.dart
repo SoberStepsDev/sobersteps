@@ -7,7 +7,6 @@ import 'package:url_launcher/url_launcher.dart';
 import '../app/theme.dart';
 import '../l10n/strings.dart';
 import '../providers/purchase_provider.dart';
-import '../services/purchase_service.dart';
 
 /// Subscription management: store-backed plan display, restore, platform management URLs.
 class SubscriptionScreen extends StatelessWidget {
@@ -47,12 +46,23 @@ class SubscriptionScreen extends StatelessWidget {
           const SizedBox(height: 32),
           ElevatedButton(
             onPressed: () async {
-              await PurchaseService().restorePurchases();
-              await purchase.refreshFromStore();
+              await purchase.restore();
               if (!context.mounted) return;
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(S.t(context, 'restorePurchases'))),
-              );
+              final rk = purchase.restoreErrorKey;
+              if (rk != null) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(S.t(context, rk))),
+                );
+                purchase.clearPurchaseUiErrors();
+              } else if (purchase.isPremium) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(S.t(context, 'restorePurchasesDone'))),
+                );
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(S.t(context, 'restoreNoEntitlementFound'))),
+                );
+              }
             },
             child: Text(S.t(context, 'restorePurchases')),
           ),

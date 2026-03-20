@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../app/theme.dart';
 import '../providers/karma_provider.dart';
+import '../providers/purchase_provider.dart';
+import 'paywall_screen.dart';
 import '../services/analytics_service.dart';
 import '../services/marketing_bridge.dart';
 import '../l10n/strings.dart';
@@ -20,12 +22,25 @@ class _KarmaMirrorScreenState extends State<KarmaMirrorScreen> {
   final _controller = TextEditingController();
   bool _saved = false;
   bool _isSaving = false;
+  bool _routedPaywall = false;
 
   @override
   void initState() {
     super.initState();
-    context.read<KarmaProvider>().loadEntries();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _ensureProKarma());
     AnalyticsService().track('karma_mirror_opened');
+  }
+
+  void _ensureProKarma() {
+    if (!mounted || _routedPaywall) return;
+    if (!context.read<PurchaseProvider>().isPro) {
+      _routedPaywall = true;
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute<void>(builder: (_) => const PaywallScreen(trigger: 'karma_mirror')),
+      );
+      return;
+    }
+    context.read<KarmaProvider>().loadEntries();
   }
 
   @override

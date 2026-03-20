@@ -1,0 +1,38 @@
+---
+description: Minimize token and credit usage on every request
+globs: ["**/*"]
+alwaysApply: true
+---
+
+# Token Efficiency Rules
+
+## Before reading files
+- Read only files directly relevant to the task
+- Never read entire directories speculatively
+- Use grep/search instead of opening files to verify content exists first
+- Never re-read a file already read in the same session
+
+## Before writing code
+- Modify only the minimal set of files required
+- Do not refactor code unrelated to the task
+- Do not add comments unless asked
+- Do not add docstrings unless asked
+- Do not create example/test files unless asked
+
+## Responses
+- No preamble ("Sure!", "Great question", "Of course")
+- No summary of what you just did — the diff speaks for itself
+- No "Next steps" unless asked
+- No explanation of unchanged code
+- Errors only: skip warnings that don't affect the task
+
+## Tool calls
+- Prefer targeted grep over full file reads
+- Never call the same tool twice for the same data
+- Batch related edits into one tool call where possible
+
+## Scope
+- Do exactly what was asked — nothing more
+- Do not proactively fix unrelated issues
+- Do not upgrade dependencies unless the task requires it
+- Do not add imports beyond what the task needs

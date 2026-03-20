@@ -1,41 +1,58 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
+import 'package:purchases_flutter/purchases_flutter.dart';
 
+import '../constants/app_constants.dart';
+
+/// RevenueCat via [purchases_flutter]. Entitlement: [AppConstants.revenueCatEntitlementId].
 class PurchaseService {
-  static final PurchaseService _instance = PurchaseService._();
-  factory PurchaseService() => _instance;
   PurchaseService._();
 
-  bool _isPremium = false; // ignore: prefer_final_fields
-  bool get isPremium => _isPremium;
+  static bool _configured = false;
 
-  Future<void> init() async {
-    // RevenueCat initialization placeholder
-    // await Purchases.configure(PurchasesConfiguration(AppConstants.revenueCatApiKey));
-    debugPrint('[PurchaseService] initialized (stub)');
+  static Future<void> initialize() async {
+    if (_configured) return;
+    if (kDebugMode) {
+      await Purchases.setLogLevel(LogLevel.debug);
+    }
+    await Purchases.configure(PurchasesConfiguration(AppConstants.revenueCatApiKey));
+    _configured = true;
   }
 
-  Future<bool> checkPremium() async {
-    // Placeholder: check RevenueCat entitlements
-    // final info = await Purchases.getCustomerInfo();
-    // _isPremium = info.entitlements.all['premium']?.isActive ?? false;
-    return _isPremium;
+  static bool _isProFromInfo(CustomerInfo info) =>
+      info.entitlements.all[AppConstants.revenueCatEntitlementId]?.isActive ?? false;
+
+  static Future<bool> isPro() async {
+    final info = await Purchases.getCustomerInfo();
+    return _isProFromInfo(info);
   }
 
-  Future<bool> purchase(String productId) async {
-    // Placeholder: purchase via RevenueCat
-    debugPrint('[PurchaseService] purchase $productId');
-    return false;
+  /// Completes when the store flow ends. On user cancel: returns with no throw.
+  /// Other errors are rethrown.
+  static Future<void> purchasePackage(Package package) async {
+    try {
+      await Purchases.purchase(PurchaseParams.package(package));
+    } on PlatformException catch (e) {
+      if (PurchasesErrorHelper.getErrorCode(e) == PurchasesErrorCode.purchaseCancelledError) {
+        return;
+      }
+      rethrow;
+    }
   }
 
-  Future<bool> restore() async {
-    debugPrint('[PurchaseService] restore');
-    return _isPremium;
+  static Future<CustomerInfo> restorePurchases() => Purchases.restorePurchases();
+
+  static Future<List<Offering>> getOfferings() async {
+    final offerings = await Purchases.getOfferings();
+    final out = <Offering>[];
+    final current = offerings.current;
+    if (current != null) out.add(current);
+    for (final e in offerings.all.entries) {
+      if (current != null && e.key == current.identifier) continue;
+      out.add(e.value);
+    }
+    return out;
   }
 
-  /// RevenueCat / store restore entry point (alias for [restore]).
-  Future<bool> restorePurchases() => restore();
-
-  void setUserId(String userId) {
-    debugPrint('[PurchaseService] setUserId $userId');
-  }
+  static Future<CustomerInfo> getCustomerInfo() => Purchases.getCustomerInfo();
 }

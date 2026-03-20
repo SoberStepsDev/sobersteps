@@ -55,7 +55,6 @@ import 'screens/karma_mirror_screen.dart';
 import 'screens/naomi_screen.dart';
 import 'screens/wall_of_strength_screen.dart';
 import 'screens/mirror_moment_screen.dart';
-import 'services/purchase_service.dart';
 import 'services/notification_service.dart';
 import 'services/crisis_detection_service.dart';
 
@@ -68,7 +67,6 @@ Future<void> main() async {
         url: AppConstants.supabaseUrl,
         anonKey: AppConstants.supabaseAnonKey,
       );
-      await PurchaseService().init();
       await NotificationService().init();
       CrisisDetectionService().onCrisisDetected = () {
         debugPrint('[Crisis] Auto-detected — routing to 3 AM SOS');

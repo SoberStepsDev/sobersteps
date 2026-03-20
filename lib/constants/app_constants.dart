@@ -5,19 +5,22 @@ class AppConstants {
   static const String supabaseAnonKey =
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt6bmhiY3dvenBqZmxld2x6eG51Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwMTU4NTcsImV4cCI6MjA4NzU5MTg1N30.CRgPK-BExwci8l6EHmJ3V9jH-ElABom62hejiBqyN_4';
 
-  static String get revenueCatApiKey =>
+  static const String revenueCatApiKey =
       String.fromEnvironment('REVENUE_CAT_KEY', defaultValue: 'test_yugqnTsxrHsXuQwYbZXcWIMMqsu');
-  static String get oneSignalAppId =>
+  static const String oneSignalAppId =
       String.fromEnvironment('ONESIGNAL_APP_ID', defaultValue: 'YOUR_ONESIGNAL_APP_ID');
-  static String get elevenLabsApiKey =>
+  static const String elevenLabsApiKey =
       String.fromEnvironment('ELEVENLABS_API_KEY', defaultValue: '');
   /// Sentry; empty = disabled. Build: `--dart-define=SENTRY_DSN=...`
-  static String get sentryDsn =>
+  static const String sentryDsn =
       String.fromEnvironment('SENTRY_DSN', defaultValue: '');
   /// Deep link host (Universal Links / App Links), without scheme.
-  static String get deepLinkDomain =>
+  static const String deepLinkDomain =
       String.fromEnvironment('DEEP_LINK_DOMAIN', defaultValue: 'sobersteps.app');
   static const String elevenLabsVoiceId = '2Hw5QTX3wstf1sLYfhhk'; // Patryk
+
+  /// RevenueCat dashboard entitlement id for Recovery+ / PRO access.
+  static const String revenueCatEntitlementId = 'pro';
 
   static const String monthlyProductId = 'sobersteps_monthly_699';
   static const String annualProductId = 'sobersteps_annual_5999';
