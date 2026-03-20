@@ -50,10 +50,21 @@ build/
 
 # Secrets
 .env
+android/key.properties
+android/app/upload-keystore.jks
 
 # Landing page — osobne repo (sobersteps-landing), zarządzaj osobno
 landing/
 
 # Releases (binarne APK — nie commituj do głównego repo)
 releases/
-.env
+
+# Python venv (Cursor l10n tools)
+.venv_lt/
+tool/__pycache__/
+
+# Supabase CLI cache
+supabase/.temp/
+
+# Cursor generated output cache
+.cursor/output/
