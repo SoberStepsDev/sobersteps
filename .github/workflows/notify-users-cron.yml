@@ -8,22 +8,38 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: notify
+        shell: bash
         run: |
-          set +e
           H=$(date -u +%H)
           B="Authorization: Bearer ${{ secrets.CRON_SECRET }}"
           U="https://kznhbcwozpjflewlzxnu.supabase.co/functions/v1/notify_users"
 
-          curl -sf -H "$B" "${U}?type=checkin&hour=$H" \
-            && echo "checkin OK" || echo "::warning::checkin failed (hour=$H)"
+          if curl -sf -H "$B" "${U}?type=checkin&hour=$H"; then
+            echo "checkin OK"
+          else
+            echo "::warning::checkin failed (hour=$H)"
+          fi
 
-          [ "$H" = "08" ] && { curl -sf -H "$B" "${U}?type=letter" \
-            && echo "letter OK" || echo "::warning::letter failed"; }
+          if [ "$H" = "08" ]; then
+            if curl -sf -H "$B" "${U}?type=letter"; then
+              echo "letter OK"
+            else
+              echo "::warning::letter failed"
+            fi
+          fi
 
-          [ "$H" = "09" ] && { curl -sf -H "$B" "${U}?type=path" \
-            && echo "path OK" || echo "::warning::path failed"; }
+          if [ "$H" = "09" ]; then
+            if curl -sf -H "$B" "${U}?type=path"; then
+              echo "path OK"
+            else
+              echo "::warning::path failed"
+            fi
+          fi
 
-          [ "$H" = "20" ] && { curl -sf -H "$B" "${U}?type=milestone" \
-            && echo "milestone OK" || echo "::warning::milestone failed"; }
-
-          exit 0
+          if [ "$H" = "20" ]; then
+            if curl -sf -H "$B" "${U}?type=milestone"; then
+              echo "milestone OK"
+            else
+              echo "::warning::milestone failed"
+            fi
+          fi
