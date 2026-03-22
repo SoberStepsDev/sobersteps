@@ -8,75 +8,30 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      line-height: 1.6;
-      color: #333;
-      background: #fff;
+      line-height: 1.6; color: #333; background: #fff;
     }
-    .container {
-      max-width: 800px;
-      margin: 0 auto;
-      padding: 40px 20px;
-    }
-    h1 {
-      font-size: 32px;
-      font-weight: 700;
-      margin-bottom: 8px;
-    }
-    .updated {
-      font-size: 13px;
-      color: #999;
-      margin-bottom: 32px;
-    }
-    h2 {
-      font-size: 18px;
-      font-weight: 700;
-      margin: 32px 0 12px;
-      color: #1a1a1a;
-    }
-    p {
-      margin-bottom: 12px;
-      font-size: 15px;
-    }
-    ul {
-      margin-left: 20px;
-      margin-bottom: 12px;
-    }
-    li {
-      margin-bottom: 8px;
-      font-size: 15px;
-    }
-    a {
-      color: #0066cc;
-      text-decoration: none;
-    }
-    a:hover {
-      text-decoration: underline;
-    }
+    .container { max-width: 800px; margin: 0 auto; padding: 40px 20px; }
+    h1 { font-size: 32px; font-weight: 700; margin-bottom: 8px; }
+    .updated { font-size: 13px; color: #999; margin-bottom: 32px; }
+    h2 { font-size: 18px; font-weight: 700; margin: 32px 0 12px; color: #1a1a1a; }
+    p { margin-bottom: 12px; font-size: 15px; }
+    ul { margin-left: 20px; margin-bottom: 12px; }
+    li { margin-bottom: 8px; font-size: 15px; }
+    a { color: #0066cc; text-decoration: none; }
+    a:hover { text-decoration: underline; }
     .crisis {
-      background: #f8f4f0;
-      border-left: 4px solid #d9534f;
-      padding: 16px 20px;
-      margin: 24px 0;
-      border-radius: 4px;
+      background: #f8f4f0; border-left: 4px solid #d9534f;
+      padding: 16px 20px; margin: 24px 0; border-radius: 4px;
     }
-    .crisis p {
-      margin: 0;
-      font-weight: 600;
-      color: #d9534f;
-    }
-    hr {
-      border: none;
-      border-top: 1px solid #e5e5e5;
-      margin: 40px 0;
-    }
+    .crisis p { margin: 0; font-weight: 600; color: #d9534f; }
+    hr { border: none; border-top: 1px solid #e5e5e5; margin: 40px 0; }
   </style>
 </head>
 <body>
-
 <div class="container">
 
   <h1>Privacy Policy</h1>
-  <p class="updated">Last updated: March 1, 2026</p>
+  <p class="updated">Last updated: March 22, 2026</p>
 
   <div class="crisis">
     <p>⚠️ In crisis: SAMHSA 1-800-662-4357 | Helpline 116 123</p>
@@ -94,24 +49,34 @@
   <ul>
     <li>Email address (for registration and magic link login)</li>
     <li>Google / Apple OAuth identifier (if using social login)</li>
+    <li>Username (optional, set by user)</li>
   </ul>
 
   <p><strong>Recovery data:</strong></p>
   <ul>
     <li>Sobriety start date</li>
-    <li>Addiction type / category</li>
+    <li>Addiction type / category (substance, behavioral, or return to self)</li>
+    <li>Return to Self focus area (e.g. self-criticism, perfectionism, toxic relationships) — stored only if Return to Self feature is enabled</li>
     <li>Daily check-ins (mood, craving level, triggers, notes)</li>
     <li>Milestones achieved</li>
     <li>Craving Surf sessions</li>
-    <li>3 AM Wall entries (anonymous)</li>
+    <li>3 AM Wall entries (anonymous to other users)</li>
     <li>Letters to future self</li>
     <li>Return to Self progress</li>
+  </ul>
+
+  <p><strong>Emergency contact (optional):</strong></p>
+  <ul>
+    <li>Name and phone number of a trusted person chosen by you</li>
+    <li>This data is stored in your account only and never shared with third parties</li>
   </ul>
 
   <p><strong>Technical data:</strong></p>
   <ul>
     <li>Install date, notification preferences, app language</li>
+    <li>Crash reports and error logs (sent to Sentry — see section 5)</li>
   </ul>
+
 
   <h2>3. Why We Process It</h2>
   <ul>
@@ -119,6 +84,8 @@
     <li>To send push notifications you opted into</li>
     <li>To manage subscriptions via RevenueCat</li>
     <li>To improve the app via anonymous usage stats</li>
+    <li>To diagnose crashes and bugs (Sentry error tracking)</li>
+    <li>To test and improve app features through anonymous A/B experiments</li>
   </ul>
 
   <h2>4. Security</h2>
@@ -126,8 +93,10 @@
     <li>Supabase database with encryption at rest and TLS/SSL in transit</li>
     <li>Row Level Security (RLS) — you can only access your own data</li>
     <li>No passwords stored — magic link or OAuth only</li>
+    <li>Sensitive tokens stored in device secure storage (flutter_secure_storage)</li>
     <li>3 AM Wall entries are anonymous to other users</li>
     <li>Check-in data is never visible to other users</li>
+    <li>Emergency contact data is private and never shared</li>
   </ul>
 
   <h2>5. Data Sharing</h2>
@@ -137,6 +106,7 @@
     <li><strong>Google / Apple</strong> — OAuth and payments</li>
     <li><strong>RevenueCat</strong> — subscription management</li>
     <li><strong>OneSignal</strong> — push notifications (with your consent)</li>
+    <li><strong>Sentry Inc.</strong> — crash reporting and error tracking (device type, OS version, anonymized stack traces; no personal recovery data is included)</li>
   </ul>
 
   <h2>6. Data Retention</h2>
@@ -146,6 +116,7 @@
     <li>Anonymous community posts may remain (unlinked from account)</li>
     <li>Technical logs deleted after 90 days</li>
   </ul>
+
 
   <h2>7. Your Rights (GDPR)</h2>
   <ul>
@@ -157,13 +128,23 @@
     <li><strong>Lodge complaint</strong> — UODO (Poland) or your local supervisory authority</li>
   </ul>
 
-  <h2>8. Children</h2>
+  <h2>8. AI Improvement (Optional)</h2>
+  <p>With your explicit consent, anonymized content from your journal entries, check-ins, and recovery notes may be used to train and improve the SoberSteps AI assistant ("Patryk AI"). This helps the AI better understand recovery experiences and provide more relevant support.</p>
+  <ul>
+    <li>Participation is <strong>opt-in only</strong> — you must actively enable this in app settings</li>
+    <li>Data is anonymized before use — name, email, and account identifiers are removed</li>
+    <li>You can withdraw consent at any time in Settings → Privacy → AI Training</li>
+    <li>Withdrawing consent stops future use; previously processed anonymized data may remain in model training sets</li>
+    <li>We do not sell this data to third parties</li>
+  </ul>
+  <p>If you have not explicitly opted in, your data is <strong>never</strong> used for AI training.</p>
+
+  <h2>9. Children</h2>
   <p>SoberSteps is for users 18+. We do not knowingly collect data from minors. If you believe a minor has provided data, contact <a href="mailto:sobersteps@pm.me">sobersteps@pm.me</a> immediately.</p>
 
   <h2>9. Contact</h2>
   <p>Privacy questions: <a href="mailto:sobersteps@pm.me">sobersteps@pm.me</a></p>
 
 </div>
-
 </body>
 </html>
