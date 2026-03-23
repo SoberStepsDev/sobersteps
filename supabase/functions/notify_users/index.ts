@@ -1,113 +1,218 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
-const ONESIGNAL_URL = "https://api.onesignal.com/rest/v1/notifications";
+type NotifyType = "checkin" | "letter" | "path" | "milestone";
+
+const ONE_SIGNAL_URL = "https://onesignal.com/api/v1/notifications";
 
 serve(async (req: Request) => {
-  const auth = req.headers.get("Authorization");
-  const cronSecret = Deno.env.get("CRON_SECRET");
-  if (!auth?.startsWith("Bearer ") || !cronSecret || auth.slice(7) !== cronSecret) {
-    return new Response(JSON.stringify({ error: "unauthorized" }), { status: 401 });
+  if (req.method === "OPTIONS") {
+    return json({ ok: true });
   }
-  const appId = Deno.env.get("ONESIGNAL_APP_ID");
-  const restKey = Deno.env.get("ONESIGNAL_REST_API_KEY");
-  if (!appId || !restKey) {
-    return new Response(JSON.stringify({ error: "ONESIGNAL_APP_ID or ONESIGNAL_REST_API_KEY not set" }), { status: 500 });
-  }
-
-  const url = new URL(req.url);
-  const type = url.searchParams.get("type") || "";
-  const hour = parseInt(url.searchParams.get("hour") || "0", 10);
-
-  const supabase = createClient(
-    Deno.env.get("SUPABASE_URL")!,
-    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
-  );
 
   try {
-    if (type === "checkin" && hour >= 0 && hour <= 23) {
-      const { data: prefs } = await supabase.from("profiles").select("id,notification_prefs").eq("checkin_reminder_hour", hour);
-      const today = new Date().toISOString().slice(0, 10);
-      const { data: checked } = await supabase.from("journal_entries").select("user_id").gte("created_at", `${today}T00:00:00`);
-      const checkedIds = new Set((checked || []).map((r: { user_id: string }) => r.user_id));
-      const toNotify: string[] = [];
-      for (const p of prefs || []) {
-        const np = (p.notification_prefs as Record<string, boolean>) || {};
-        if (np.daily_checkin !== false && !checkedIds.has(p.id)) toNotify.push(p.id);
+    if (req.method !== "GET") {
+      return json({ error: "method_not_allowed" }, 405);
+    }
+
+    const cronSecret = Deno.env.get("CRON_SECRET") ?? "";
+    const authHeader = req.headers.get("Authorization") ?? "";
+    const token = authHeader.replace(/^Bearer\s+/i, "").trim();
+    if (!cronSecret || token !== cronSecret) {
+      return json({ error: "unauthorized" }, 401);
+    }
+
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    const oneSignalAppId = Deno.env.get("ONESIGNAL_APP_ID");
+    const oneSignalApiKey = Deno.env.get("ONESIGNAL_REST_API_KEY");
+    if (!supabaseUrl || !serviceRoleKey || !oneSignalAppId || !oneSignalApiKey) {
+      return json({ error: "server_misconfigured" }, 500);
+    }
+
+    const url = new URL(req.url);
+    const type = (url.searchParams.get("type") ?? "").trim() as NotifyType;
+    const hour = Number(url.searchParams.get("hour") ?? -1);
+    if (!["checkin", "letter", "path", "milestone"].includes(type)) {
+      return json({ error: "invalid_type" }, 400);
+    }
+
+    const admin = createClient(supabaseUrl, serviceRoleKey);
+    const today = new Date().toISOString().slice(0, 10);
+    const nowIso = new Date().toISOString();
+
+    if (type === "checkin") {
+      if (!Number.isInteger(hour) || hour < 0 || hour > 23) {
+        return json({ error: "invalid_hour" }, 400);
       }
-      if (toNotify.length === 0) return json({ sent: 0 });
-      const res = await fetch(ONESIGNAL_URL, {
-        method: "POST",
-        headers: { "Authorization": `Basic ${restKey}`, "Content-Type": "application/json" },
-        body: JSON.stringify({
-          app_id: appId,
-          include_aliases: { external_id: toNotify },
-          contents: { en: "Time for your daily check-in. How are you today?" },
-          headings: { en: "SoberSteps" },
-        }),
-      });
-      const out = await res.json();
-      return json({ sent: toNotify.length, onesignal: out.errors ? out : { id: out.id } });
+      const { data, error } = await admin
+        .from("profiles")
+        .select("id, checkin_reminder_hour, notification_prefs")
+        .eq("checkin_reminder_hour", hour);
+      if (error) return json({ error: "profiles_query_failed", details: error.message }, 500);
+
+      const userIds = (data ?? [])
+        .filter((p) => prefEnabled(p.notification_prefs, "daily_checkin"))
+        .map((p) => p.id);
+      const sent = await sendPush(oneSignalAppId, oneSignalApiKey, userIds, {
+        en: "Ciekawie wrócić do siebie na chwilę?",
+        pl: "Może chwila spokojnego check-inu?",
+      }, {
+        en: "Jedno zdanie też wystarczy. 80% jest OK.",
+        pl: "Jedno zdanie też wystarczy. 80% jest OK.",
+      }, { type: "checkin" });
+      return json({ ok: true, type, targeted: userIds.length, sent });
     }
 
     if (type === "letter") {
-      const today = new Date().toISOString().slice(0, 10);
-      const { data: letters } = await supabase.from("future_letters").select("user_id").eq("deliver_at", today).is("delivered_at", null);
-      const userIds = [...new Set((letters || []).map((r: { user_id: string }) => r.user_id))];
-      const { data: profs } = await supabase.from("profiles").select("id,notification_prefs").in("id", userIds);
-      const toNotify = (profs || []).filter((p: { notification_prefs?: Record<string, boolean> }) => (p.notification_prefs?.letter ?? true)).map((p: { id: string }) => p.id);
-      if (toNotify.length === 0) return json({ sent: 0 });
-      await fetch(ONESIGNAL_URL, {
-        method: "POST",
-        headers: { "Authorization": `Basic ${restKey}`, "Content-Type": "application/json" },
-        body: JSON.stringify({
-          app_id: appId,
-          include_aliases: { external_id: toNotify },
-          contents: { en: "A letter from your past self is ready to read." },
-          headings: { en: "SoberSteps" },
-        }),
-      });
-      return json({ sent: toNotify.length });
-    }
+      const { data, error } = await admin
+        .from("future_letters")
+        .select("id, user_id")
+        .eq("deliver_at", today)
+        .is("delivered_at", null);
+      if (error) return json({ error: "letters_query_failed", details: error.message }, 500);
 
-    if (type === "milestone") {
-      const tomorrow = new Date();
-      tomorrow.setDate(tomorrow.getDate() + 1);
-      const tomorrowStr = tomorrow.toISOString().slice(0, 10);
-      const { data: profs } = await supabase.from("profiles").select("id, sobriety_start_date, notification_prefs").not("sobriety_start_date", "is", null);
-      const milestones = [1, 3, 7, 14, 30, 60, 90, 180, 365];
-      const toNotify: string[] = [];
-      for (const p of profs || []) {
-        const np = (p.notification_prefs as Record<string, boolean>) || {};
-        if (np.milestone === false) continue;
-        const start = new Date(p.sobriety_start_date);
-        const days = Math.floor((tomorrow.getTime() - start.getTime()) / 86400000);
-        if (milestones.includes(days)) {
-          const { data: achieved } = await supabase.from("milestones_achieved").select("id").eq("user_id", p.id).eq("days", days).maybeSingle();
-          if (!achieved) toNotify.push(p.id);
+      const letters = data ?? [];
+      const userIds = [...new Set(letters.map((l) => l.user_id))];
+      const enabledUserIds = await filterUsersByPref(admin, userIds, "letter");
+      const sent = await sendPush(oneSignalAppId, oneSignalApiKey, enabledUserIds, {
+        en: "A letter from you is waiting.",
+        pl: "Czeka na Ciebie list od Ciebie.",
+      }, {
+        en: "When it feels right, you can read it with curiosity.",
+        pl: "Możesz zajrzeć do niego wtedy, gdy poczujesz gotowość.",
+      }, { type: "letter" });
+
+      const letterIds = letters.filter((l) => enabledUserIds.includes(l.user_id)).map((l) => l.id);
+      if (letterIds.length > 0) {
+        const { error: updateError } = await admin
+          .from("future_letters")
+          .update({ delivered_at: nowIso })
+          .in("id", letterIds);
+        if (updateError) {
+          return json({ error: "letters_update_failed", details: updateError.message }, 500);
         }
       }
-      if (toNotify.length === 0) return json({ sent: 0 });
-      await fetch(ONESIGNAL_URL, {
-        method: "POST",
-        headers: { "Authorization": `Basic ${restKey}`, "Content-Type": "application/json" },
-        body: JSON.stringify({
-          app_id: appId,
-          include_aliases: { external_id: toNotify },
-          contents: { en: "Tomorrow you'll hit a new milestone. Keep going!" },
-          headings: { en: "SoberSteps" },
-        }),
-      });
-      return json({ sent: toNotify.length });
+      return json({ ok: true, type, targeted: enabledUserIds.length, sent, letters_marked: letterIds.length });
     }
 
-    return new Response(JSON.stringify({ error: "invalid type" }), { status: 400 });
+    if (type === "path") {
+      const { data, error } = await admin
+        .from("profiles")
+        .select("id, notification_prefs");
+      if (error) return json({ error: "profiles_query_failed", details: error.message }, 500);
+
+      const userIds = (data ?? [])
+        .filter((p) => prefEnabled(p.notification_prefs, "streak"))
+        .map((p) => p.id);
+      const sent = await sendPush(oneSignalAppId, oneSignalApiKey, userIds, {
+        en: "You are still on your path.",
+        pl: "Nadal jesteś na swojej drodze.",
+      }, {
+        en: "Ciekawie sprawdzić, co dziś już w Tobie żyje?",
+        pl: "Ciekawe, co dziś już w Tobie żyje?",
+      }, { type: "path" });
+      return json({ ok: true, type, targeted: userIds.length, sent });
+    }
+
+    const milestoneDays = [1, 7, 30, 90, 180, 365];
+    const dayBeforeList = milestoneDays.filter((d) => d > 1).map((d) => d - 1);
+    const { data, error } = await admin
+      .from("milestones_achieved")
+      .select("user_id, days")
+      .in("days", dayBeforeList);
+    if (error) return json({ error: "milestones_query_failed", details: error.message }, 500);
+
+    const userIds = [...new Set((data ?? []).map((m) => m.user_id))];
+    const enabledUserIds = await filterUsersByPref(admin, userIds, "milestone");
+    const sent = await sendPush(oneSignalAppId, oneSignalApiKey, enabledUserIds, {
+      en: "Your next step is close.",
+      pl: "Kolejny krok jest blisko.",
+    }, {
+      en: "Może jutro zauważysz, jak daleko już doszedłeś.",
+      pl: "Może jutro zauważysz, jak daleko już jesteś.",
+    }, { type: "milestone" });
+    return json({ ok: true, type, targeted: enabledUserIds.length, sent });
   } catch (e) {
     console.error("[notify_users]", e);
-    return new Response(JSON.stringify({ error: String(e) }), { status: 500 });
+    return json({ error: String(e) }, 500);
   }
 });
 
-function json(o: object) {
-  return new Response(JSON.stringify(o), { headers: { "Content-Type": "application/json" } });
+async function filterUsersByPref(
+  admin: ReturnType<typeof createClient>,
+  userIds: string[],
+  key: string,
+): Promise<string[]> {
+  if (userIds.length === 0) return [];
+  const { data, error } = await admin
+    .from("profiles")
+    .select("id, notification_prefs")
+    .in("id", userIds);
+  if (error) {
+    console.error("[notify_users] filterUsersByPref", error.message);
+    return [];
+  }
+  return (data ?? [])
+    .filter((p) => prefEnabled(p.notification_prefs, key))
+    .map((p) => p.id);
+}
+
+function prefEnabled(prefs: unknown, key: string): boolean {
+  if (!prefs || typeof prefs !== "object") return true;
+  const value = (prefs as Record<string, unknown>)[key];
+  return value !== false;
+}
+
+async function sendPush(
+  appId: string,
+  apiKey: string,
+  userIds: string[],
+  headings: Record<string, string>,
+  contents: Record<string, string>,
+  data: Record<string, string>,
+): Promise<number> {
+  if (userIds.length === 0) return 0;
+
+  const chunkSize = 2000;
+  let total = 0;
+
+  for (let i = 0; i < userIds.length; i += chunkSize) {
+    const chunk = userIds.slice(i, i + chunkSize);
+    const res = await fetch(ONE_SIGNAL_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json; charset=utf-8",
+        "Authorization": `Basic ${apiKey}`,
+      },
+      body: JSON.stringify({
+        app_id: appId,
+        include_external_user_ids: chunk,
+        channel_for_external_user_ids: "push",
+        headings,
+        contents,
+        data,
+      }),
+    });
+
+    if (!res.ok) {
+      const text = await res.text();
+      console.error("[notify_users] OneSignal error", res.status, text);
+      continue;
+    }
+    total += chunk.length;
+  }
+
+  return total;
+}
+
+function json(body: Record<string, unknown>, status = 200): Response {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Headers": "authorization, content-type",
+    },
+  });
 }

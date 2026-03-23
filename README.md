@@ -1,23 +1,128 @@
 # SoberSteps
 
-**Strona:** https://soberstepsdev.github.io/sobersteps-landing/
+Mobile app (Flutter + Supabase) focused on gentle daily sobriety support.
 
-**[Join the waitlist →](https://soberstepsdev.github.io/sobersteps-landing/#waitlist)**
+## Landing
 
-> Aby zostawić tylko ten link: GitHub → Settings → Pages → **Unpublish site** (repo sobersteps).
+- Website: [https://soberstepsdev.github.io/sobersteps-landing/](https://soberstepsdev.github.io/sobersteps-landing/)
+- Waitlist: [Join here](https://soberstepsdev.github.io/sobersteps-landing/#waitlist)
 
-A new Flutter project.
+## Stack
 
-## Getting Started
+- Flutter / Dart
+- Supabase (Postgres, Auth, Edge Functions)
+- OneSignal (push notifications)
+- RevenueCat (subscriptions)
 
-This project is a starting point for a Flutter application.
+## Prerequisites
 
-A few resources to get you started if this is your first Flutter project:
+- Flutter SDK installed and available in PATH
+- Xcode (iOS) and/or Android Studio (Android)
+- Supabase project (URL + anon key)
+- Optional for local Edge Functions: Supabase CLI
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+## Configuration
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+### 1) App runtime variables (`--dart-define`)
+
+Required:
+- `SUPABASE_URL`
+- `SUPABASE_ANON_KEY`
+
+Optional:
+- `REVENUE_CAT_KEY`
+- `ONESIGNAL_APP_ID`
+- `SENTRY_DSN`
+- `DEEP_LINK_DOMAIN`
+- `ELEVENLABS_API_KEY`
+
+Example run:
+
+```bash
+flutter run \
+  --dart-define=SUPABASE_URL=https://YOUR_PROJECT.supabase.co \
+  --dart-define=SUPABASE_ANON_KEY=YOUR_SUPABASE_ANON_KEY \
+  --dart-define=ONESIGNAL_APP_ID=YOUR_ONESIGNAL_APP_ID
+```
+
+### 2) Optional local `.env` files
+
+The app also reads local env values in this order:
+- `assets/config.env.example` (bundled defaults)
+- `assets/config.env` (local override, not committed)
+- `.env` (local override, not committed)
+
+Template files:
+- `.env.example`
+- `assets/config.env.example`
+- `supabase/.env.example` (Edge Function secrets reference)
+
+## Local development
+
+Install deps:
+
+```bash
+flutter pub get
+```
+
+Run analyzer:
+
+```bash
+flutter analyze
+```
+
+Run tests:
+
+```bash
+flutter test
+```
+
+Run app:
+
+```bash
+flutter run --dart-define=SUPABASE_URL=... --dart-define=SUPABASE_ANON_KEY=...
+```
+
+## Supabase
+
+Schema and migrations:
+- `supabase/migrations/`
+
+Functions:
+- `supabase/functions/notify_users/`
+- `supabase/functions/naomi-feedback/`
+- `supabase/functions/moderate_three_am_post/`
+- `supabase/functions/send_moderation_email_brevo/`
+
+Deploy is automated by GitHub workflow:
+- `.github/workflows/supabase-deploy.yml`
+
+### `notify_users` function
+
+Used by:
+- `.github/workflows/notify-users-cron.yml`
+
+Required Supabase Edge Function secrets:
+- `ONESIGNAL_APP_ID`
+- `ONESIGNAL_REST_API_KEY`
+- `CRON_SECRET`
+
+The workflow calls:
+- `type=checkin&hour=<0-23>` hourly
+- `type=letter` at 08:00 UTC
+- `type=path` at 09:00 UTC
+- `type=milestone` at 20:00 UTC
+
+## CI
+
+- Flutter CI: `.github/workflows/flutter-ci.yml` (`pub get`, `analyze`, `test`)
+- Supabase deploy: `.github/workflows/supabase-deploy.yml`
+- Notification cron: `.github/workflows/notify-users-cron.yml`
+
+## Repo structure
+
+- `lib/` app code
+- `test/` widget/unit tests
+- `integration_test/` integration tests
+- `supabase/` migrations + functions
+- `.github/workflows/` CI/CD
