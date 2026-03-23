@@ -1,0 +1,124 @@
+name: Release Publish
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "Git ref (tag/branch/sha) to publish"
+        required: true
+        default: "main"
+      publish_android:
+        description: "Publish Android to Google Play"
+        type: boolean
+        default: false
+      publish_ios:
+        description: "Publish iOS to TestFlight"
+        type: boolean
+        default: false
+      android_track:
+        description: "Google Play track"
+        required: false
+        default: "internal"
+
+jobs:
+  android-publish:
+    if: ${{ inputs.publish_android == true }}
+    runs-on: ubuntu-latest
+    environment: production-release
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Validate Android publish secrets
+        shell: bash
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          ONESIGNAL_APP_ID: ${{ secrets.ONESIGNAL_APP_ID }}
+          PLAY_STORE_SERVICE_ACCOUNT_JSON: ${{ secrets.PLAY_STORE_SERVICE_ACCOUNT_JSON }}
+        run: |
+          for v in SUPABASE_URL SUPABASE_ANON_KEY ONESIGNAL_APP_ID PLAY_STORE_SERVICE_ACCOUNT_JSON; do
+            if [ -z "${!v}" ]; then
+              echo "::error::Missing required secret: $v"
+              exit 1
+            fi
+          done
+
+      - name: Flutter pub get
+        run: flutter pub get
+
+      - name: Build Android App Bundle
+        run: |
+          flutter build appbundle --release \
+            --dart-define=SUPABASE_URL="${{ secrets.SUPABASE_URL }}" \
+            --dart-define=SUPABASE_ANON_KEY="${{ secrets.SUPABASE_ANON_KEY }}" \
+            --dart-define=ONESIGNAL_APP_ID="${{ secrets.ONESIGNAL_APP_ID }}"
+
+      - name: Upload to Google Play
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.PLAY_STORE_SERVICE_ACCOUNT_JSON }}
+          packageName: com.patryk.sobersteps
+          releaseFiles: build/app/outputs/bundle/release/app-release.aab
+          track: ${{ inputs.android_track }}
+          status: completed
+
+  ios-publish:
+    if: ${{ inputs.publish_ios == true }}
+    runs-on: macos-latest
+    environment: production-release
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Validate iOS publish secrets
+        shell: bash
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          ONESIGNAL_APP_ID: ${{ secrets.ONESIGNAL_APP_ID }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          for v in SUPABASE_URL SUPABASE_ANON_KEY ONESIGNAL_APP_ID APPLE_ID APPLE_APP_SPECIFIC_PASSWORD APPLE_TEAM_ID; do
+            if [ -z "${!v}" ]; then
+              echo "::error::Missing required secret: $v"
+              exit 1
+            fi
+          done
+
+      - name: Flutter pub get
+        run: flutter pub get
+
+      - name: Build iOS IPA (no codesign)
+        run: |
+          flutter build ipa --release --no-codesign \
+            --dart-define=SUPABASE_URL="${{ secrets.SUPABASE_URL }}" \
+            --dart-define=SUPABASE_ANON_KEY="${{ secrets.SUPABASE_ANON_KEY }}" \
+            --dart-define=ONESIGNAL_APP_ID="${{ secrets.ONESIGNAL_APP_ID }}"
+
+      - name: Upload to TestFlight
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          xcrun altool --upload-app \
+            --type ios \
+            --file build/ios/ipa/*.ipa \
+            --username "$APPLE_ID" \
+            --password "$APPLE_APP_SPECIFIC_PASSWORD" \
+            --asc-provider "$APPLE_TEAM_ID"

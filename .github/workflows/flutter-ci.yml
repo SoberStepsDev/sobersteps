@@ -8,6 +8,8 @@ on:
 jobs:
   analyze-and-test:
     runs-on: ubuntu-latest
+    env:
+      MIN_COVERAGE: "35"
     steps:
       - uses: actions/checkout@v4
 
@@ -22,5 +24,26 @@ jobs:
       - name: Flutter analyze
         run: flutter analyze
 
-      - name: Flutter test
-        run: flutter test
+      - name: Flutter test with coverage
+        run: flutter test --coverage
+
+      - name: Enforce minimum coverage
+        shell: bash
+        run: |
+          if [ ! -f coverage/lcov.info ]; then
+            echo "::error::coverage/lcov.info missing"
+            exit 1
+          fi
+          LF=$(awk -F: '/^LF:/{sum+=$2} END{print sum+0}' coverage/lcov.info)
+          LH=$(awk -F: '/^LH:/{sum+=$2} END{print sum+0}' coverage/lcov.info)
+          if [ "$LF" -eq 0 ]; then
+            echo "::error::No executable lines found in coverage report"
+            exit 1
+          fi
+          COVERAGE=$(awk -v lh="$LH" -v lf="$LF" 'BEGIN { printf "%.2f", (lh/lf)*100 }')
+          echo "Coverage: $COVERAGE% (threshold: ${MIN_COVERAGE}%)"
+          awk -v c="$COVERAGE" -v m="$MIN_COVERAGE" 'BEGIN { exit (c+0 >= m+0 ? 0 : 1) }' || {
+            echo "::error::Coverage below threshold (${COVERAGE}% < ${MIN_COVERAGE}%)"
+            exit 1
+          }
+

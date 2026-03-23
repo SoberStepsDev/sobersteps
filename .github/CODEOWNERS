@@ -1,17 +1,17 @@
-# Default owners
-* @tpltd145
+# Default owners (primary + fallback)
+* @tpltd145 @soberstepsdev
 
 # Mobile app
-/lib/ @tpltd145
-/test/ @tpltd145
-/integration_test/ @tpltd145
+/lib/ @tpltd145 @soberstepsdev
+/test/ @tpltd145 @soberstepsdev
+/integration_test/ @tpltd145 @soberstepsdev
 
 # Backend and CI
-/supabase/ @tpltd145
-/.github/workflows/ @tpltd145
+/supabase/ @tpltd145 @soberstepsdev
+/.github/workflows/ @tpltd145 @soberstepsdev
 
 # Docs and policy
-/docs/ @tpltd145
-/SECURITY.md @tpltd145
-/CONTRIBUTING.md @tpltd145
-/CHANGELOG.md @tpltd145
+/docs/ @tpltd145 @soberstepsdev
+/SECURITY.md @tpltd145 @soberstepsdev
+/CONTRIBUTING.md @tpltd145 @soberstepsdev
+/CHANGELOG.md @tpltd145 @soberstepsdev

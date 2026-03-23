@@ -1,0 +1,32 @@
+name: PR Policy Checks
+
+on:
+  pull_request:
+
+jobs:
+  policy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Ensure governance files exist
+        shell: bash
+        run: |
+          for f in SECURITY.md CONTRIBUTING.md CHANGELOG.md .github/CODEOWNERS .github/pull_request_template.md; do
+            if [ ! -f "$f" ]; then
+              echo "::error::Missing required governance file: $f"
+              exit 1
+            fi
+          done
+
+      - name: Ensure release docs exist
+        shell: bash
+        run: |
+          for f in docs/RELEASE.md docs/ARCHITECTURE.md docs/ENV_SETUP.md; do
+            if [ ! -f "$f" ]; then
+              echo "::error::Missing required process doc: $f"
+              exit 1
+            fi
+          done

@@ -17,7 +17,8 @@ For mobile builds:
 2. Bump `pubspec.yaml` version (`x.y.z+N`).
 3. Verify CI green (`flutter-ci.yml`).
 4. Create release commit and tag (`vX.Y.Z`).
-5. Build and submit Android + iOS binaries.
+5. Build Android+iOS artifacts via `.github/workflows/release-build.yml` (manual dispatch).
+6. Submit binaries to stores (Play Console / App Store Connect).
 
 ## Pre-release checklist (common)
 
@@ -51,3 +52,4 @@ For mobile builds:
 
 - App rollback: pause rollout / revert store release to previous approved build.
 - Backend rollback: follow `docs/ARCHITECTURE.md` rollback section (compensating migration + redeploy known good function).
+- Fast function rollback is available via `.github/workflows/supabase-function-rollback.yml`.

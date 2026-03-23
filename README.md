@@ -133,8 +133,25 @@ The workflow calls:
 
 ## Repo structure
 
-- `lib/` app code
+- `lib/app/` app shell (`theme`, route table)
+- `lib/config/` bootstrap/config initialization
+- `lib/constants/` compile-time/runtime constants
+- `lib/core/` shared core utilities (philosophy/supabase helpers)
+- `lib/l10n/` localization strings
+- `lib/models/` domain and DTO models
+- `lib/providers/` state management (`ChangeNotifier`)
+- `lib/screens/` UI modules (auth, check-in, community, milestones, return-to-self, etc.)
+- `lib/services/` integrations and business services (Supabase, notifications, sync, purchases, encryption)
+- `lib/widgets/` reusable UI components
 - `test/` widget/unit tests
 - `integration_test/` integration tests
 - `supabase/` migrations + functions
 - `.github/workflows/` CI/CD
+
+## Task runner
+
+Unified local commands are available via `Makefile`:
+
+```bash
+make help
+```

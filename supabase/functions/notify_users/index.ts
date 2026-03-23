@@ -5,7 +5,7 @@ type NotifyType = "checkin" | "letter" | "path" | "milestone";
 
 const ONE_SIGNAL_URL = "https://onesignal.com/api/v1/notifications";
 
-serve(async (req: Request) => {
+export async function handleNotifyRequest(req: Request): Promise<Response> {
   if (req.method === "OPTIONS") {
     return json({ ok: true });
   }
@@ -137,10 +137,10 @@ serve(async (req: Request) => {
     console.error("[notify_users]", e);
     return json({ error: String(e) }, 500);
   }
-});
+}
 
 async function filterUsersByPref(
-  admin: ReturnType<typeof createClient>,
+  admin: any,
   userIds: string[],
   key: string,
 ): Promise<string[]> {
@@ -153,18 +153,18 @@ async function filterUsersByPref(
     console.error("[notify_users] filterUsersByPref", error.message);
     return [];
   }
-  return (data ?? [])
+  return ((data ?? []) as Array<{ id: string; notification_prefs: unknown }>)
     .filter((p) => prefEnabled(p.notification_prefs, key))
     .map((p) => p.id);
 }
 
-function prefEnabled(prefs: unknown, key: string): boolean {
+export function prefEnabled(prefs: unknown, key: string): boolean {
   if (!prefs || typeof prefs !== "object") return true;
   const value = (prefs as Record<string, unknown>)[key];
   return value !== false;
 }
 
-async function sendPush(
+export async function sendPush(
   appId: string,
   apiKey: string,
   userIds: string[],
@@ -215,4 +215,8 @@ function json(body: Record<string, unknown>, status = 200): Response {
       "Access-Control-Allow-Headers": "authorization, content-type",
     },
   });
+}
+
+if (import.meta.main) {
+  serve(handleNotifyRequest);
 }

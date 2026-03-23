@@ -23,6 +23,13 @@
 - SQL migrations: `supabase/migrations/`
 - Edge Functions: `supabase/functions/`
 - CI/CD workflows: `.github/workflows/`
+- Architecture decisions (ADR): `docs/adr/`
+
+## ADR index
+
+- `docs/adr/0001-offline-sync-conflict-resolution.md`
+- `docs/adr/0002-auth-boundary-and-rls.md`
+- `docs/adr/0003-supabase-deploy-model.md`
 
 ## Deploy operations (Supabase)
 
@@ -38,7 +45,9 @@ Automated deploy is defined in `.github/workflows/supabase-deploy.yml`.
 
 1. `supabase link --project-ref ...`
 2. `supabase db push`
-3. `supabase functions deploy`
+3. `supabase db lint` (preflight SQL sanity)
+4. `supabase functions deploy`
+5. post-check: `supabase migration list` + `supabase functions list`
 
 ### Manual deploy
 
@@ -65,6 +74,7 @@ Supabase does not provide a one-command rollback for all migrations. Use forward
    - `git checkout <good_commit> -- supabase/functions/<function_name>/index.ts`
    - `supabase functions deploy <function_name>`
 2. If needed, restore current branch state afterward.
+3. GitHub Actions shortcut: run `.github/workflows/supabase-function-rollback.yml`.
 
 ### Emergency restore
 

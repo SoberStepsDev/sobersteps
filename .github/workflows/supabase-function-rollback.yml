@@ -1,0 +1,54 @@
+name: Supabase Function Rollback
+
+on:
+  workflow_dispatch:
+    inputs:
+      function_name:
+        description: "Edge Function name (folder in supabase/functions)"
+        required: true
+      source_ref:
+        description: "Git ref with known-good function source (tag/commit/branch)"
+        required: true
+
+jobs:
+  rollback-function:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate required secrets presence
+        shell: bash
+        env:
+          SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: |
+          for v in SUPABASE_PROJECT_REF SUPABASE_ACCESS_TOKEN; do
+            if [ -z "${!v}" ]; then
+              echo "::error::Missing required secret: $v"
+              exit 1
+            fi
+          done
+
+      - name: Restore known-good function source
+        run: |
+          git fetch --all --tags
+          git checkout "${{ inputs.source_ref }}" -- "supabase/functions/${{ inputs.function_name }}"
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Link project
+        run: supabase link --project-ref "${{ secrets.SUPABASE_PROJECT_REF }}"
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+
+      - name: Deploy rolled-back function
+        run: supabase functions deploy "${{ inputs.function_name }}"
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+
+      - name: Post-rollback verification
+        run: supabase functions list
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
