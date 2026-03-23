@@ -1,5 +1,5 @@
 import { assertEquals } from "https://deno.land/std@0.168.0/testing/asserts.ts";
-import { handleNotifyRequest, prefEnabled, sendPush } from "./index.ts";
+import { computeUsersApproachingMilestone, handleNotifyRequest, prefEnabled, sendPush } from "./index.ts";
 
 Deno.test("notify_users returns unauthorized without valid cron token", async () => {
   Deno.env.set("CRON_SECRET", "secret");
@@ -30,4 +30,16 @@ Deno.test("sendPush chunks user ids and counts sent", async () => {
   } finally {
     globalThis.fetch = originalFetch;
   }
+});
+
+Deno.test("computeUsersApproachingMilestone selects users reaching milestone tomorrow", () => {
+  const now = new Date("2026-03-23T20:00:00.000Z");
+  const profiles = [
+    { id: "u1", sobriety_start_date: "2026-03-17", notification_prefs: {} }, // tomorrow day 7
+    { id: "u2", sobriety_start_date: "2026-03-18", notification_prefs: {} }, // tomorrow day 6
+    { id: "u3", sobriety_start_date: "2026-02-22", notification_prefs: {} }, // tomorrow day 30
+  ];
+
+  const result = computeUsersApproachingMilestone(profiles, now);
+  assertEquals(result.map((r) => `${r.userId}:${r.milestoneDay}`).sort(), ["u1:7", "u3:30"]);
 });
