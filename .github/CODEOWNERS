@@ -1,0 +1,17 @@
+# Default owners
+* @tpltd145
+
+# Mobile app
+/lib/ @tpltd145
+/test/ @tpltd145
+/integration_test/ @tpltd145
+
+# Backend and CI
+/supabase/ @tpltd145
+/.github/workflows/ @tpltd145
+
+# Docs and policy
+/docs/ @tpltd145
+/SECURITY.md @tpltd145
+/CONTRIBUTING.md @tpltd145
+/CHANGELOG.md @tpltd145

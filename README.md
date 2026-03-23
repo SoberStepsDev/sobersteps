@@ -23,6 +23,8 @@ Mobile app (Flutter + Supabase) focused on gentle daily sobriety support.
 
 ## Configuration
 
+Single source of truth: `docs/ENV_SETUP.md`
+
 ### 1) App runtime variables (`--dart-define`)
 
 Required:
@@ -56,6 +58,8 @@ Template files:
 - `.env.example`
 - `assets/config.env.example`
 - `supabase/.env.example` (Edge Function secrets reference)
+
+Full end-to-end flow (local + CI + Supabase): `docs/ENV_SETUP.md`
 
 ## Local development
 
@@ -118,6 +122,14 @@ The workflow calls:
 - Flutter CI: `.github/workflows/flutter-ci.yml` (`pub get`, `analyze`, `test`)
 - Supabase deploy: `.github/workflows/supabase-deploy.yml`
 - Notification cron: `.github/workflows/notify-users-cron.yml`
+
+## Process docs
+
+- Release management: `docs/RELEASE.md`
+- Changelog: `CHANGELOG.md`
+- Contributing guide: `CONTRIBUTING.md`
+- Code ownership: `.github/CODEOWNERS`
+- Security policy: `SECURITY.md`
 
 ## Repo structure
 
