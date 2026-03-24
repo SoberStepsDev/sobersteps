@@ -22,8 +22,8 @@ subprojects {
     project.evaluationDependsOn(":app")
 }
 
-subprojects {
-    afterEvaluate {
+gradle.projectsEvaluated {
+    subprojects {
         tasks.withType<KotlinCompile>().configureEach {
             compilerOptions {
                 languageVersion.set(KotlinVersion.KOTLIN_1_8)
