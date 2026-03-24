@@ -1,37 +1,49 @@
 /// Offline-first pending sync queue — local only
-/// CRDT-like: local_timestamp > server_timestamp → push local, else prompt user
 class PendingSync {
   final String id;
-  final String action;
   final String tableName;
-  final String dataEncrypted;
-  final DateTime timestamp;
-  final bool conflictResolved;
+  final String operation;
+  final Map<String, dynamic> payload;
+  final DateTime createdAt;
+  final int retryCount;
 
   PendingSync({
     required this.id,
-    required this.action,
     required this.tableName,
-    required this.dataEncrypted,
-    required this.timestamp,
-    this.conflictResolved = false,
+    required this.operation,
+    required this.payload,
+    required this.createdAt,
+    this.retryCount = 0,
   });
 
   factory PendingSync.fromJson(Map<String, dynamic> j) => PendingSync(
         id: j['id'],
-        action: j['action'],
         tableName: j['table_name'],
-        dataEncrypted: j['data_encrypted'],
-        timestamp: DateTime.parse(j['timestamp']),
-        conflictResolved: j['conflict_resolved'] ?? false,
+        operation: j['operation'],
+        payload: (j['payload'] as Map).cast<String, dynamic>(),
+        createdAt: DateTime.parse(j['created_at']),
+        retryCount: j['retry_count'] ?? 0,
       );
 
   Map<String, dynamic> toJson() => {
         'id': id,
-        'action': action,
         'table_name': tableName,
-        'data_encrypted': dataEncrypted,
-        'timestamp': timestamp.toIso8601String(),
-        'conflict_resolved': conflictResolved,
+        'operation': operation,
+        'payload': payload,
+        'created_at': createdAt.toIso8601String(),
+        'retry_count': retryCount,
       };
+
+  PendingSync copyWith({
+    int? retryCount,
+  }) {
+    return PendingSync(
+      id: id,
+      tableName: tableName,
+      operation: operation,
+      payload: payload,
+      createdAt: createdAt,
+      retryCount: retryCount ?? this.retryCount,
+    );
+  }
 }
