@@ -164,6 +164,30 @@ export function prefEnabled(prefs: unknown, key: string): boolean {
   return value !== false;
 }
 
+export function computeUsersApproachingMilestone(
+  profiles: Array<{ id: string; sobriety_start_date: string; notification_prefs: unknown }>,
+  now: Date,
+): Array<{ userId: string; milestoneDay: number }> {
+  const milestoneDays = [1, 7, 30, 90, 180, 365];
+  const tomorrow = new Date(now);
+  tomorrow.setUTCDate(tomorrow.getUTCDate() + 1);
+  const tomorrowStr = tomorrow.toISOString().slice(0, 10);
+
+  const results: Array<{ userId: string; milestoneDay: number }> = [];
+  for (const profile of profiles) {
+    if (!prefEnabled(profile.notification_prefs, "milestone")) continue;
+    const start = new Date(profile.sobriety_start_date);
+    for (const day of milestoneDays) {
+      const milestoneDate = new Date(start);
+      milestoneDate.setUTCDate(milestoneDate.getUTCDate() + day);
+      if (milestoneDate.toISOString().slice(0, 10) === tomorrowStr) {
+        results.push({ userId: profile.id, milestoneDay: day });
+      }
+    }
+  }
+  return results;
+}
+
 export async function sendPush(
   appId: string,
   apiKey: string,

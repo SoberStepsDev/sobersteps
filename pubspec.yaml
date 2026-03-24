@@ -28,20 +28,25 @@ dependencies:
   connectivity_plus: ^6.1.4
   flutter_secure_storage: ^9.2.0
   crypto: ^3.0.5
+  encrypt: ^5.0.3
   http: ^1.2.2
   path_provider: ^2.1.0
   flutter_tts: ^4.2.0
-  sentry_flutter: ^8.9.0
+  sentry_flutter: ^9.15.0
   app_links: ^6.3.3
+  flutter_dotenv: ^6.0.0
 
 dev_dependencies:
   flutter_test:
+    sdk: flutter
+  integration_test:
     sdk: flutter
   flutter_lints: ^6.0.0
 
 flutter:
   uses-material-design: true
   assets:
+    - assets/config.env.example
     - assets/data/
     - assets/images/
     - assets/audio/
