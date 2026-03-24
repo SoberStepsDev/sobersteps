@@ -52,9 +52,9 @@ jobs:
       - name: Flutter pub get
         run: flutter pub get
 
-      - name: Build iOS IPA (no codesign)
+      - name: Build iOS (no codesign)
         run: |
-          flutter build ipa --release --no-codesign \
+          flutter build ios --release --no-codesign \
             --dart-define=SUPABASE_URL="${{ secrets.SUPABASE_URL }}" \
             --dart-define=SUPABASE_ANON_KEY="${{ secrets.SUPABASE_ANON_KEY }}" \
             --dart-define=ONESIGNAL_APP_ID="${{ secrets.ONESIGNAL_APP_ID }}"
@@ -62,5 +62,5 @@ jobs:
       - name: Upload iOS artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ios-ipa
-          path: build/ios/ipa/*.ipa
+          name: ios-runner-app
+          path: build/ios/iphoneos/Runner.app
