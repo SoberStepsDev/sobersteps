@@ -26,7 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: production-release
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ inputs.ref }}
 
@@ -76,7 +76,7 @@ jobs:
     runs-on: macos-latest
     environment: production-release
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ inputs.ref }}
 
