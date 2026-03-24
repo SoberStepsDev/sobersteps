@@ -135,7 +135,7 @@ export async function handleNotifyRequest(req: Request): Promise<Response> {
     return json({ ok: true, type, targeted: enabledUserIds.length, sent });
   } catch (e) {
     console.error("[notify_users]", e);
-    return json({ error: String(e) }, 500);
+    return json({ error: "internal_server_error" }, 500);
   }
 }
 
