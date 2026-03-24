@@ -33,6 +33,6 @@ serve(async (req: Request) => {
     });
   } catch (error) {
     console.error("[send_moderation_email] error:", error);
-    return new Response(JSON.stringify({ error: String(error) }), { status: 500 });
+    return new Response(JSON.stringify({ error: "internal_server_error" }), { status: 500 });
   }
 });

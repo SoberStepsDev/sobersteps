@@ -103,7 +103,7 @@ serve(async (req: Request) => {
     return json({ feedback });
   } catch (e) {
     console.error("[naomi-feedback]", e);
-    return json({ error: String(e) }, 500);
+    return json({ error: "internal_server_error" }, 500);
   }
 });
 
