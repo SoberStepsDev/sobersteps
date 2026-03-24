@@ -53,6 +53,6 @@ serve(async (req: Request) => {
     });
   } catch (error) {
     console.error("[moderate_three_am_post] error:", error);
-    return new Response(JSON.stringify({ error: String(error) }), { status: 500 });
+    return new Response(JSON.stringify({ error: "internal_server_error" }), { status: 500 });
   }
 });
