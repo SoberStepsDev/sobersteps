@@ -135,7 +135,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: Column(
                   children: [
-                    _buildHeadline(purchase.abVariant),
+                    _buildHeadline(context, purchase.abVariant),
                     const SizedBox(height: 24),
                     ..._buildBenefitCards(),
                     const SizedBox(height: 24),
@@ -199,9 +199,9 @@ class _PaywallScreenState extends State<PaywallScreen> {
     );
   }
 
-  Widget _buildHeadline(String variant) {
+  Widget _buildHeadline(BuildContext context, String variant) {
     final texts = {
-      'A': 'Unlock Recovery+ — Free for 7 Days',
+      'A': S.t(context, 'unlockFree7Days'),
       'B': '847 osób zaczęło dziś. Dołącz.',
       'C': 'Twój dzień 30 zasługuje na głos.',
     };

@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../app/theme.dart';
+import '../constants/app_constants.dart';
 import '../core/philosophy_core.dart';
 import '../l10n/strings.dart';
 import '../models/return_to_self.dart';
 import '../providers/auth_provider.dart';
 import '../providers/purchase_provider.dart';
 import '../providers/return_to_self_provider.dart';
-import 'paywall_screen.dart';
 import '../services/analytics_service.dart';
 
 /// Philosophy applied: 30-day path as curiosity journey, not challenge
@@ -20,53 +21,76 @@ class ReturnToSelfScreen extends StatefulWidget {
 }
 
 class _ReturnToSelfScreenState extends State<ReturnToSelfScreen> {
-  bool _routedPaywall = false;
+  static const _trackIds = ['self_hatred', 'perfectionism', 'toxic_relationships'];
+
+  String _trackId = 'self_hatred';
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _ensureProReturnToSelf());
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await _loadPreferredTrack();
+      _loadReturnToSelfProgress();
+    });
     AnalyticsService().track('return_to_self_opened');
   }
 
-  void _ensureProReturnToSelf() {
-    if (!mounted || _routedPaywall) return;
-    if (!context.read<AuthProvider>().isLoggedIn) return;
-    if (!context.read<PurchaseProvider>().isPro) {
-      _routedPaywall = true;
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute<void>(builder: (_) => const PaywallScreen(trigger: 'return_to_self')),
-      );
-      return;
+  Future<void> _loadPreferredTrack() async {
+    final prefs = await SharedPreferences.getInstance();
+    final cat = prefs.getString('addiction_category');
+    final st = prefs.getString('substance_type');
+    if (!mounted) return;
+    if (cat == 'return_to_self' && st != null && _trackIds.contains(st)) {
+      setState(() => _trackId = st);
     }
+  }
+
+  void _loadReturnToSelfProgress() {
+    if (!mounted) return;
+    if (!context.read<AuthProvider>().isLoggedIn) return;
     context.read<ReturnToSelfProvider>().loadProgress();
+  }
+
+  bool _isProOnlyTrack(String id) => AppConstants.returnToSelfProOnly.contains(id);
+
+  String _trackTitleKey(String id) => switch (id) {
+        'self_hatred' => 'rtsSelfHatred',
+        'perfectionism' => 'rtsPerfectionism',
+        'toxic_relationships' => 'rtsToxicRel',
+        _ => 'rtsSelfHatred',
+      };
+
+  void _setTrack(String id) {
+    if (_trackId == id) return;
+    setState(() => _trackId = id);
+    AnalyticsService().track('return_to_self_track_selected', {'track': id});
   }
 
   static const _phases = [
     {
       'type': ReturnToSelfType.awareness,
-      'label': 'Awareness',
+      'labelKey': 'rtsPhaseAwareness',
       'days': '1–7',
       'icon': Icons.visibility_outlined,
       'desc': 'Zaczynasz zauważać siebie bez oceniania. Obserwujesz myśli, emocje, nawyki – jak świadek, nie sędzia.',
     },
     {
       'type': ReturnToSelfType.distance,
-      'label': 'Distance',
+      'labelKey': 'rtsPhaseDistance',
       'days': '8–14',
       'icon': Icons.zoom_out_map,
       'desc': 'Uczysz się robić krok w tył od reaktywności. Przestrzeń między bodźcem a reakcją to Twoja nowa siła.',
     },
     {
       'type': ReturnToSelfType.repair,
-      'label': 'Repair',
+      'labelKey': 'rtsPhaseRepair',
       'days': '15–21',
       'icon': Icons.healing_outlined,
       'desc': 'Wracasz do relacji – ze sobą i z innymi. Małe gesty naprawy budują coś trwałego.',
     },
     {
       'type': ReturnToSelfType.integration,
-      'label': 'Integration',
+      'labelKey': 'rtsPhaseIntegration',
       'days': '22–30',
       'icon': Icons.merge_type,
       'desc': 'To, czego się nauczyłeś, staje się częścią Ciebie. Nie próbujesz już "być lepszym" – po prostu jesteś sobą.',
@@ -96,6 +120,12 @@ class _ReturnToSelfScreenState extends State<ReturnToSelfScreen> {
             : ListView(
                 padding: const EdgeInsets.all(20),
                 children: [
+                  _buildTrackPicker(context),
+                  const SizedBox(height: 20),
+                  if (_trackId != 'self_hatred') ...[
+                    _buildProTrackPlaceholder(context),
+                    const SizedBox(height: 16),
+                  ] else ...[
                   _buildIntro(),
                   const SizedBox(height: 24),
                   if (provider.streak != null) ...[
@@ -147,7 +177,7 @@ class _ReturnToSelfScreenState extends State<ReturnToSelfScreen> {
                                 Icon(phase['icon'] as IconData, color: AppColors.primary, size: 24),
                                 const SizedBox(width: 12),
                                 Text(
-                                  phase['label'] as String,
+                                  S.t(context, phase['labelKey'] as String),
                                   style: const TextStyle(
                                     color: AppColors.textPrimary,
                                     fontSize: 18,
@@ -219,14 +249,121 @@ class _ReturnToSelfScreenState extends State<ReturnToSelfScreen> {
                   const SizedBox(height: 10),
                   _ToolCard(
                     icon: Icons.format_quote_rounded,
-                    label: 'Wall of Strength',
+                    label: S.t(context, 'wallOfStrength'),
                     desc: 'Anonimowa tablica słów od ludzi na tej samej drodze. Zostaw coś – może jutro ktoś tego potrzebuje.',
                     onTap: () => Navigator.pushNamed(context, '/wall-of-strength'),
                   ),
+                  ],
                 ],
               ),
       ),
     );
+  }
+
+  Widget _buildTrackPicker(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          S.t(context, 'rtsPathSectionTitle'),
+          style: const TextStyle(
+            color: AppColors.textSecondary,
+            fontSize: 12,
+            letterSpacing: 1.1,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        const SizedBox(height: 12),
+        ..._trackIds.map((id) {
+          final selected = _trackId == id;
+          final free = id == 'self_hatred';
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: Material(
+              color: AppColors.surface,
+              borderRadius: BorderRadius.circular(14),
+              child: InkWell(
+                onTap: () => _setTrack(id),
+                borderRadius: BorderRadius.circular(14),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(
+                      color: selected ? AppColors.primary : AppColors.surfaceLight,
+                      width: selected ? 2 : 1,
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          S.t(context, _trackTitleKey(id)),
+                          style: TextStyle(
+                            color: selected ? AppColors.textPrimary : AppColors.textSecondary,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: free
+                              ? AppColors.primary.withValues(alpha: 0.15)
+                              : AppColors.gold.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          free ? S.t(context, 'rtsBadgeFree') : S.t(context, 'rtsBadgeRecoveryPlus'),
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: free ? AppColors.primary : AppColors.gold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          );
+        }),
+      ],
+    ).animate().fadeIn(duration: 400.ms);
+  }
+
+  Widget _buildProTrackPlaceholder(BuildContext context) {
+    final isPro = context.watch<PurchaseProvider>().isPro;
+    final showRecoveryTeaser = _isProOnlyTrack(_trackId) && !isPro;
+    final text = showRecoveryTeaser
+        ? S.t(context, 'rtsProTrackPlaceholder')
+        : S.t(context, 'rtsComingSoonTrack');
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(22),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.primary.withValues(alpha: 0.25)),
+      ),
+      child: Column(
+        children: [
+          const Icon(Icons.schedule_rounded, color: AppColors.primary, size: 40),
+          const SizedBox(height: 14),
+          Text(
+            text,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              color: AppColors.textSecondary,
+              fontSize: 15,
+              height: 1.55,
+            ),
+          ),
+        ],
+      ),
+    ).animate().fadeIn(duration: 450.ms);
   }
 
   Widget _buildIntro() {
