@@ -18,6 +18,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
+  final _nameController = TextEditingController();
+  final _ageController = TextEditingController();
+  String? _selectedGender;
   bool _agreedToTerms = false;
   bool _loading = false;
   String? _error;
@@ -28,6 +31,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
+    _nameController.dispose();
+    _ageController.dispose();
     super.dispose();
   }
 
@@ -124,6 +129,53 @@ class _RegisterScreenState extends State<RegisterScreen> {
             hintText: S.t(context, 'registerConfirmHint'),
             prefixIcon: const Icon(Icons.lock_outlined, color: AppColors.textSecondary),
           ),
+        ),
+        const SizedBox(height: 20),
+
+        // --- Demographics (optional) ---
+        TextField(
+          controller: _nameController,
+          textCapitalization: TextCapitalization.words,
+          decoration: InputDecoration(
+            hintText: S.t(context, 'registerNameHint'),
+            prefixIcon: const Icon(Icons.person_outline, color: AppColors.textSecondary),
+          ),
+        ),
+        const SizedBox(height: 12),
+        TextField(
+          controller: _ageController,
+          keyboardType: TextInputType.number,
+          decoration: InputDecoration(
+            hintText: S.t(context, 'registerAgeHint'),
+            prefixIcon: const Icon(Icons.cake_outlined, color: AppColors.textSecondary),
+          ),
+        ),
+        const SizedBox(height: 12),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: Text(S.t(context, 'registerGenderLabel'),
+              style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+        ),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 8,
+          children: [
+            for (final g in ['male', 'female', 'non_binary', 'prefer_not_to_say'])
+              ChoiceChip(
+                label: Text(_genderLabel(context, g)),
+                selected: _selectedGender == g,
+                onSelected: (v) => setState(() => _selectedGender = v ? g : null),
+                selectedColor: AppColors.primary.withValues(alpha: 0.2),
+                labelStyle: TextStyle(
+                  color: _selectedGender == g ? AppColors.primary : AppColors.textSecondary,
+                  fontSize: 13,
+                ),
+                side: BorderSide(
+                  color: _selectedGender == g ? AppColors.primary : AppColors.surfaceLight,
+                ),
+                backgroundColor: AppColors.surface,
+              ),
+          ],
         ),
         const SizedBox(height: 20),
 
@@ -241,13 +293,32 @@ class _RegisterScreenState extends State<RegisterScreen> {
       return;
     }
 
+    // Validate optional age if provided
+    final ageText = _ageController.text.trim();
+    int? birthYear;
+    if (ageText.isNotEmpty) {
+      final age = int.tryParse(ageText);
+      if (age == null || age < 13 || age > 100) {
+        setState(() => _error = S.t(context, 'ageInvalid'));
+        return;
+      }
+      birthYear = DateTime.now().year - age;
+    }
+
     setState(() {
       _loading = true;
       _error = null;
     });
 
+    final displayName = _nameController.text.trim();
     try {
-      await context.read<AuthProvider>().signUpWithPassword(email, password);
+      await context.read<AuthProvider>().signUpWithPassword(
+        email,
+        password,
+        displayName: displayName.isNotEmpty ? displayName : null,
+        birthYear: birthYear,
+        gender: _selectedGender,
+      );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(S.t(context, 'accountCreated'))),
@@ -259,5 +330,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
     } finally {
       if (mounted) setState(() => _loading = false);
     }
+  }
+
+  String _genderLabel(BuildContext context, String key) {
+    const keyMap = {
+      'male': 'genderMale',
+      'female': 'genderFemale',
+      'non_binary': 'genderNonBinary',
+      'prefer_not_to_say': 'genderPreferNot',
+    };
+    return S.t(context, keyMap[key] ?? key);
   }
 }

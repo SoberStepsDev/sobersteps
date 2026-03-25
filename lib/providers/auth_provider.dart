@@ -35,8 +35,20 @@ class AuthProvider extends ChangeNotifier {
     _analytics.track('magic_link_sent');
   }
 
-  Future<void> signUpWithPassword(String email, String password) async {
-    await _authService.signUpWithPassword(email, password);
+  Future<void> signUpWithPassword(
+    String email,
+    String password, {
+    String? displayName,
+    int? birthYear,
+    String? gender,
+  }) async {
+    await _authService.signUpWithPassword(
+      email,
+      password,
+      displayName: displayName,
+      birthYear: birthYear,
+      gender: gender,
+    );
     _analytics.track('email_password_signup');
   }
 

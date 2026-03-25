@@ -1,6 +1,15 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../constants/app_constants.dart';
- 
+
+String _oauthRedirectUrl() {
+  if (kIsWeb) {
+    final u = Uri.base;
+    return u.replace(fragment: '').toString();
+  }
+  return AppConstants.authRedirectUrl;
+}
+
 class SupabaseAuthService {
   final SupabaseClient _client = Supabase.instance.client;
  
@@ -16,11 +25,17 @@ class SupabaseAuthService {
   }
  
   Future<void> signInWithGoogle() async {
-    await _client.auth.signInWithOAuth(OAuthProvider.google);
+    await _client.auth.signInWithOAuth(
+      OAuthProvider.google,
+      redirectTo: _oauthRedirectUrl(),
+    );
   }
- 
+
   Future<void> signInWithApple() async {
-    await _client.auth.signInWithOAuth(OAuthProvider.apple);
+    await _client.auth.signInWithOAuth(
+      OAuthProvider.apple,
+      redirectTo: _oauthRedirectUrl(),
+    );
   }
  
   Future<void> signOut() async {
@@ -37,7 +52,22 @@ class SupabaseAuthService {
           .eq('id', user.id)
           .maybeSingle();
       if (existing == null) {
-        await _client.from('profiles').insert({'id': user.id});
+        final meta = user.userMetadata ?? {};
+        // Extract demographics from user metadata (set during signUp or from Google OAuth)
+        final displayName = (meta['display_name'] as String?)?.trim().isNotEmpty == true
+            ? meta['display_name'] as String
+            : (meta['full_name'] as String?)?.trim().isNotEmpty == true
+                ? meta['full_name'] as String
+                : (meta['name'] as String?);
+        final birthYear = meta['birth_year'] as int?;
+        final gender = meta['gender'] as String?;
+
+        await _client.from('profiles').insert({
+          'id': user.id,
+          if (displayName != null) 'display_name': displayName,
+          if (birthYear != null) 'birth_year': birthYear,
+          if (gender != null) 'gender': gender,
+        });
       }
     } catch (_) {}
   }
@@ -48,11 +78,22 @@ class SupabaseAuthService {
     } catch (_) {}
   }
  
-  Future<void> signUpWithPassword(String email, String password) async {
+  Future<void> signUpWithPassword(
+    String email,
+    String password, {
+    String? displayName,
+    int? birthYear,
+    String? gender,
+  }) async {
     await _client.auth.signUp(
       email: email,
       password: password,
-      data: {'created_at': DateTime.now().toIso8601String()},
+      data: {
+        'created_at': DateTime.now().toIso8601String(),
+        if (displayName != null && displayName.isNotEmpty) 'display_name': displayName,
+        if (birthYear != null) 'birth_year': birthYear,
+        if (gender != null) 'gender': gender,
+      },
     );
   }
  
