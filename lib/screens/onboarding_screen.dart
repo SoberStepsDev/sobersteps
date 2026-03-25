@@ -10,6 +10,7 @@ import '../providers/sobriety_provider.dart';
 import '../services/analytics_service.dart';
 import '../services/notification_service.dart';
 import '../constants/app_constants.dart';
+import 'rts_diagnostic_screen.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -178,7 +179,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             ...AppConstants.substanceTypes.entries.map((e) => Padding(
               padding: const EdgeInsets.only(bottom: 6),
               child: _SubstanceCard(
-                label: e.value,
+                label: _localizedSubstanceLabel(context, e.key),
                 icon: _iconForSubstance(e.key),
                 selected: _substanceType == e.key,
                 onTap: () => _selectAddiction('substance', e.key),
@@ -192,7 +193,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             ...AppConstants.behavioralTypes.entries.map((e) => Padding(
               padding: const EdgeInsets.only(bottom: 6),
               child: _SubstanceCard(
-                label: e.value,
+                label: _localizedBehavioralLabel(context, e.key),
                 icon: _iconForBehavioral(e.key),
                 selected: _substanceType == e.key,
                 onTap: () => _selectAddiction('behavioral', e.key),
@@ -204,11 +205,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             Text(S.t(context, 'onboardingReturnToSelfTitle'), style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textSecondary, letterSpacing: 1)),
             const SizedBox(height: 8),
             ...AppConstants.returnToSelfTypes.entries.map((e) {
-              final isPro = AppConstants.returnToSelfProOnly.contains(e.key);
               return Padding(
                 padding: const EdgeInsets.only(bottom: 6),
                 child: _SubstanceCard(
-                  label: isPro ? '${e.value} (PRO)' : e.value,
+                  label: _localizedReturnToSelfLabel(context, e.key),
                   icon: _iconForReturnToSelf(e.key),
                   selected: _substanceType == e.key,
                   onTap: () => _selectAddiction('return_to_self', e.key),
@@ -246,8 +246,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 setState(() => _returnToSelfEnabled = true);
                 final prefs = await SharedPreferences.getInstance();
                 await prefs.setBool('return_to_self_enabled', true);
-                setState(() => _showReturnToSelfQuestion = false);
-                _nextPage();
+                await _openRtsDiagnosticThen(() {
+                  if (!mounted) return;
+                  setState(() => _showReturnToSelfQuestion = false);
+                  _nextPage();
+                });
               },
               child: Text(S.t(context, 'yesIWant')),
             ),
@@ -283,8 +286,22 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     } else {
       setState(() => _returnToSelfEnabled = true);
       await prefs.setBool('return_to_self_enabled', true);
-      _nextPage();
+      await _openRtsDiagnosticThen(() {
+        if (!mounted) return;
+        _nextPage();
+      });
     }
+  }
+
+  Future<void> _openRtsDiagnosticThen(VoidCallback afterPop) async {
+    await Navigator.of(context).push<void>(
+      MaterialPageRoute<void>(
+        fullscreenDialog: true,
+        builder: (_) => const RtsDiagnosticScreen(),
+      ),
+    );
+    if (!mounted) return;
+    afterPop();
   }
 
   IconData _iconForSubstance(String key) {
@@ -300,6 +317,20 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     };
   }
 
+  String _localizedSubstanceLabel(BuildContext context, String key) {
+    final labelKey = switch (key) {
+      'alcohol' => 'substAlcohol',
+      'marijuana_thc' => 'substMarijuana',
+      'cocaine' => 'substCocaine',
+      'heroin' => 'substHeroin',
+      'crack' => 'substCrack',
+      'methamphetamine' => 'substMeth',
+      'opioids' => 'substOpioids',
+      _ => 'substOther',
+    };
+    return S.t(context, labelKey);
+  }
+
   IconData _iconForBehavioral(String key) {
     return switch (key) {
       'gambling' => Icons.casino,
@@ -312,6 +343,19 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     };
   }
 
+  String _localizedBehavioralLabel(BuildContext context, String key) {
+    final labelKey = switch (key) {
+      'gambling' => 'behavGambling',
+      'sex_pornography' => 'behavSexPorn',
+      'social_media' => 'behavSocialMedia',
+      'shopping' => 'behavShopping',
+      'gaming' => 'behavGaming',
+      'workaholism' => 'behavWork',
+      _ => 'other',
+    };
+    return S.t(context, labelKey);
+  }
+
   IconData _iconForReturnToSelf(String key) {
     return switch (key) {
       'self_hatred' => Icons.heart_broken,
@@ -319,6 +363,16 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       'toxic_relationships' => Icons.people_outline,
       _ => Icons.self_improvement,
     };
+  }
+
+  String _localizedReturnToSelfLabel(BuildContext context, String key) {
+    final labelKey = switch (key) {
+      'self_hatred' => 'rtsSelfHatred',
+      'perfectionism' => 'rtsPerfectionism',
+      'toxic_relationships' => 'rtsToxicRel',
+      _ => 'returnToSelf',
+    };
+    return S.t(context, labelKey);
   }
 
   Widget _buildStep3(SobrietyProvider sobriety) {
@@ -331,7 +385,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
           const SizedBox(height: 16),
           Text(
-            '${sobriety.daysSober} dni',
+            '${sobriety.daysSober} ${S.t(context, 'days')}',
             style: const TextStyle(fontSize: 64, fontWeight: FontWeight.w800, color: AppColors.gold),
           ),
           const SizedBox(height: 24),

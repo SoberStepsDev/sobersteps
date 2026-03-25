@@ -30,11 +30,11 @@ class AccountabilityScreen extends StatelessWidget {
             children: [
               const Icon(Icons.people_alt_rounded, size: 72, color: AppColors.gold),
               const SizedBox(height: 24),
-              const Text('Accountability Partner', textAlign: TextAlign.center,
+              Text(S.t(context, 'accountabilityPartner'), textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 26, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
               const SizedBox(height: 16),
-              const Text(
-                'Znajdź partnera na drodze do trzeźwości. Wspólny streak, codzienne check-iny, prywatny chat — tylko wy dwoje.',
+              Text(
+                S.t(context, 'accountabilityIntro'),
                 textAlign: TextAlign.center,
                 style: TextStyle(color: AppColors.textSecondary, fontSize: 15, height: 1.5),
               ),
@@ -43,17 +43,17 @@ class AccountabilityScreen extends StatelessWidget {
                 width: double.infinity,
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(14)),
-                child: const Column(
+                child: Column(
                   children: [
-                    _FeatureRow(icon: Icons.link, text: 'Parowanie przez kod lub email'),
-                    SizedBox(height: 12),
-                    _FeatureRow(icon: Icons.sync, text: 'Wspólny streak — motywacja x2'),
-                    SizedBox(height: 12),
-                    _FeatureRow(icon: Icons.chat_bubble_outline, text: 'Prywatny, szyfrowany chat'),
-                    SizedBox(height: 12),
-                    _FeatureRow(icon: Icons.notifications_active, text: 'Powiadomienia gdy partner zrobi check-in'),
-                    SizedBox(height: 12),
-                    _FeatureRow(icon: Icons.visibility, text: 'Wspólne milestones i celebracje'),
+                    _FeatureRow(icon: Icons.link, text: S.t(context, 'accountabilityFeaturePairing')),
+                    const SizedBox(height: 12),
+                    _FeatureRow(icon: Icons.sync, text: S.t(context, 'accountabilityFeatureStreak')),
+                    const SizedBox(height: 12),
+                    _FeatureRow(icon: Icons.chat_bubble_outline, text: S.t(context, 'accountabilityFeatureChat')),
+                    const SizedBox(height: 12),
+                    _FeatureRow(icon: Icons.notifications_active, text: S.t(context, 'accountabilityFeatureReminders')),
+                    const SizedBox(height: 12),
+                    _FeatureRow(icon: Icons.visibility, text: S.t(context, 'accountabilityFeatureMilestones')),
                   ],
                 ),
               ),

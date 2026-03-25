@@ -50,7 +50,7 @@ class _WallOfStrengthScreenState extends State<WallOfStrengthScreen> {
     } catch (_) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Coś poszło nie tak. Spróbuj ponownie.')),
+        SnackBar(content: Text(S.t(context, 'wallPostError'))),
       );
     } finally {
       if (mounted) setState(() => _isPosting = false);
@@ -73,7 +73,7 @@ class _WallOfStrengthScreenState extends State<WallOfStrengthScreen> {
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
               child: Text(
-                'Anonimowe słowa ludzi, którzy też tu są – surowe, prawdziwe.',
+                S.t(context, 'wallIntro'),
                 style: TextStyle(
                   color: AppColors.textSecondary,
                   fontSize: 13,
@@ -87,7 +87,7 @@ class _WallOfStrengthScreenState extends State<WallOfStrengthScreen> {
                   : wall.posts.isEmpty
                       ? Center(
                           child: Text(
-                            'Tu jeszcze nic nie ma – ciekawe, co tu wkrótce się pojawi…',
+                            S.t(context, 'wallEmpty'),
                             style: TextStyle(color: AppColors.textSecondary),
                             textAlign: TextAlign.center,
                           ),
@@ -149,7 +149,7 @@ class _WallOfStrengthScreenState extends State<WallOfStrengthScreen> {
                       controller: _controller,
                       style: const TextStyle(color: AppColors.textPrimary),
                       decoration: InputDecoration(
-                        hintText: 'Zostaw coś od siebie…',
+                        hintText: S.t(context, 'wallHint'),
                         hintStyle: TextStyle(
                           color: AppColors.textSecondary.withValues(alpha: 0.5),
                         ),

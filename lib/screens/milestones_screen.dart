@@ -119,7 +119,7 @@ class _MilestonesScreenState extends State<MilestonesScreen> {
                 .animate()
                 .scale(begin: const Offset(0.3, 0.3), end: const Offset(1.0, 1.0), duration: 600.ms, curve: Curves.elasticOut),
             const SizedBox(height: 16),
-            Text('${data.days} Days!',
+            Text('${data.days} ${S.t(context, 'days')}!',
                 style: const TextStyle(fontSize: 36, fontWeight: FontWeight.w800, color: AppColors.gold)),
             const SizedBox(height: 8),
             Text(data.message, textAlign: TextAlign.center, style: const TextStyle(fontSize: 18, color: AppColors.textPrimary)),
@@ -181,7 +181,7 @@ class _MilestoneCard extends StatelessWidget {
                 if (achieved)
                   Text(S.t(context, 'achieved'), style: const TextStyle(color: AppColors.success, fontSize: 12))
                 else if (isNext)
-                  Text('${data.days - daysSober} days to go', style: const TextStyle(color: AppColors.primary, fontSize: 12))
+                  Text('${data.days - daysSober} ${S.t(context, 'daysToGo')}', style: const TextStyle(color: AppColors.primary, fontSize: 12))
                 else
                   Text(S.t(context, 'locked'), style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
               ],

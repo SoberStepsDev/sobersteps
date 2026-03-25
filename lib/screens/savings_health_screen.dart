@@ -51,7 +51,7 @@ class _SavingsHealthScreenState extends State<SavingsHealthScreen> {
               icon: Icons.savings_rounded,
               color: AppColors.gold,
               title: '\$${saved.toStringAsFixed(0)}',
-              subtitle: 'zaoszczędzone',
+              subtitle: S.t(context, 'saved'),
             ).animate().fadeIn(duration: 400.ms).slideY(begin: 0.1),
             const SizedBox(height: 12),
             _CostEditor(dailyCost: _dailyCost, onChanged: _setCost),
@@ -77,17 +77,17 @@ class _SavingsHealthScreenState extends State<SavingsHealthScreen> {
             const SizedBox(height: 12),
             Row(
               children: [
-                Expanded(child: _StatCard(value: '${(days * 7).toStringAsFixed(0)}h', label: 'snu bez kaca')),
+                Expanded(child: _StatCard(value: '${(days * 7).toStringAsFixed(0)}h', label: S.t(context, 'sleepNoHangover'))),
                 const SizedBox(width: 12),
-                Expanded(child: _StatCard(value: '${(days * 0.5).toStringAsFixed(1)} L', label: 'wody zamiast alkoholu')),
+                Expanded(child: _StatCard(value: '${(days * 0.5).toStringAsFixed(1)} L', label: S.t(context, 'waterNotAlcohol'))),
               ],
             ),
             const SizedBox(height: 12),
             Row(
               children: [
-                Expanded(child: _StatCard(value: (days * 200).toStringAsFixed(0), label: 'kalorii mniej')),
+                Expanded(child: _StatCard(value: (days * 200).toStringAsFixed(0), label: S.t(context, 'caloriesLess'))),
                 const SizedBox(width: 12),
-                Expanded(child: _StatCard(value: days.toString(), label: 'dobrych decyzji')),
+                Expanded(child: _StatCard(value: days.toString(), label: S.t(context, 'goodDecisions'))),
               ],
             ),
             const SizedBox(height: 32),
@@ -156,7 +156,7 @@ class _CostEditor extends StatelessWidget {
             ),
           ),
           Expanded(child: Slider(value: dailyCost, min: 1, max: 100, activeColor: AppColors.gold, onChanged: onChanged)),
-          Text('\$${dailyCost.toStringAsFixed(0)}/dzień', style: const TextStyle(color: AppColors.gold, fontWeight: FontWeight.w600)),
+          Text('\$${dailyCost.toStringAsFixed(0)}${S.t(context, 'perDay')}', style: const TextStyle(color: AppColors.gold, fontWeight: FontWeight.w600)),
         ],
       ),
     );

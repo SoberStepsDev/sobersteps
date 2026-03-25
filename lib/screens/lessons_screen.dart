@@ -89,7 +89,7 @@ class _LessonsScreenState extends State<LessonsScreen> {
               const SizedBox(height: 12),
               Text(lesson.title, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
               const SizedBox(height: 4),
-              Text('~${lesson.readMinutes} min', style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+              Text('~${lesson.readMinutes} ${S.t(context, 'min')}', style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
               const SizedBox(height: 20),
               Text(lesson.content, style: const TextStyle(fontSize: 15, height: 1.7, color: AppColors.textSecondary)),
               const SizedBox(height: 24),
@@ -101,7 +101,7 @@ class _LessonsScreenState extends State<LessonsScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Kluczowy wniosek:', style: TextStyle(fontWeight: FontWeight.w600, color: AppColors.primary, fontSize: 14)),
+                      Text(S.t(context, 'keyTakeaway'), style: const TextStyle(fontWeight: FontWeight.w600, color: AppColors.primary, fontSize: 14)),
                       const SizedBox(height: 4),
                       Text(lesson.keyTakeaway, style: const TextStyle(color: AppColors.textPrimary, fontSize: 14)),
                     ],
@@ -172,14 +172,14 @@ class _LessonCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(lesson.title, style: TextStyle(color: locked ? AppColors.textSecondary : AppColors.textPrimary, fontWeight: FontWeight.w600, fontSize: 15)),
-                  Text('${lesson.emoji}  ~${lesson.readMinutes} min', style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+                  Text('${lesson.emoji}  ~${lesson.readMinutes} ${S.t(context, 'min')}', style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
                 ],
               ),
             ),
             if (locked) Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
               decoration: BoxDecoration(color: AppColors.gold.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(8)),
-              child: const Text('PRO', style: TextStyle(color: AppColors.gold, fontSize: 10, fontWeight: FontWeight.w700)),
+              child: Text(S.t(context, 'pro'), style: const TextStyle(color: AppColors.gold, fontSize: 10, fontWeight: FontWeight.w700)),
             ),
           ],
         ),

@@ -19,18 +19,18 @@ class MirrorMomentScreen extends StatefulWidget {
 class _MirrorMomentScreenState extends State<MirrorMomentScreen> {
   static const _mirrorDays = [7, 14, 21, 28];
 
-  static const _prompts = {
-    7: 'One week. What surprised you most about yourself?',
-    14: 'Two weeks in. What has started to feel different — physically, emotionally?',
-    21: 'Three weeks. What old story about yourself are you ready to let go of?',
-    28: 'One month. Who are you becoming?',
+  static const _promptKeys = {
+    7: 'reflection7',
+    14: 'reflection14',
+    21: 'reflection21',
+    28: 'reflection28',
   };
 
-  static const _subtitles = {
-    7: 'Day 7 Reflection',
-    14: 'Day 14 Reflection',
-    21: 'Day 21 Reflection',
-    28: 'Day 28 Reflection',
+  static const _subtitleKeys = {
+    7: 'day7Reflection',
+    14: 'day14Reflection',
+    21: 'day21Reflection',
+    28: 'day28Reflection',
   };
 
   final _controller = TextEditingController();
@@ -128,7 +128,7 @@ class _MirrorMomentScreenState extends State<MirrorMomentScreen> {
           if (!isPremium)
             TextButton(
               onPressed: () => Navigator.of(context).pushNamed('/paywall'),
-              child: const Text('PRO', style: TextStyle(color: AppColors.gold)),
+              child: Text(S.t(context, 'pro'), style: const TextStyle(color: AppColors.gold)),
             ),
         ],
       ),
@@ -188,7 +188,7 @@ class _MirrorMomentScreenState extends State<MirrorMomentScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      'Day $day',
+                      S.t(context, 'day$day'),
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: active ? FontWeight.w700 : FontWeight.w400,
@@ -216,7 +216,7 @@ class _MirrorMomentScreenState extends State<MirrorMomentScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          _subtitles[_activeMirrorDay] ?? '',
+          S.t(context, _subtitleKeys[_activeMirrorDay] ?? ''),
           style: const TextStyle(
             fontSize: 13,
             color: AppColors.primary,
@@ -230,7 +230,7 @@ class _MirrorMomentScreenState extends State<MirrorMomentScreen> {
             const Icon(Icons.graphic_eq, color: AppColors.gold, size: 18),
             const SizedBox(width: 8),
             Text(
-              'Voice message playing...',
+              S.t(context, 'voicePlaying'),
               style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
             ),
           ],
@@ -249,7 +249,7 @@ class _MirrorMomentScreenState extends State<MirrorMomentScreen> {
         border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
       ),
       child: Text(
-        _prompts[_activeMirrorDay] ?? '',
+        S.t(context, _promptKeys[_activeMirrorDay] ?? ''),
         style: const TextStyle(
           fontSize: 18,
           fontWeight: FontWeight.w600,
@@ -268,8 +268,8 @@ class _MirrorMomentScreenState extends State<MirrorMomentScreen> {
       enabled: isPremium,
       decoration: InputDecoration(
         hintText: isPremium
-            ? 'Write your reflection...'
-            : 'Upgrade to PRO to save your reflections',
+            ? S.t(context, 'writeReflection')
+            : S.t(context, 'upgradeToSave'),
         hintStyle: const TextStyle(color: AppColors.textSecondary),
         counterStyle: const TextStyle(color: AppColors.textSecondary),
       ),
@@ -297,7 +297,7 @@ class _MirrorMomentScreenState extends State<MirrorMomentScreen> {
                 width: 20,
                 child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.textPrimary),
               )
-            : Text(isPremium ? 'Save Reflection' : 'Unlock with PRO'),
+            : Text(isPremium ? S.t(context, 'saveReflection') : S.t(context, 'unlockPro')),
       ),
     );
   }
@@ -315,13 +315,13 @@ class _MirrorMomentScreenState extends State<MirrorMomentScreen> {
         children: [
           const Icon(Icons.check_circle_outline, color: AppColors.success, size: 40),
           const SizedBox(height: 12),
-          const Text(
-            'Reflection saved.',
+          Text(
+            S.t(context, 'reflectionSaved'),
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
           ),
           const SizedBox(height: 4),
-          const Text(
-            'Come back when you\'re ready for the next one.',
+          Text(
+            S.t(context, 'comeBackReady'),
             textAlign: TextAlign.center,
             style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
           ),
