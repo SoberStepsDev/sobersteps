@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../app/theme.dart';
@@ -178,6 +179,30 @@ class _RegisterScreenState extends State<RegisterScreen> {
           ),
         ),
 
+        const SizedBox(height: 24),
+        Row(children: [
+          const Expanded(child: Divider(color: AppColors.surfaceLight)),
+          Padding(padding: const EdgeInsets.symmetric(horizontal: 16), child: Text(S.t(context, 'or'), style: const TextStyle(color: AppColors.textSecondary))),
+          const Expanded(child: Divider(color: AppColors.surfaceLight)),
+        ]),
+        const SizedBox(height: 16),
+        SizedBox(
+          width: double.infinity,
+          child: OutlinedButton.icon(
+            icon: const Icon(Icons.g_mobiledata, size: 28),
+            label: Text(S.t(context, 'continueGoogle')),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: AppColors.textPrimary,
+              side: const BorderSide(color: AppColors.surfaceLight),
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            ),
+            onPressed: () {
+              HapticFeedback.lightImpact();
+              context.read<AuthProvider>().signInWithGoogle();
+            },
+          ),
+        ),
         const SizedBox(height: 24),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
