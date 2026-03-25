@@ -1,0 +1,7 @@
+.env
+.env.*
+!.env.example
+!**/.env.example
+assets/config.env
+android/key.properties
+android/app/upload-keystore.jks

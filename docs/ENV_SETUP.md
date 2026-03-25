@@ -60,9 +60,11 @@ Core secrets used by workflows:
 Set in Supabase Dashboard -> Edge Functions -> Secrets.
 
 For `notify_users`:
+- `SUPABASE_URL`
+- `SUPABASE_SERVICE_ROLE_KEY`
 - `ONESIGNAL_APP_ID`
 - `ONESIGNAL_REST_API_KEY`
-- `CRON_SECRET`
+- `CRON_SECRET` (identyczny jak `CRON_SECRET` w GitHub Actions)
 
 Reference template: `supabase/.env.example`
 

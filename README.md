@@ -2,6 +2,8 @@
 
 Mobile app (Flutter + Supabase) focused on gentle daily sobriety support.
 
+Materiały marketingowe (wideo, skrypty reels, landingi, raporty operacyjne): katalog obok repozytorium **`SoberSteps2026-marketing`** — nie są częścią buildu aplikacji.
+
 ## Landing
 
 - Website: [https://soberstepsdev.github.io/sobersteps-landing/](https://soberstepsdev.github.io/sobersteps-landing/)
@@ -126,6 +128,8 @@ The workflow calls:
 ## Process docs
 
 - Release management: `docs/RELEASE.md`
+- Incident response: `docs/INCIDENT_RESPONSE.md`
+- Branch protection baseline: `docs/BRANCH_PROTECTION.md`
 - Changelog: `CHANGELOG.md`
 - Contributing guide: `CONTRIBUTING.md`
 - Code ownership: `.github/CODEOWNERS`

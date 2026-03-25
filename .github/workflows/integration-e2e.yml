@@ -1,0 +1,24 @@
+name: Integration E2E
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  macos-smoke:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Flutter pub get
+        run: flutter pub get
+
+      - name: Run smoke and critical integration tests
+        run: |
+          flutter test -d macos integration_test/smoke_test.dart
+          flutter test -d macos integration_test/critical_flows_test.dart

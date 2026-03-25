@@ -50,6 +50,7 @@ build/
 
 # Secrets
 .env
+assets/config.env
 android/key.properties
 android/app/upload-keystore.jks
 
@@ -68,3 +69,21 @@ supabase/.temp/
 
 # Cursor generated output cache
 .cursor/output/
+.github/workflows/n8n-health-check.yml
+
+sentry.properties
+sentry-wizard
+
+# Cursor generated output & local skills
+.cursor/output/
+.cursor/skills/
+.cursor/agents/PUBLISH_BLOCK.md
+.cursor/agents/sobersteps-content-publisher.md
+.cursor/agents/sobersteps-reddit-helper.md
+.cursor/agents/sobersteps-social-publisher.md
+skills-lock.json
+
+# Never commit
+CLAUDE.md
+SPEC-2026.md
+.cursor/add_*.py

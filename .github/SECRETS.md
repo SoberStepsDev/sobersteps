@@ -7,7 +7,7 @@
 | `SUPABASE_PROJECT_REF` | Sam `ref` (segment przed `.supabase.co`) — `supabase-deploy.yml` |
 | `SUPABASE_ACCESS_TOKEN` | CLI Supabase |
 | `SUPABASE_DB_PASSWORD` | `db push` |
-| `CRON_SECRET` | Nagłówek `Authorization` do Edge Function `notify_users` |
+| `CRON_SECRET` | Ten sam string co secret Edge Function `notify_users`; workflow wysyła `Authorization: Bearer <CRON_SECRET>` |
 | `ONESIGNAL_APP_ID` | Klient Flutter (push) — też w `release-build` / `release-publish` jako `--dart-define` |
 | `REVENUE_CAT_KEY` | **Public** SDK key RevenueCat (Play / App Store w dashboardzie) — w buildach CI jako `--dart-define`; nigdy secret `sk_…` w aplikacji |
 | `ONESIGNAL_REST_API_KEY` | Tylko backend / skrypty — **nie** dodawaj do workflow Flutter ani do repo |

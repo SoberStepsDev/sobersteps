@@ -9,10 +9,18 @@ jobs:
     steps:
       - name: notify
         shell: bash
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
         run: |
+          if [ -z "$SUPABASE_URL" ] || [ -z "$CRON_SECRET" ]; then
+            echo "::error::Set repository secrets SUPABASE_URL and CRON_SECRET"
+            exit 1
+          fi
           H=$(date -u +%H)
-          B="Authorization: Bearer ${{ secrets.CRON_SECRET }}"
-          U="https://kznhbcwozpjflewlzxnu.supabase.co/functions/v1/notify_users"
+          B="Authorization: Bearer ${CRON_SECRET}"
+          BASE="${SUPABASE_URL%/}"
+          U="${BASE}/functions/v1/notify_users"
 
           if curl -sf -H "$B" "${U}?type=checkin&hour=$H"; then
             echo "checkin OK"
