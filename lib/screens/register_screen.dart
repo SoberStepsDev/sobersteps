@@ -22,6 +22,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _ageController = TextEditingController();
   String? _selectedGender;
   bool _agreedToTerms = false;
+  bool _agreedToPrivacy = false;
   bool _loading = false;
   String? _error;
   bool _obscurePassword = true;
@@ -181,7 +182,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
         // Terms checkbox
         Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             SizedBox(
               width: 24,
@@ -194,23 +195,35 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
             ),
             const SizedBox(width: 8),
-            Expanded(
-              child: Wrap(
-                children: [
-                  Text('${S.t(context, 'accept')} ', style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
-                  GestureDetector(
-                    onTap: () => Navigator.pushNamed(context, '/terms'),
-                    child: Text(S.t(context, 'termsAnd'),
-                        style: TextStyle(color: AppColors.primary, fontSize: 13, decoration: TextDecoration.underline)),
-                  ),
-                  Text(' ${S.t(context, 'and')} ', style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
-                  GestureDetector(
-                    onTap: () => Navigator.pushNamed(context, '/privacy'),
-                    child: Text(S.t(context, 'privacyPolicy'),
-                        style: TextStyle(color: AppColors.primary, fontSize: 13, decoration: TextDecoration.underline)),
-                  ),
-                ],
+            Text('${S.t(context, 'accept')} ', style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+            GestureDetector(
+              onTap: () => Navigator.pushNamed(context, '/terms'),
+              child: Text(S.t(context, 'termsAnd'),
+                  style: TextStyle(color: AppColors.primary, fontSize: 13, decoration: TextDecoration.underline)),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        // Privacy checkbox
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            SizedBox(
+              width: 24,
+              height: 24,
+              child: Checkbox(
+                value: _agreedToPrivacy,
+                onChanged: (v) => setState(() => _agreedToPrivacy = v ?? false),
+                activeColor: AppColors.primary,
+                side: const BorderSide(color: AppColors.textSecondary),
               ),
+            ),
+            const SizedBox(width: 8),
+            Text('${S.t(context, 'accept')} ', style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+            GestureDetector(
+              onTap: () => Navigator.pushNamed(context, '/privacy'),
+              child: Text(S.t(context, 'privacyPolicy'),
+                  style: TextStyle(color: AppColors.primary, fontSize: 13, decoration: TextDecoration.underline)),
             ),
           ],
         ),
@@ -219,7 +232,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         SizedBox(
           width: double.infinity,
           child: ElevatedButton(
-            onPressed: (_loading || !_agreedToTerms) ? null : _register,
+            onPressed: (_loading || !_agreedToTerms || !_agreedToPrivacy) ? null : _register,
             style: ElevatedButton.styleFrom(
               disabledBackgroundColor: AppColors.surfaceLight,
               disabledForegroundColor: AppColors.textSecondary,
