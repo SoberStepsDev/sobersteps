@@ -69,5 +69,18 @@
 	<string>SoberSteps sends reminders for daily check-ins and milestone notifications.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>SoberSteps can save milestone cards to your photo library.</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>com.patryk.sobersteps</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.patryk.sobersteps</string>
+			</array>
+		</dict>
+	</array>
 </dict>
 </plist>

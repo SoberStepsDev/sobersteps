@@ -10,6 +10,8 @@
 | `CRON_SECRET` | Ten sam string co secret Edge Function `notify_users`; workflow wysyła `Authorization: Bearer <CRON_SECRET>` |
 | `ONESIGNAL_APP_ID` | Klient Flutter (push) — też w `release-build` / `release-publish` jako `--dart-define` |
 | `REVENUE_CAT_KEY` | **Public** SDK key RevenueCat (Play / App Store w dashboardzie) — w buildach CI jako `--dart-define`; nigdy secret `sk_…` w aplikacji |
+| `SUPABASE_ANON_KEY` | Publiczny anon key Supabase — wymagany w `release-build.yml` jako `--dart-define=SUPABASE_ANON_KEY` |
+| `SENTRY_DSN` | DSN projektu Sentry — wymagany w `release-build.yml` jako `--dart-define=SENTRY_DSN`; bez tego Sentry jest wyłączone w produkcji |
 | `ONESIGNAL_REST_API_KEY` | Tylko backend / skrypty — **nie** dodawaj do workflow Flutter ani do repo |
 
 Lokalny Flutter: `.env` (gitignored) lub `--dart-define=SUPABASE_URL=...` / `SUPABASE_ANON_KEY=...` / `ONESIGNAL_APP_ID=...` / `REVENUE_CAT_KEY=...` (patrz `assets/config.env.example` / `.env.example`).

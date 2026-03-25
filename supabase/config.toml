@@ -8,9 +8,15 @@ entrypoint = "./functions/naomi-feedback/index.ts"
 enabled = true
 verify_jwt = true
 import_map = "./functions/moderate_three_am_post/deno.json"
-# Uncomment to specify a custom file path to the entrypoint.
-# Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
 entrypoint = "./functions/moderate_three_am_post/index.ts"
-# Specifies static files to be bundled with the function. Supports glob patterns.
-# For example, if you want to serve static HTML pages in your function:
-# static_files = [ "./functions/moderate_three_am_post/*.html" ]
+
+[functions.notify_users]
+enabled = true
+# verify_jwt=false: auth via CRON_SECRET Bearer header (see docs/ENV_SETUP.md)
+verify_jwt = false
+entrypoint = "./functions/notify_users/index.ts"
+
+[functions.send_moderation_email_brevo]
+enabled = true
+verify_jwt = true
+entrypoint = "./functions/send_moderation_email_brevo/index.ts"
