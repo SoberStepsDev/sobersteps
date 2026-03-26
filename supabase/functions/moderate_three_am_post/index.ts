@@ -34,6 +34,10 @@ serve(async (req: Request) => {
     console.log(`[moderate_three_am_post] triggered for row ${record.id}, flagged: ${isFlagged}`);
 
     if (isFlagged) {
+      await supabase
+        .from("three_am_wall")
+        .update({ is_visible: false, auto_moderated_at: new Date().toISOString() })
+        .eq("id", record.id);
       await supabase.from("moderation_queue").insert({
         table_name: "three_am_wall",
         row_id: record.id,

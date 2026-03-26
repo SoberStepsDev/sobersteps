@@ -1,12 +1,13 @@
 class AppConstants {
   static const bool isDevelopment = false;
 
-  static const String supabaseUrl = 'https://kznhbcwozpjflewlzxnu.supabase.co';
+  static const String supabaseUrl =
+      String.fromEnvironment('SUPABASE_URL', defaultValue: 'https://kznhbcwozpjflewlzxnu.supabase.co');
   static const String supabaseAnonKey =
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt6bmhiY3dvenBqZmxld2x6eG51Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwMTU4NTcsImV4cCI6MjA4NzU5MTg1N30.CRgPK-BExwci8l6EHmJ3V9jH-ElABom62hejiBqyN_4';
+      String.fromEnvironment('SUPABASE_ANON_KEY', defaultValue: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt6bmhiY3dvenBqZmxld2x6eG51Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwMTU4NTcsImV4cCI6MjA4NzU5MTg1N30.CRgPK-BExwci8l6EHmJ3V9jH-ElABom62hejiBqyN_4');
 
   static const String revenueCatApiKey =
-      String.fromEnvironment('REVENUE_CAT_KEY', defaultValue: 'test_yugqnTsxrHsXuQwYbZXcWIMMqsu');
+      String.fromEnvironment('REVENUE_CAT_KEY', defaultValue: '');
   static const String oneSignalAppId =
       String.fromEnvironment('ONESIGNAL_APP_ID', defaultValue: 'YOUR_ONESIGNAL_APP_ID');
   static const String elevenLabsApiKey =
