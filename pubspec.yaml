@@ -32,7 +32,7 @@ dependencies:
   http: ^1.2.2
   path_provider: ^2.1.0
   flutter_tts: ^4.2.0
-  sentry_flutter: ^9.15.0
+  sentry_flutter: ^9.16.0
   app_links: ^6.3.3
   flutter_dotenv: ^6.0.0
 
