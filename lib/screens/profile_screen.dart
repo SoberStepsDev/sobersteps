@@ -42,6 +42,7 @@ class ProfileScreen extends StatelessWidget {
               badge: purchase.isPremium ? null : 'PRO'),
           _tile(context, Icons.mail_outline, S.t(context, 'lettersToSelf'), () => Navigator.pushNamed(context, '/future-letter-list')),
           _tile(context, Icons.waves, S.t(context, 'cravingSurf'), () => Navigator.pushNamed(context, '/craving-surf')),
+          _tile(context, Icons.auto_stories_rounded, S.t(context, 'crashLogTitle'), () => Navigator.pushNamed(context, '/crash-log')),
           _SectionLabel(S.t(context, 'settings')),
           _tile(context, Icons.calendar_today, S.t(context, 'changeSobrietyDate'), () => _showDatePicker(context, sobriety)),
           _tile(context, Icons.notifications_outlined, S.t(context, 'notifications'), () => Navigator.pushNamed(context, '/notifications')),

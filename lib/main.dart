@@ -55,6 +55,8 @@ import 'screens/karma_mirror_screen.dart';
 import 'screens/naomi_screen.dart';
 import 'screens/wall_of_strength_screen.dart';
 import 'screens/mirror_moment_screen.dart';
+import 'screens/crash_log_screen.dart';
+import 'screens/rts_diagnostic_screen.dart';
 import 'services/notification_service.dart';
 import 'services/crisis_detection_service.dart';
 
@@ -245,6 +247,8 @@ class _SoberStepsAppState extends State<SoberStepsApp> {
             '/naomi': (_) => const NaomiScreen(),
             '/wall-of-strength': (_) => const WallOfStrengthScreen(),
             '/mirror-moment': (_) => const MirrorMomentScreen(),
+            '/crash-log': (_) => const CrashLogScreen(),
+            '/rts-diagnostic': (_) => const RtsDiagnosticScreen(),
           },
         ),
       ),

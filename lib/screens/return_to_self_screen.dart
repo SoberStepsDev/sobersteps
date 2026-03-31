@@ -108,6 +108,13 @@ class _ReturnToSelfScreenState extends State<ReturnToSelfScreen> {
       appBar: AppBar(
         title: Text(S.t(context, 'returnToSelf')),
         backgroundColor: AppColors.background,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.psychology_alt_rounded, color: AppColors.textSecondary),
+            tooltip: S.t(context, 'rtsDiagnosticRetake'),
+            onPressed: () => Navigator.pushNamed(context, '/rts-diagnostic'),
+          ),
+        ],
       ),
       body: SafeArea(
         child: provider.loading
