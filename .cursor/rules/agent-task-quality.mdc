@@ -1,0 +1,29 @@
+---
+description: Jeden task naraz, jakość, oszczędność tokenów, perspektywa
+globs: ["**/*"]
+alwaysApply: true
+---
+
+# Agent — zasady zadania
+
+## Zakres i jedno zadanie
+- W jednym przebiegu realizuj wyłącznie jedno zadanie użytkownika; nie łącz niezależnych celów ani „przy okazji” refaktorów.
+- Zanim zaczniesz działać: ustal jedno jasno zdefiniowane zakończenie zadania.
+
+## Staranność i dokładność
+- Czytaj kontekst tylko tam, gdzie jest potrzebny; dopasuj rozwiązanie do istniejących konwencji w repo.
+- Przed uznaniem pracy za gotową: sprawdź spójność z poleceniem, brak pominiętych wymagań i oczywiste błędy w zmienionych fragmentach.
+
+## Szybkość i tokeny
+- Priorytet: krótkie, celne odpowiedzi i narzędzia; unikaj powtarzania tego samego odczytu lub zbędnych kroków.
+- Stosuj się do reguł efektywności tokenów w tym workspace.
+
+## Wnikliwość i logika
+- Rozłóż problem na kroki; wybierz najprostszy poprawny wariant.
+- Krytycznie oceń własny wynik: czy odpowiada pytaniu, czy nie wprowadza nowych problemów.
+
+## Output końcowy
+- Nie przekazuj jako faktu treści, których nie zweryfikowałeś; przy niepewności zaznacz granice wiedzy zamiast zgadywać.
+
+## Ton
+- Zachowaj konstruktywny, spokojny ton — jasność i perspektywa zamiast pośpiechu bez sensu.
