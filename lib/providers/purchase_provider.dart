@@ -164,4 +164,9 @@ class PurchaseProvider extends ChangeNotifier {
   bool hasShownUpsell(int milestoneDays) {
     return false;
   }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
 }

@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' show AuthException;
 import '../app/theme.dart';
 import '../constants/app_constants.dart';
 import '../l10n/strings.dart';
 import '../providers/auth_provider.dart';
+import '../widgets/post_login_redirect.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -39,7 +41,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return PostLoginRedirect(
+      child: Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
         leading: Tooltip(
@@ -57,6 +60,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           child: _buildRegisterView(),
         ),
       ),
+    ),
     );
   }
 
@@ -255,16 +259,24 @@ class _RegisterScreenState extends State<RegisterScreen> {
           width: double.infinity,
           child: OutlinedButton.icon(
             icon: const Icon(Icons.g_mobiledata, size: 28),
-            label: Text(S.t(context, 'continueGoogle')),
+            label: Text(S.t(context, 'registerGoogle')),
             style: OutlinedButton.styleFrom(
               foregroundColor: AppColors.textPrimary,
               side: const BorderSide(color: AppColors.surfaceLight),
               padding: const EdgeInsets.symmetric(vertical: 16),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             ),
-            onPressed: () {
+            onPressed: () async {
               HapticFeedback.lightImpact();
-              context.read<AuthProvider>().signInWithGoogle();
+              try {
+                await context.read<AuthProvider>().signInWithGoogle();
+              } on AuthException catch (e) {
+                if (!mounted) return;
+                setState(() => _error = e.message);
+              } catch (_) {
+                if (!mounted) return;
+                setState(() => _error = S.t(context, 'registerError'));
+              }
             },
           ),
         ),
@@ -333,11 +345,24 @@ class _RegisterScreenState extends State<RegisterScreen> {
         gender: _selectedGender,
       );
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(S.t(context, 'accountCreated'))),
+        await showDialog<void>(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            backgroundColor: AppColors.surface,
+            title: Text(S.t(context, 'registerThankYouTitle')),
+            content: Text(S.t(context, 'registerThankYouMessage')),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(ctx).pop(),
+                child: Text(S.t(context, 'ok')),
+              ),
+            ],
+          ),
         );
-        Navigator.pushReplacementNamed(context, '/auth');
+        if (mounted) Navigator.pushReplacementNamed(context, '/auth');
       }
+    } on AuthException catch (e) {
+      if (mounted) setState(() => _error = e.message);
     } catch (e) {
       if (mounted) setState(() => _error = S.t(context, 'registerError'));
     } finally {

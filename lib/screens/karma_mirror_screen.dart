@@ -217,7 +217,7 @@ class _KarmaMirrorScreenState extends State<KarmaMirrorScreen> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    snap.data ?? '…',
+                    snap.hasError ? '…' : (snap.data ?? '…'),
                     style: const TextStyle(color: AppColors.textPrimary),
                   ),
                 ],

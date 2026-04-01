@@ -113,7 +113,6 @@ class _CommunityScreenState extends State<CommunityScreen> with SingleTickerProv
                   final text = controller.text.trim();
                   if (text.isEmpty) return;
                   final result = await context.read<CommunityProvider>().createPost(selectedCat, text);
-                  controller.dispose();
                   if (ctx.mounted) Navigator.pop(ctx);
                   if (result != null && mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(result)));
@@ -126,7 +125,7 @@ class _CommunityScreenState extends State<CommunityScreen> with SingleTickerProv
           ],
         ),
       ),
-    );
+    ).whenComplete(controller.dispose);
   }
 }
 

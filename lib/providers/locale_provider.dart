@@ -21,4 +21,9 @@ class LocaleProvider extends ChangeNotifier {
     await SharedPreferences.getInstance().then((p) => p.setString(_key, l.languageCode));
     notifyListeners();
   }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
 }

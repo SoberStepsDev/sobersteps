@@ -39,4 +39,9 @@ class WallProvider extends ChangeNotifier {
     });
     await loadPosts();
   }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
 }

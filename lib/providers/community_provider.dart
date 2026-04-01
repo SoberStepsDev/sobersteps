@@ -84,4 +84,9 @@ class CommunityProvider extends ChangeNotifier {
       await Supabase.instance.client.rpc('flag_post', params: {'p_post_id': postId});
     } catch (_) {}
   }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
 }

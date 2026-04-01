@@ -73,4 +73,9 @@ class ThreeAmProvider extends ChangeNotifier {
       return 'Coś poszło nie tak. Spróbuj ponownie.';
     }
   }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
 }

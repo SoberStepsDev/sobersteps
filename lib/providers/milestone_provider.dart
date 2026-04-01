@@ -58,4 +58,9 @@ class MilestoneProvider extends ChangeNotifier {
       await loadMilestones();
     } catch (_) {}
   }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
 }

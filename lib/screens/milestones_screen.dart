@@ -24,6 +24,7 @@ class MilestonesScreen extends StatefulWidget {
 class _MilestonesScreenState extends State<MilestonesScreen> {
   final _scrollController = ScrollController();
   bool _didScrollFocus = false;
+  bool _celebrationScheduled = false;
 
   @override
   void initState() {
@@ -66,10 +67,17 @@ class _MilestonesScreenState extends State<MilestonesScreen> {
     final daysSober = sobriety.daysSober;
     _maybeScrollToFocus();
 
-    if (sobriety.pendingMilestone != null) {
+    if (sobriety.pendingMilestone != null && !_celebrationScheduled) {
+      _celebrationScheduled = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        _showCelebration(sobriety.pendingMilestone!);
+        if (!mounted) {
+          _celebrationScheduled = false;
+          return;
+        }
+        final days = sobriety.pendingMilestone;
         sobriety.clearPendingMilestone();
+        _celebrationScheduled = false;
+        if (days != null) _showCelebration(days);
       });
     }
 
@@ -118,7 +126,18 @@ class _MilestonesScreenState extends State<MilestonesScreen> {
             Text(data.emoji, style: const TextStyle(fontSize: 64))
                 .animate()
                 .scale(begin: const Offset(0.3, 0.3), end: const Offset(1.0, 1.0), duration: 600.ms, curve: Curves.elasticOut),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
+            Text(
+              S.t(context, 'milestoneCongratulations'),
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+                color: AppColors.gold,
+                height: 1.25,
+              ),
+            ),
+            const SizedBox(height: 12),
             Text('${data.days} ${S.t(context, 'days')}!',
                 style: const TextStyle(fontSize: 36, fontWeight: FontWeight.w800, color: AppColors.gold)),
             const SizedBox(height: 8),

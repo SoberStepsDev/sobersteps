@@ -137,4 +137,9 @@ class JournalProvider extends ChangeNotifier {
       }
     }
   }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
 }

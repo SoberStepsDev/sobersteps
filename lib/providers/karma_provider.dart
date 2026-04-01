@@ -62,4 +62,9 @@ class KarmaProvider extends ChangeNotifier {
   }
 
   Future<String> decryptAnswer(String encrypted) => _enc.decrypt(encrypted);
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
 }

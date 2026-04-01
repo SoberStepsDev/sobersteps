@@ -108,4 +108,9 @@ class FutureLetterProvider extends ChangeNotifier {
     await prefs.setStringList('pending_letters', queue);
     if (synced.isNotEmpty) await loadLetters();
   }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
 }

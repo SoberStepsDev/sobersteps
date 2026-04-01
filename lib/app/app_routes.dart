@@ -1,3 +1,4 @@
+// Named routes — single source of truth for MaterialApp.routes. Add new screens here only.
 import 'package:flutter/material.dart';
 
 import '../screens/about_creator_screen.dart';
@@ -5,6 +6,7 @@ import '../screens/accountability_screen.dart';
 import '../screens/auth_screen.dart';
 import '../screens/auth_choice_screen.dart';
 import '../screens/checkin_screen.dart';
+import '../screens/crash_log_screen.dart';
 import '../screens/community_screen.dart';
 import '../screens/craving_surf_screen.dart';
 import '../screens/disclaimer_screen.dart';
@@ -25,6 +27,7 @@ import '../screens/premium_welcome_screen.dart';
 import '../screens/privacy_screen.dart';
 import '../screens/profile_screen.dart';
 import '../screens/register_screen.dart';
+import '../screens/set_password_screen.dart';
 import '../screens/return_to_self_screen.dart';
 import '../screens/savings_health_screen.dart';
 import '../screens/splash_screen.dart';
@@ -39,9 +42,11 @@ Map<String, WidgetBuilder> buildAppRoutes() {
     '/': (_) => const SplashScreen(),
     '/onboarding': (_) => const OnboardingScreen(),
     '/auth': (_) => const AuthScreen(),
+    '/set-password': (_) => const SetPasswordScreen(),
     '/auth-choice': (_) => const AuthChoiceScreen(),
     '/home': (_) => const HomeScreen(),
     '/checkin': (_) => const CheckinScreen(),
+    '/crash-log': (_) => const CrashLogScreen(),
     '/paywall': (_) => const PaywallScreen(),
     '/premium-welcome': (_) => const PremiumWelcomeScreen(),
     '/three-am': (_) => const ThreeAmScreen(),

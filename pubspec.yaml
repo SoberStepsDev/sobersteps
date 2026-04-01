@@ -30,6 +30,8 @@ dependencies:
   crypto: ^3.0.5
   encrypt: ^5.0.3
   http: ^1.2.2
+  http_certificate_pinning:
+    path: packages/http_certificate_pinning
   path_provider: ^2.1.0
   flutter_tts: ^4.2.0
   sentry_flutter: ^9.15.0
@@ -42,12 +44,26 @@ dev_dependencies:
   integration_test:
     sdk: flutter
   flutter_lints: ^6.0.0
+  flutter_launcher_icons: ^0.14.4
+  mockito: ^5.4.4
+  build_runner: ^2.4.6
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: assets/app_icon.png
+  adaptive_icon_background: "#000000"
+  adaptive_icon_foreground: assets/app_icon.png
+  remove_alpha_ios: true
 
 flutter:
   uses-material-design: true
   assets:
     - assets/config.env.example
+    - assets/config.dev.env
     - assets/data/
+    - assets/data/quotes.json
+    - assets/data/quotes_pl.json
     - assets/images/
     - assets/audio/
     - assets/audio/milestones/

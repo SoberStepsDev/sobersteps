@@ -1,20 +1,33 @@
 class AppConstants {
-  static const bool isDevelopment = false;
+  // FLAVOR: 'dev' (local/debug) or 'prod' (release). Set via --dart-define=FLAVOR=prod
+  static const String flavor =
+      String.fromEnvironment('FLAVOR', defaultValue: 'dev');
+  static bool get isDevelopment => flavor == 'dev';
+  static bool get isProduction => flavor == 'prod';
 
-  static const String supabaseUrl = 'https://kznhbcwozpjflewlzxnu.supabase.co';
-  static const String supabaseAnonKey =
+  // Dev defaults allow `flutter run` without dart-defines.
+  // Prod: pass SUPABASE_* via CI / --dart-define only; never commit production secrets.
+  // Prod build REQUIRES explicit --dart-define values (empty default = crash-fast).
+  static const String _devSupabaseUrl =
+      'https://kznhbcwozpjflewlzxnu.supabase.co';
+  static const String _devSupabaseAnonKey =
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt6bmhiY3dvenBqZmxld2x6eG51Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwMTU4NTcsImV4cCI6MjA4NzU5MTg1N30.CRgPK-BExwci8l6EHmJ3V9jH-ElABom62hejiBqyN_4';
 
+  static const String supabaseUrl =
+      String.fromEnvironment('SUPABASE_URL', defaultValue: _devSupabaseUrl);
+  static const String supabaseAnonKey =
+      String.fromEnvironment('SUPABASE_ANON_KEY', defaultValue: _devSupabaseAnonKey);
+
   static const String revenueCatApiKey =
-      String.fromEnvironment('REVENUE_CAT_KEY', defaultValue: 'test_yugqnTsxrHsXuQwYbZXcWIMMqsu');
+      String.fromEnvironment('REVENUE_CAT_KEY', defaultValue: '');
   static const String oneSignalAppId =
-      String.fromEnvironment('ONESIGNAL_APP_ID', defaultValue: 'YOUR_ONESIGNAL_APP_ID');
+      String.fromEnvironment('ONESIGNAL_APP_ID', defaultValue: '');
   static const String elevenLabsApiKey =
       String.fromEnvironment('ELEVENLABS_API_KEY', defaultValue: '');
-  /// Sentry; empty = disabled. Build: `--dart-define=SENTRY_DSN=...`
   static const String sentryDsn =
       String.fromEnvironment('SENTRY_DSN', defaultValue: '');
-  /// Deep link host (Universal Links / App Links), without scheme.
+  static const String anthropicApiKey =
+      String.fromEnvironment('ANTHROPIC_API_KEY', defaultValue: '');
   static const String deepLinkDomain =
       String.fromEnvironment('DEEP_LINK_DOMAIN', defaultValue: 'sobersteps.app');
   static const String elevenLabsVoiceId = '2Hw5QTX3wstf1sLYfhhk'; // Patryk
@@ -32,6 +45,7 @@ class AppConstants {
   static const int maxNoteLength = 2000;
   static const int maxPostLength = 1000;
   static const int maxOutcomeLength = 500;
+  static const int crashLogMaxBodyLength = 4000;
 
   static const String contactEmail = 'sobersteps@pm.me';
   /// Deep link for auth callback; must match Android/iOS intent filters. Do not use for arbitrary URLs.

@@ -1,4 +1,5 @@
-import 'package:flutter/foundation.dart' show kIsWeb;
+
+import 'package:flutter/foundation.dart' show kIsWeb, debugPrint;
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../constants/app_constants.dart';
 
@@ -14,7 +15,7 @@ class SupabaseAuthService {
   final SupabaseClient _client = Supabase.instance.client;
 
   User? get currentUser => _client.auth.currentUser;
-  bool get isLoggedIn => currentUser != null;
+
   Stream<AuthState> get onAuthStateChange => _client.auth.onAuthStateChange;
 
   Future<void> signInWithOtp(String email) async {
@@ -22,6 +23,45 @@ class SupabaseAuthService {
       email: email,
       emailRedirectTo: AppConstants.authRedirectUrl,
     );
+  }
+
+  Future<AuthResponse> signUpWithPassword(
+    String email,
+    String password, {
+    String? displayName,
+    int? birthYear,
+    String? gender,
+  }) async {
+    try {
+      return await _client.auth.signUp(
+        email: email,
+        password: password,
+        data: {
+          'created_at': DateTime.now().toIso8601String(),
+          if (displayName != null && displayName.isNotEmpty) 'display_name': displayName,
+          if (birthYear != null) 'birth_year': birthYear,
+          if (gender != null) 'gender': gender,
+        },
+      );
+    } on AuthException catch (e) {
+      debugPrint('[Auth] signUpWithPassword error: ${e.message}');
+      rethrow;
+    } catch (e) {
+      debugPrint('[Auth] Unexpected error during signUpWithPassword: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> signInWithPassword(String email, String password) async {
+    try {
+      await _client.auth.signInWithPassword(email: email, password: password);
+    } on AuthException catch (e) {
+      debugPrint('[Auth] signInWithPassword error: ${e.message}');
+      rethrow;
+    } catch (e) {
+      debugPrint('[Auth] Unexpected error during signInWithPassword: $e');
+      rethrow;
+    }
   }
 
   Future<void> signInWithGoogle() async {
@@ -38,8 +78,15 @@ class SupabaseAuthService {
     );
   }
 
-  Future<void> signOut() async {
-    await _client.auth.signOut();
+  Future<void> resetPasswordForEmail(String email) async {
+    await _client.auth.resetPasswordForEmail(
+      email,
+      redirectTo: AppConstants.authRedirectUrl,
+    );
+  }
+
+  Future<void> updatePassword(String password) async {
+    await _client.auth.updateUser(UserAttributes(password: password));
   }
 
   Future<void> ensureProfile() async {
@@ -53,26 +100,34 @@ class SupabaseAuthService {
           .maybeSingle();
       if (existing == null) {
         final meta = user.userMetadata ?? {};
-        // Extract demographics from user metadata (set during signUp or from Google OAuth)
-        final rawDisplayName = (meta['display_name'] as String?)?.trim();
-        final rawFullName = (meta['full_name'] as String?)?.trim();
-        final rawName = meta['name'] as String?;
-        final displayName = (rawDisplayName?.isNotEmpty ?? false)
-            ? rawDisplayName
-            : (rawFullName?.isNotEmpty ?? false)
-                ? rawFullName
-                : rawName;
+        final displayName = (meta['display_name'] as String?)?.trim().isNotEmpty == true
+            ? meta['display_name'] as String
+            : (meta['full_name'] as String?)?.trim().isNotEmpty == true
+                ? meta['full_name'] as String
+                : (meta['name'] as String?);
         final birthYear = meta['birth_year'] as int?;
         final gender = meta['gender'] as String?;
 
-        final profileData = <String, dynamic>{'id': user.id};
-        if (displayName != null) profileData['display_name'] = displayName;
-        if (birthYear != null) profileData['birth_year'] = birthYear;
-        if (gender != null) profileData['gender'] = gender;
-
-        await _client.from('profiles').insert(profileData);
+        await _client.from('profiles').insert({
+          'id': user.id,
+          if (displayName != null) 'display_name': displayName,
+          if (birthYear != null) 'birth_year': birthYear,
+          if (gender != null) 'gender': gender,
+        });
       }
     } catch (_) {}
+  }
+
+  Future<void> signOut() async {
+    try {
+      await _client.auth.signOut();
+    } on AuthException catch (e) {
+      debugPrint('[Auth] signOut error: ${e.message}');
+      rethrow;
+    } catch (e) {
+      debugPrint('[Auth] Unexpected error during signOut: $e');
+      rethrow;
+    }
   }
 
   Future<void> insertEmailLead(String email) async {
@@ -81,40 +136,8 @@ class SupabaseAuthService {
     } catch (_) {}
   }
 
-  Future<void> signUpWithPassword(
-    String email,
-    String password, {
-    String? displayName,
-    int? birthYear,
-    String? gender,
-  }) async {
-    final data = <String, dynamic>{
-      'created_at': DateTime.now().toIso8601String(),
-    };
-    if (displayName != null && displayName.isNotEmpty) {
-      data['display_name'] = displayName;
-    }
-    if (birthYear != null) data['birth_year'] = birthYear;
-    if (gender != null) data['gender'] = gender;
-
-    await _client.auth.signUp(
-      email: email,
-      password: password,
-      data: data,
-    );
-  }
-
-  Future<void> signInWithPassword(String email, String password) async {
-    await _client.auth.signInWithPassword(
-      email: email,
-      password: password,
-    );
-  }
-
-  Future<void> resetPasswordForEmail(String email) async {
-    await _client.auth.resetPasswordForEmail(
-      email,
-      redirectTo: AppConstants.authRedirectUrl,
-    );
+  static bool needsEmailPasswordIdentity(User? user) {
+    if (user == null) return false;
+    return user.identities?.any((i) => i.provider == 'email') ?? false;
   }
 }

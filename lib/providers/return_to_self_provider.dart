@@ -95,4 +95,9 @@ class ReturnToSelfProvider extends ChangeNotifier {
     }
     await loadProgress();
   }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
 }

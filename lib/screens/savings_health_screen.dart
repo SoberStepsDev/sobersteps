@@ -16,6 +16,21 @@ class SavingsHealthScreen extends StatefulWidget {
 class _SavingsHealthScreenState extends State<SavingsHealthScreen> {
   double _dailyCost = 15.0;
 
+  List<_HealthItem> _healthTimeline(BuildContext context) {
+    return [
+      _HealthItem(1, S.t(context, 'healthTime_1h'), S.t(context, 'healthLabel_1h'), S.t(context, 'healthDesc_1h')),
+      _HealthItem(8, S.t(context, 'healthTime_8h'), S.t(context, 'healthLabel_8h'), S.t(context, 'healthDesc_8h')),
+      _HealthItem(24, S.t(context, 'healthTime_24h'), S.t(context, 'healthLabel_24h'), S.t(context, 'healthDesc_24h')),
+      _HealthItem(48, S.t(context, 'healthTime_48h'), S.t(context, 'healthLabel_48h'), S.t(context, 'healthDesc_48h')),
+      _HealthItem(72, S.t(context, 'healthTime_72h'), S.t(context, 'healthLabel_72h'), S.t(context, 'healthDesc_72h')),
+      _HealthItem(336, S.t(context, 'healthTime_2w'), S.t(context, 'healthLabel_2w'), S.t(context, 'healthDesc_2w')),
+      _HealthItem(720, S.t(context, 'healthTime_30d'), S.t(context, 'healthLabel_30d'), S.t(context, 'healthDesc_30d')),
+      _HealthItem(2160, S.t(context, 'healthTime_90d'), S.t(context, 'healthLabel_90d'), S.t(context, 'healthDesc_90d')),
+      _HealthItem(4320, S.t(context, 'healthTime_180d'), S.t(context, 'healthLabel_180d'), S.t(context, 'healthDesc_180d')),
+      _HealthItem(8760, S.t(context, 'healthTime_1y'), S.t(context, 'healthLabel_1y'), S.t(context, 'healthDesc_1y')),
+    ];
+  }
+
   @override
   void initState() {
     super.initState();
@@ -63,7 +78,7 @@ class _SavingsHealthScreenState extends State<SavingsHealthScreen> {
               child: Text(S.t(context, 'bodyHealing'), style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
             ),
             const SizedBox(height: 16),
-            ..._healthTimeline.map((h) {
+            ..._healthTimeline(context).map((h) {
               final achieved = hours >= h.hoursNeeded;
               return _HealthCard(data: h, achieved: achieved);
             }),
@@ -145,17 +160,17 @@ class _CostEditor extends StatelessWidget {
           const SizedBox(width: 8),
           Text(S.t(context, 'dailyCost'), style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
           const Text('\$', style: TextStyle(color: AppColors.textPrimary)),
-          SizedBox(
-            width: 60,
+          Expanded(
             child: Slider(
-              value: dailyCost,
-              min: 1,
+              value: dailyCost.clamp(0, 100),
+              min: 0,
               max: 100,
+              divisions: 100,
+              label: dailyCost.toStringAsFixed(0),
               activeColor: AppColors.gold,
-              onChanged: onChanged,
+              onChanged: (v) => onChanged(v.roundToDouble()),
             ),
           ),
-          Expanded(child: Slider(value: dailyCost, min: 1, max: 100, activeColor: AppColors.gold, onChanged: onChanged)),
           Text('\$${dailyCost.toStringAsFixed(0)}${S.t(context, 'perDay')}', style: const TextStyle(color: AppColors.gold, fontWeight: FontWeight.w600)),
         ],
       ),
@@ -236,16 +251,3 @@ class _HealthItem {
   final String description;
   const _HealthItem(this.hoursNeeded, this.timeLabel, this.label, this.description);
 }
-
-const _healthTimeline = [
-  _HealthItem(1, '1h', 'Tętno spada', 'Ciśnienie krwi zaczyna się normalizować.'),
-  _HealthItem(8, '8h', 'Tlen w normie', 'Poziom tlenu we krwi wraca do normy.'),
-  _HealthItem(24, '24h', 'Ryzyko zawału spada', 'Zmniejsza się ryzyko zawału serca.'),
-  _HealthItem(48, '48h', 'Nerwy się regenerują', 'Zakończenia nerwowe zaczynają odrastać. Smak i węch wracają.'),
-  _HealthItem(72, '72h', 'Oddychanie łatwiejsze', 'Oskrzela się rozluźniają. Pojemność płuc rośnie.'),
-  _HealthItem(336, '2 tyg', 'Krążenie lepsze', 'Znaczna poprawa krążenia krwi i funkcji płuc.'),
-  _HealthItem(720, '30 dni', 'Wątroba dziękuje', 'Enzymy wątrobowe wracają do normy. Energia rośnie.'),
-  _HealthItem(2160, '90 dni', 'Mózg się przebudowuje', 'Neuroplastyczność mózgu — nowe ścieżki neuronowe. Lepszy sen, pamięć, koncentracja.'),
-  _HealthItem(4320, '180 dni', 'Odporność wzrasta', 'Układ odpornościowy w pełni odbudowany.'),
-  _HealthItem(8760, '1 rok', 'Nowe życie', 'Ryzyko chorób serca spadło o 50%. Skóra, waga, zdrowie psychiczne — wszystko lepiej.'),
-];

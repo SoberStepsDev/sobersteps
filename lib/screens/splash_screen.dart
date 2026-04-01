@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../app/theme.dart';
 import '../providers/auth_provider.dart';
 import '../providers/sobriety_provider.dart';
@@ -22,6 +23,12 @@ class _SplashScreenState extends State<SplashScreen> {
   Future<void> _init() async {
     try {
       await Future.delayed(const Duration(milliseconds: 800));
+      if (!mounted) return;
+      try {
+        await Supabase.instance.client.auth.refreshSession();
+      } catch (_) {}
+      if (!mounted) return;
+      await Future.delayed(const Duration(milliseconds: 50));
       if (!mounted) return;
       final auth = context.read<AuthProvider>();
       final sobriety = context.read<SobrietyProvider>();

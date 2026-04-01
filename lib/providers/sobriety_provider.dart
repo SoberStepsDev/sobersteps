@@ -108,4 +108,9 @@ class SobrietyProvider extends ChangeNotifier {
       _pendingMilestone = _daysSober;
     }
   }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
 }

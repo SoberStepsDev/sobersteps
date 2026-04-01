@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' show AuthException;
 import '../app/theme.dart';
 import '../providers/auth_provider.dart';
 import '../l10n/strings.dart';
+import '../widgets/post_login_redirect.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
@@ -28,7 +30,8 @@ class _AuthScreenState extends State<AuthScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return PostLoginRedirect(
+      child: Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(title: Text(S.t(context, 'login'))),
       body: SafeArea(
@@ -119,9 +122,17 @@ class _AuthScreenState extends State<AuthScreen> {
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                     ),
-                    onPressed: () {
+                    onPressed: () async {
                       HapticFeedback.lightImpact();
-                      context.read<AuthProvider>().signInWithGoogle();
+                      try {
+                        await context.read<AuthProvider>().signInWithGoogle();
+                      } on AuthException catch (e) {
+                        if (!mounted) return;
+                        setState(() => _error = e.message);
+                      } catch (_) {
+                        if (!mounted) return;
+                        setState(() => _error = S.t(context, 'loginError'));
+                      }
                     },
                   ),
                 ),
@@ -142,6 +153,7 @@ class _AuthScreenState extends State<AuthScreen> {
           ),
         ),
       ),
+    ),
     );
   }
 
@@ -161,17 +173,30 @@ class _AuthScreenState extends State<AuthScreen> {
 
     try {
       await context.read<AuthProvider>().signInWithPassword(email, password);
-      if (!mounted) return;
-      if (Navigator.of(context).canPop()) {
-        Navigator.of(context).pop();
-      } else {
-        Navigator.of(context).pushReplacementNamed('/home');
-      }
+    } on AuthException catch (e) {
+      if (mounted) setState(() => _error = _mapLoginError(context, e));
     } catch (e) {
       if (mounted) setState(() => _error = S.t(context, 'loginError'));
     } finally {
       if (mounted) setState(() => _loading = false);
     }
+  }
+
+  String _mapLoginError(BuildContext context, AuthException e) {
+    final code = e.code?.toLowerCase();
+    final msg = e.message.toLowerCase();
+    if (code == 'email_not_confirmed' || msg.contains('email not confirmed')) {
+      return S.t(context, 'loginErrorEmailNotConfirmed');
+    }
+    if (code == 'email_provider_disabled' || msg.contains('email signups are disabled')) {
+      return S.t(context, 'loginErrorInvalidCredentials');
+    }
+    if (msg.contains('invalid login credentials') ||
+        msg.contains('invalid login') ||
+        code == 'invalid_credentials') {
+      return S.t(context, 'loginErrorInvalidCredentials');
+    }
+    return S.t(context, 'loginError');
   }
 
   void _showResetPasswordDialog() {
@@ -209,6 +234,6 @@ class _AuthScreenState extends State<AuthScreen> {
           ),
         ],
       ),
-    );
+    ).whenComplete(resetEmailController.dispose);
   }
 }

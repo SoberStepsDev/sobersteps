@@ -216,6 +216,8 @@ class _HomeTabState extends State<_HomeTab> {
                 ),
                 const SizedBox(height: 16),
                 _SosButton(isNight: isNight),
+                const SizedBox(height: 16),
+                const _CrashLogCard(),
                 if (_returnToSelfEnabled) ...[  
                   const SizedBox(height: 16),
                   _ReturnToSelfCard(),
@@ -335,6 +337,48 @@ class _SavingsCard extends StatelessWidget {
                 children: [
                   Text('\$${(days * 15).toStringAsFixed(0)} ${S.t(context, 'saved')}', style: const TextStyle(color: AppColors.gold, fontWeight: FontWeight.w700, fontSize: 16)),
                   Text(S.t(context, 'tapForHealth'), style: const TextStyle(color: AppColors.textSecondary, fontSize: 11)),
+                ],
+              ),
+            ),
+            const Icon(Icons.chevron_right, color: AppColors.textSecondary, size: 20),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _CrashLogCard extends StatelessWidget {
+  const _CrashLogCard();
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.lightImpact();
+        Navigator.of(context).pushNamed('/crash-log');
+      },
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: AppColors.textSecondary.withValues(alpha: 0.25)),
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.notes_rounded, color: AppColors.textSecondary, size: 28),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    S.t(context, 'crashLogHomeTitle'),
+                    style: const TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w700, fontSize: 15),
+                  ),
+                  Text(S.t(context, 'crashLogHomeSubtitle'), style: Theme.of(context).textTheme.bodySmall),
                 ],
               ),
             ),

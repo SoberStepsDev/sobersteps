@@ -68,4 +68,8 @@ class FamilyObserver {
       );
 
   bool get isAccepted => status == 'accepted';
+
+  @override
+  void dispose() {
+  }
 }
