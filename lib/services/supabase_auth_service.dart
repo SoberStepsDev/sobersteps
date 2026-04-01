@@ -3,13 +3,15 @@ import 'package:flutter/foundation.dart' show kIsWeb, debugPrint;
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../constants/app_constants.dart';
 
-String _oauthRedirectUrl() {
+String _computeOAuthRedirectUrl() {
   if (kIsWeb) {
     final u = Uri.base;
     return u.replace(fragment: '').toString();
   }
   return AppConstants.authRedirectUrl;
 }
+
+final String _oauthRedirectUrl = _computeOAuthRedirectUrl();
 
 class SupabaseAuthService {
   final SupabaseClient _client = Supabase.instance.client;
@@ -67,14 +69,14 @@ class SupabaseAuthService {
   Future<void> signInWithGoogle() async {
     await _client.auth.signInWithOAuth(
       OAuthProvider.google,
-      redirectTo: _oauthRedirectUrl(),
+      redirectTo: _oauthRedirectUrl,
     );
   }
 
   Future<void> signInWithApple() async {
     await _client.auth.signInWithOAuth(
       OAuthProvider.apple,
-      redirectTo: _oauthRedirectUrl(),
+      redirectTo: _oauthRedirectUrl,
     );
   }
 
