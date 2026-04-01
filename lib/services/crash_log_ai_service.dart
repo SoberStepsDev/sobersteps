@@ -87,8 +87,9 @@ class CrashLogAiService {
   }
 
   Future<String> callClaudeAi({required String text}) async {
-    if (AppConstants.anthropicApiKey.isEmpty) {
-      throw StateError('anthropic_key_missing');
+    final key = AppConstants.anthropicApiKey;
+    if (key.isEmpty || !key.startsWith('sk-ant-')) {
+      throw StateError('anthropic_key_invalid');
     }
 
     try {
