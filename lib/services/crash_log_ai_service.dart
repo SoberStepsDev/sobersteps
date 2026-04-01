@@ -86,52 +86,63 @@ class CrashLogAiService {
     }
   }
 
-  Future<String> callClaudeAi({required String text}) async {
+  Future<String> callClaudeAi({required String text, int retries = 2}) async {
     final key = AppConstants.anthropicApiKey;
     if (key.isEmpty || !key.startsWith('sk-ant-')) {
       throw StateError('anthropic_key_invalid');
     }
 
-    try {
-      final res = await http.post(
-        Uri.parse('https://api.anthropic.com/v1/messages'),
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': AppConstants.anthropicApiKey,
-          'anthropic-version': '2023-06-01',
-        },
-        body: jsonEncode({
-          'model': 'claude-opus-4-6',
-          'max_tokens': 500,
-          'system': 'Jesteś wspierającym asystentem dla osób walczących z uzależnieniem. '
-              'Odpowiedz krótko (2-3 zdania), empatycznie i konstruktywnie. '
-              'Preferuj ton motywacyjny i łagodny.',
-          'messages': [
-            {
-              'role': 'user',
-              'content': text,
-            }
-          ],
-        }),
-      ).timeout(const Duration(seconds: 30));
+    for (int attempt = 0; attempt < retries; attempt++) {
+      try {
+        final res = await http.post(
+          Uri.parse('https://api.anthropic.com/v1/messages'),
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': AppConstants.anthropicApiKey,
+            'anthropic-version': '2023-06-01',
+          },
+          body: jsonEncode({
+            'model': 'claude-opus-4-6',
+            'max_tokens': 500,
+            'system': 'Jesteś wspierającym asystentem dla osób walczących z uzależnieniem. '
+                'Odpowiedz krótko (2-3 zdania), empatycznie i konstruktywnie. '
+                'Preferuj ton motywacyjny i łagodny.',
+            'messages': [
+              {
+                'role': 'user',
+                'content': text,
+              }
+            ],
+          }),
+        ).timeout(const Duration(seconds: 30));
 
-      if (res.statusCode != 200) {
-        throw StateError('claude_error_${res.statusCode}');
-      }
+        if (res.statusCode != 200) {
+          throw StateError('claude_error_${res.statusCode}');
+        }
 
-      final data = jsonDecode(res.body) as Map<String, dynamic>;
-      final content = data['content'] as List<dynamic>?;
-      if (content == null || content.isEmpty) {
-        throw StateError('claude_empty_response');
+        final data = jsonDecode(res.body) as Map<String, dynamic>;
+        final content = data['content'] as List<dynamic>?;
+        if (content == null || content.isEmpty) {
+          throw StateError('claude_empty_response');
+        }
+        final textContent = (content[0] as Map<String, dynamic>)['text'] as String?;
+        if (textContent == null || textContent.isEmpty) {
+          throw StateError('claude_no_text');
+        }
+        return textContent;
+      } on CrashLogTimeoutException {
+        if (attempt < retries - 1) {
+          await Future.delayed(Duration(milliseconds: 200 * (attempt + 1)));
+          continue;
+        }
+        debugPrint('[CrashLogAiService.callClaudeAi] Timeout after $retries attempts');
+        rethrow;
+      } catch (e) {
+        debugPrint('[CrashLogAiService.callClaudeAi] Attempt ${attempt + 1}/$retries error: $e');
+        if (attempt == retries - 1) {
+          rethrow;
+        }
       }
-      final textContent = (content[0] as Map<String, dynamic>)['text'] as String?;
-      if (textContent == null || textContent.isEmpty) {
-        throw StateError('claude_no_text');
-      }
-      return textContent;
-    } catch (e) {
-      debugPrint('[CrashLogAiService.callClaudeAi] Error: $e');
-      rethrow;
     }
   }
 }
