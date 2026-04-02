@@ -6,9 +6,9 @@ class AppConstants {
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt6bmhiY3dvenBqZmxld2x6eG51Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwMTU4NTcsImV4cCI6MjA4NzU5MTg1N30.CRgPK-BExwci8l6EHmJ3V9jH-ElABom62hejiBqyN_4';
 
   static const String revenueCatApiKey =
-      String.fromEnvironment('REVENUE_CAT_KEY', defaultValue: 'test_yugqnTsxrHsXuQwYbZXcWIMMqsu');
+      String.fromEnvironment('REVENUE_CAT_KEY', defaultValue: 'goog_CAWCkqmXbVVmPfjzrTKDxAQMuvs');
   static const String oneSignalAppId =
-      String.fromEnvironment('ONESIGNAL_APP_ID', defaultValue: 'YOUR_ONESIGNAL_APP_ID');
+      String.fromEnvironment('ONESIGNAL_APP_ID', defaultValue: '659b4fe9-f0be-4b98-8536-54d833859eb6');
   static const String elevenLabsApiKey =
       String.fromEnvironment('ELEVENLABS_API_KEY', defaultValue: '');
   /// Sentry; empty = disabled. Build: `--dart-define=SENTRY_DSN=...`
