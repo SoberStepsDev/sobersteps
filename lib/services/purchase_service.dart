@@ -31,7 +31,7 @@ class PurchaseService {
   /// Other errors are rethrown.
   static Future<void> purchasePackage(Package package) async {
     try {
-      await Purchases.purchase(PurchaseParams.package(package));
+      await Purchases.purchasePackage(package);
     } on PlatformException catch (e) {
       if (PurchasesErrorHelper.getErrorCode(e) == PurchasesErrorCode.purchaseCancelledError) {
         return;

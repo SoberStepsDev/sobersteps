@@ -9,11 +9,11 @@
 # Supabase / Kotlin serialization
 -keepattributes *Annotation*, InnerClasses
 -dontnote kotlinx.serialization.AnnotationsKt
--keep,includedescriptorclasses class com.soberstepsod.soberstepsod.**$$serializer { *; }
--keepclassmembers class com.soberstepsod.soberstepsod.** {
+-keep,includedescriptorclasses class com.sobersteps.sobersteps.**$$serializer { *; }
+-keepclassmembers class com.sobersteps.sobersteps.** {
     *** Companion;
 }
--keepclasseswithmembers class com.soberstepsod.soberstepsod.** {
+-keepclasseswithmembers class com.sobersteps.sobersteps.** {
     kotlinx.serialization.KSerializer serializer(...);
 }
 

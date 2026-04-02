@@ -2,12 +2,12 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
 
 import '../models/pending_sync.dart';
+import 'crash_service.dart';
 
 class SyncService {
   static final SyncService _instance = SyncService._();
@@ -82,11 +82,7 @@ class SyncService {
           if (retried.retryCount <= _maxRetries) {
             remaining.add(retried);
           } else {
-            Sentry.captureException(
-              e,
-              stackTrace: st,
-              hint: Hint.withMap({'dropped_item': item.toJson()}),
-            );
+            await CrashService.recordError(e, st);
           }
         }
       }

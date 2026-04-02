@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:soberstepsod/providers/sobriety_provider.dart';
+import 'package:sobersteps/providers/sobriety_provider.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

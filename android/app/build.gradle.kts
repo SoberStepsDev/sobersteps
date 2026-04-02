@@ -15,7 +15,7 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    namespace = "com.soberstepsod.soberstepsod"
+    namespace = "com.sobersteps.sobersteps"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -29,7 +29,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.soberstepsod.soberstepsod"
+        applicationId = "com.sobersteps.sobersteps"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode

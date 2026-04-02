@@ -89,13 +89,13 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "com.soberstepsod" "\0"
-            VALUE "FileDescription", "soberstepsod" "\0"
+            VALUE "CompanyName", "com.sobersteps" "\0"
+            VALUE "FileDescription", "sobersteps" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "soberstepsod" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2026 com.soberstepsod. All rights reserved." "\0"
-            VALUE "OriginalFilename", "soberstepsod.exe" "\0"
-            VALUE "ProductName", "soberstepsod" "\0"
+            VALUE "InternalName", "sobersteps" "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2026 com.sobersteps. All rights reserved." "\0"
+            VALUE "OriginalFilename", "sobersteps.exe" "\0"
+            VALUE "ProductName", "sobersteps" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

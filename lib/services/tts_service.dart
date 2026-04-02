@@ -4,9 +4,9 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:http/http.dart' as http;
-import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '../constants/app_constants.dart';
+import 'crash_service.dart';
 
 class TtsService {
   static final TtsService _instance = TtsService._();
@@ -43,9 +43,7 @@ class TtsService {
       await _player.play(AssetSource(assetPath));
     } catch (e, s) {
       debugPrint('[TtsService] playAsset error: $e');
-      if (AppConstants.sentryDsn.isNotEmpty) {
-        await Sentry.captureException(e, stackTrace: s);
-      }
+      await CrashService.recordError(e, s);
     }
   }
 
@@ -70,9 +68,7 @@ class TtsService {
       return true;
     } catch (e, s) {
       debugPrint('[TtsService] ElevenLabs fallback: $e');
-      if (AppConstants.sentryDsn.isNotEmpty) {
-        await Sentry.captureException(e, stackTrace: s);
-      }
+      await CrashService.recordError(e, s);
       return false;
     }
   }
@@ -86,9 +82,7 @@ class TtsService {
       await _tts.speak(text);
     } catch (e, s) {
       debugPrint('[TtsService] speak error: $e');
-      if (AppConstants.sentryDsn.isNotEmpty) {
-        await Sentry.captureException(e, stackTrace: s);
-      }
+      await CrashService.recordError(e, s);
     }
   }
 

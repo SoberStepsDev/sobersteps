@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:soberstepsod/services/sync_service.dart';
+import 'package:sobersteps/services/sync_service.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

@@ -57,7 +57,7 @@ supabase migration list
 ### 2. Supabase Dashboard: Auth Redirect URLs (PRIORYTET 1)
 
 **Problem:** App i AndroidManifest używają scheme `com.patryk.sobersteps://login-callback`.
-`.env` ma `com.soberstepsod.soberstepsod://login-callback` — to NIE jest używane przez kod.
+`.env` ma `com.sobersteps.sobersteps://login-callback` — to NIE jest używane przez kod.
 Jeśli w Dashboard jest tylko ta druga wersja, auth będzie broken.
 
 **Akcja:**
@@ -66,7 +66,7 @@ Jeśli w Dashboard jest tylko ta druga wersja, auth będzie broken.
    ```
    com.patryk.sobersteps://login-callback
    ```
-3. Opcjonalnie zostaw też `com.soberstepsod.soberstepsod://login-callback` dla bezpieczeństwa.
+3. Opcjonalnie zostaw też `com.sobersteps.sobersteps://login-callback` dla bezpieczeństwa.
 4. Zapisz.
 
 ---
@@ -124,7 +124,7 @@ Sekcja `docs/REVENUECAT_PRODUCTS.md` — do wykonania:
    - `sobersteps_annual_5999`
    - `sobersteps_family_999`
    - `sobersteps_lifetime_8999`
-2. RevenueCat Dashboard → dodaj Android App (package: `com.soberstepsod.soberstepsod`)
+2. RevenueCat Dashboard → dodaj Android App (package: `com.sobersteps.sobersteps`)
 3. Połącz z Play Console (Service Account)
 4. Utwórz Entitlement `pro`, przypisz produkty
 5. Ustaw produkcyjny `REVENUE_CAT_KEY` (Android) w GitHub Secrets
@@ -132,7 +132,7 @@ Sekcja `docs/REVENUECAT_PRODUCTS.md` — do wykonania:
 **iOS:**
 1. Xcode → Runner → Signing & Capabilities → `+` → **In-App Purchase**
 2. App Store Connect → utwórz te same 4 produkty
-3. RevenueCat Dashboard → dodaj iOS App (bundle: `com.soberstepsod.soberstepsod`)
+3. RevenueCat Dashboard → dodaj iOS App (bundle: `com.sobersteps.sobersteps`)
 4. Ustaw iOS `REVENUE_CAT_KEY` — uwaga: wartość jest inna niż Android (`appl_...`)
 
 > ⚠️ Aktualny `app_constants.dart` ma domyślny key `test_yugqnTsxrHsXuQwYbZXcWIMMqsu` — to klucz testowy. Musi być zastąpiony przez `--dart-define=REVENUE_CAT_KEY=...` w buildach release.
@@ -172,7 +172,7 @@ keytool -genkey -v \
 
 Wymaga Xcode + Apple Developer Account:
 1. Xcode → Runner → Signing & Capabilities → Team: wybierz konto
-2. Bundle ID: `com.soberstepsod.soberstepsod`
+2. Bundle ID: `com.sobersteps.sobersteps`
 3. Provisioning Profile: App Store distribution
 4. `flutter build ipa --release --dart-define=...` (patrz `docs/RELEASE.md`)
 5. Upload do App Store Connect przez Xcode Organizer lub Transporter

@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:soberstepsod/models/pending_sync.dart';
+import 'package:sobersteps/models/pending_sync.dart';
 
 void main() {
   test('PendingSync fromJson/toJson roundtrip', () {

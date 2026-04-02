@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:soberstepsod/models/community_post.dart';
+import 'package:sobersteps/models/community_post.dart';
 
 void main() {
   test('CommunityPost fromJson parses defaults', () {

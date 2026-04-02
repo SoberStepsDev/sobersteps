@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:soberstepsod/models/rts_diagnostic.dart';
+import 'package:sobersteps/models/rts_diagnostic.dart';
 
 void main() {
   test('RtsDiagnostic score 10 answers A=0..D=3', () {

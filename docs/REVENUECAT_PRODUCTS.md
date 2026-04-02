@@ -15,4 +15,4 @@ Test key ustawiony w `app_constants.dart`. Produkcyjny: RevenueCat → API keys 
 ## iOS
 1. Xcode → Runner → Signing & Capabilities → + Capability → **In-App Purchase**
 2. App Store Connect → utwórz produkty in-app z tymi ID
-3. RevenueCat → dodaj iOS app (bundle: com.soberstepsod.soberstepsod) → połącz z App Store Connect
+3. RevenueCat → dodaj iOS app (bundle: com.sobersteps.sobersteps) → połącz z App Store Connect

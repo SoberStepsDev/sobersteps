@@ -1,11 +1,12 @@
 import 'dart:async';
-
 import 'package:app_links/app_links.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:provider/provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'constants/app_constants.dart';
 import 'app/theme.dart';
@@ -59,38 +60,38 @@ import 'screens/crash_log_screen.dart';
 import 'screens/rts_diagnostic_screen.dart';
 import 'services/notification_service.dart';
 import 'services/crisis_detection_service.dart';
+import 'services/crash_service.dart';
 
-Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+void main() async {
+  runZonedGuarded(() async {
+    WidgetsFlutterBinding.ensureInitialized();
+    
+    await Firebase.initializeApp();
+    
+    FlutterError.onError = (errorDetails) {
+      FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
+    };
+    
+    PlatformDispatcher.instance.onError = (error, stack) {
+      FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+      return true;
+    };
 
-  Future<void> appRunner() async {
-    try {
-      await Supabase.initialize(
-        url: AppConstants.supabaseUrl,
-        anonKey: AppConstants.supabaseAnonKey,
-      );
-      await NotificationService().init();
-      CrisisDetectionService().onCrisisDetected = () {
-        debugPrint('[Crisis] Auto-detected — routing to 3 AM SOS');
-      };
-    } catch (e, s) {
-      if (AppConstants.sentryDsn.isNotEmpty) {
-        await Sentry.captureException(e, stackTrace: s);
-      }
-    }
-    runApp(const SoberStepsApp());
-  }
-
-  if (AppConstants.sentryDsn.isEmpty) {
-    await appRunner();
-  } else {
-    await SentryFlutter.init(
-      (options) {
-        options.dsn = AppConstants.sentryDsn;
-      },
-      appRunner: appRunner,
+    await Supabase.initialize(
+      url: AppConstants.supabaseUrl,
+      anonKey: AppConstants.supabaseAnonKey,
     );
-  }
+    
+    await NotificationService().init();
+    
+    CrisisDetectionService().onCrisisDetected = () {
+      debugPrint('[Crisis] Auto-detected — routing to 3 AM SOS');
+    };
+
+    runApp(const SoberStepsApp());
+  }, (error, stack) {
+    CrashService.recordError(error, stack);
+  });
 }
 
 class SoberStepsApp extends StatefulWidget {
@@ -148,7 +149,6 @@ class _SoberStepsAppState extends State<SoberStepsApp> {
         if (ctx != null && ctx.mounted) {
           ctx.read<MilestoneProvider>().setDeepLinkMilestoneFocus(days);
         }
-        // Reach Home so bottom-nav Milestones tab receives [deepLinkMilestoneFocusDays].
         nav.popUntil((route) {
           final n = route.settings.name;
           return n == '/home' || route.isFirst;
@@ -206,7 +206,6 @@ class _SoberStepsAppState extends State<SoberStepsApp> {
             GlobalWidgetsLocalizations.delegate,
             GlobalCupertinoLocalizations.delegate,
           ],
-          navigatorObservers: [SentryNavigatorObserver()],
           initialRoute: '/',
           routes: {
             '/': (_) => const SplashScreen(),

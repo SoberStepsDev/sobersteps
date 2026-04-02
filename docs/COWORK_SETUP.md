@@ -1,4 +1,4 @@
-# Claude Cowork — konfiguracja dla soberstepsod-2026
+# Claude Cowork — konfiguracja dla sobersteps-2026
 
 **Uwaga:** Ustawień Cowork (Anthropic) nie da się zapisać z repozytorium — konfigurujesz je w przeglądarce (**Customize**, connectory, pluginy). Ten plik jest **jednym źródłem do skopiowania**: wklej sekcje poniżej w odpowiednie miejsca w Cowork.
 
@@ -11,7 +11,7 @@ Szerszy kontekst workspace: [`RULE.md`](../RULE.md), [`CURSOR_SETUP.md`](CURSOR_
 Wklej **cały** blok (krótko = mniejszy stały koszt kontekstu w Cowork):
 
 ```
-Repo: soberstepsod-2026 — Flutter app SoberSteps (offline-first, Supabase, Provider only).
+Repo: sobersteps-2026 — Flutter app SoberSteps (offline-first, Supabase, Provider only).
 
 Profiles: (1) Coding — Dart/Flutter, zmiany tylko w wskazanych plikach. (2) Social — IG/TikTok; stosuj zasady z .cursor/skills/sobersteps-social-formats/SKILL.md gdy proszę o social. (3) Planning — architektura i trade-offy; bez edycji kodu, chyba że wyraźnie proszę o kod.
 
