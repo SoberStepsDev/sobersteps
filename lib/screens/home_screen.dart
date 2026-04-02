@@ -297,7 +297,7 @@ class _QuoteCard extends StatelessWidget {
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8),
           child: Text(
-            '"$text"\n— ${q[\'author\']}',
+            '"$text"\n— ${q["author"]}',
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 15,
