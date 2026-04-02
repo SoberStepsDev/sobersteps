@@ -1,4 +1,4 @@
-package com.sobersteps.sobersteps
+package com.sobersteps.app
 
 import io.flutter.embedding.android.FlutterActivity
 
