@@ -166,9 +166,9 @@ class _NaomiScreenState extends State<NaomiScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
+                        Text(
                           S.t(context, 'naomiNextQuestion'),
-                          style: TextStyle(
+                          style: const TextStyle(
                             color: AppColors.textSecondary,
                             fontSize: 11,
                             letterSpacing: 0.8,
