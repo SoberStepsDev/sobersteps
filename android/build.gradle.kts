@@ -24,19 +24,18 @@ subprojects {
 
 gradle.projectsEvaluated {
     subprojects {
-        tasks.withType<KotlinCompile>().configureEach {
-            compilerOptions {
-                languageVersion.set(KotlinVersion.KOTLIN_1_9)
-                apiVersion.set(KotlinVersion.KOTLIN_1_9)
-                jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
-            }
+        // Fix for "Inconsistent JVM Target Compatibility"
+        // Force both Java and Kotlin tasks to use JVM 17
+        tasks.withType<JavaCompile>().configureEach {
+            sourceCompatibility = "17"
+            targetCompatibility = "17"
         }
         
-        // Force Java 17 for all subprojects to eliminate "source value 8 is obsolete" warnings
-        plugins.withType<JavaPlugin> {
-            extensions.configure<JavaPluginExtension> {
-                sourceCompatibility = JavaVersion.VERSION_17
-                targetCompatibility = JavaVersion.VERSION_17
+        tasks.withType<KotlinCompile>().configureEach {
+            compilerOptions {
+                jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+                languageVersion.set(KotlinVersion.KOTLIN_1_9)
+                apiVersion.set(KotlinVersion.KOTLIN_1_9)
             }
         }
     }
