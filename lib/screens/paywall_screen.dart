@@ -202,8 +202,8 @@ class _PaywallScreenState extends State<PaywallScreen> {
   Widget _buildHeadline(BuildContext context, String variant) {
     final texts = {
       'A': S.t(context, 'unlockFree7Days'),
-      'B': '847 osób zaczęło dziś. Dołącz.',
-      'C': 'Twój dzień 30 zasługuje na głos.',
+      'B': S.t(context, 'paywallHeadlineB'),
+      'C': S.t(context, 'paywallHeadlineC'),
     };
     return Text(
       texts[variant] ?? texts['A']!,
@@ -214,10 +214,10 @@ class _PaywallScreenState extends State<PaywallScreen> {
 
   List<Widget> _buildBenefitCards() {
     final benefits = [
-      (Icons.mic, 'Wyobraź sobie słysząc mój głos w Dniu 90'),
-      (Icons.nightlight_round, 'O 3 w nocy — 847 osób tu przeszło'),
-      (Icons.mail_outline, 'Napisz list do siebie za 6 miesięcy'),
-      (Icons.shield, 'Nie pozwól jednej ciężkiej nocy zniszczyć streaka'),
+      (Icons.mic, S.t(context, 'paywallBenefit1')),
+      (Icons.nightlight_round, S.t(context, 'paywallBenefit2')),
+      (Icons.mail_outline, S.t(context, 'paywallBenefit3')),
+      (Icons.shield, S.t(context, 'paywallBenefit4')),
     ];
     return benefits
         .map((b) => Padding(
@@ -239,7 +239,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
 
   Widget _buildSocialProof() {
     return Text(
-      'Dołącz do 12,847 osób na drodze do zdrowienia',
+      S.t(context, 'paywallSocialProof'),
       textAlign: TextAlign.center,
       style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
     );

@@ -59,7 +59,7 @@ class _NaomiScreenState extends State<NaomiScreen> {
       final feedback = naomi.entries.isNotEmpty ? naomi.entries.first.feedback : null;
       final nextQ = naomi.todayQuestion;
       setState(() {
-        _feedback = feedback ?? 'Dziękuję za ten moment z sobą – droga się tworzy.';
+        _feedback = feedback ?? S.t(context, 'naomiFeedbackDefault');
         _nextQuestion = nextQ;
       });
     } catch (e) {
