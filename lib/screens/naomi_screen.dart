@@ -121,7 +121,7 @@ class _NaomiScreenState extends State<NaomiScreen> {
                 maxLines: 5,
                 style: const TextStyle(color: AppColors.textPrimary),
                 decoration: InputDecoration(
-                  hintText: 'Co przychodzi Ci na myśl…',
+                  hintText: S.t(context, 'naomiHint'),
                   hintStyle: TextStyle(
                     color: AppColors.textSecondary.withValues(alpha: 0.6),
                   ),
@@ -167,7 +167,7 @@ class _NaomiScreenState extends State<NaomiScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text(
-                          'Następnym razem Naomi zapyta:',
+                          S.t(context, 'naomiNextQuestion'),
                           style: TextStyle(
                             color: AppColors.textSecondary,
                             fontSize: 11,
@@ -202,7 +202,7 @@ class _NaomiScreenState extends State<NaomiScreen> {
                           width: 20,
                           child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                         )
-                      : Text(_feedback == null ? 'Zostaw odpowiedź' : 'Wróć na swoją drogę'),
+                      : Text(_feedback == null ? S.t(context, 'naomiLeave') : S.t(context, 'naomiBack')),
                 ),
               ).animate().fadeIn(duration: 500.ms, delay: 600.ms),
             ],

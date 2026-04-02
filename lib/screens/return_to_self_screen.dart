@@ -72,28 +72,28 @@ class _ReturnToSelfScreenState extends State<ReturnToSelfScreen> {
       'labelKey': 'rtsPhaseAwareness',
       'days': '1–7',
       'icon': Icons.visibility_outlined,
-      'desc': 'Zaczynasz zauważać siebie bez oceniania. Obserwujesz myśli, emocje, nawyki – jak świadek, nie sędzia.',
+      'descKey': 'rtsPhaseAwarenessDesc',
     },
     {
       'type': ReturnToSelfType.distance,
       'labelKey': 'rtsPhaseDistance',
       'days': '8–14',
       'icon': Icons.zoom_out_map,
-      'desc': 'Uczysz się robić krok w tył od reaktywności. Przestrzeń między bodźcem a reakcją to Twoja nowa siła.',
+      'descKey': 'rtsPhaseDistanceDesc',
     },
     {
       'type': ReturnToSelfType.repair,
       'labelKey': 'rtsPhaseRepair',
       'days': '15–21',
       'icon': Icons.healing_outlined,
-      'desc': 'Wracasz do relacji – ze sobą i z innymi. Małe gesty naprawy budują coś trwałego.',
+      'descKey': 'rtsPhaseRepairDesc',
     },
     {
       'type': ReturnToSelfType.integration,
       'labelKey': 'rtsPhaseIntegration',
       'days': '22–30',
       'icon': Icons.merge_type,
-      'desc': 'To, czego się nauczyłeś, staje się częścią Ciebie. Nie próbujesz już "być lepszym" – po prostu jesteś sobą.',
+      'descKey': 'rtsPhaseIntegrationDesc',
     },
   ];
 
@@ -193,7 +193,7 @@ class _ReturnToSelfScreenState extends State<ReturnToSelfScreen> {
                                 ),
                                 const Spacer(),
                                 Text(
-                                  'Dni ${phase['days']}',
+                                  '${S.t(context, 'rtsDays')} ${phase['days']}',
                                   style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
                                 ),
                               ],
@@ -215,10 +215,10 @@ class _ReturnToSelfScreenState extends State<ReturnToSelfScreen> {
                               '$completed / $total',
                               style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
                             ),
-                            if (phase['desc'] != null) ...[
+                            if (phase['descKey'] != null) ...[
                               const SizedBox(height: 10),
                               Text(
-                                phase['desc'] as String,
+                                S.t(context, phase['descKey'] as String),
                                 style: const TextStyle(
                                   color: AppColors.textSecondary,
                                   fontSize: 13,
@@ -235,29 +235,29 @@ class _ReturnToSelfScreenState extends State<ReturnToSelfScreen> {
                     );
                   }),
                   const SizedBox(height: 24),
-                  const Text(
-                    'Narzędzia',
-                    style: TextStyle(color: AppColors.textSecondary, fontSize: 12, letterSpacing: 1.2),
+                  Text(
+                    S.t(context, 'rtsTools'),
+                    style: const TextStyle(color: AppColors.textSecondary, fontSize: 12, letterSpacing: 1.2),
                   ),
                   const SizedBox(height: 12),
                   _ToolCard(
                     icon: Icons.auto_awesome,
-                    label: 'Karma Mirror',
-                    desc: 'Wieczorne pytanie refleksyjne. Jeden raz dziennie – piszesz szczerą odpowiedź, zostajesz z nią.',
+                    label: S.t(context, 'karmaMirror'),
+                    desc: S.t(context, 'karmaMirrorDesc'),
                     onTap: () => Navigator.pushNamed(context, '/karma-mirror'),
                   ),
                   const SizedBox(height: 10),
                   _ToolCard(
                     icon: Icons.psychology_outlined,
-                    label: 'Naomi',
-                    desc: 'AI coach, który pyta – nigdy nie ocenia. Rotujące pytania z czterech obszarów: współczucie, ciekawość, ciało, przyszłe ja.',
+                    label: S.t(context, 'naomi'),
+                    desc: S.t(context, 'naomiDesc'),
                     onTap: () => Navigator.pushNamed(context, '/naomi'),
                   ),
                   const SizedBox(height: 10),
                   _ToolCard(
                     icon: Icons.format_quote_rounded,
                     label: S.t(context, 'wallOfStrength'),
-                    desc: 'Anonimowa tablica słów od ludzi na tej samej drodze. Zostaw coś – może jutro ktoś tego potrzebuje.',
+                    desc: S.t(context, 'wallOfStrengthDesc'),
                     onTap: () => Navigator.pushNamed(context, '/wall-of-strength'),
                   ),
                   ],
