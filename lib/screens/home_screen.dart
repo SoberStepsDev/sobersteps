@@ -116,12 +116,12 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           HapticFeedback.lightImpact();
           setState(() => _navIndex = i);
         },
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home_rounded), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.edit_note_rounded), label: 'Journal'),
-          BottomNavigationBarItem(icon: Icon(Icons.emoji_events_rounded), label: 'Milestones'),
-          BottomNavigationBarItem(icon: Icon(Icons.people_rounded), label: 'Community'),
-          BottomNavigationBarItem(icon: Icon(Icons.person_rounded), label: 'Profile'),
+        items: [
+          BottomNavigationBarItem(icon: const Icon(Icons.home_rounded), label: S.t(context, 'home')),
+          BottomNavigationBarItem(icon: const Icon(Icons.edit_note_rounded), label: S.t(context, 'journal')),
+          BottomNavigationBarItem(icon: const Icon(Icons.emoji_events_rounded), label: S.t(context, 'milestones')),
+          BottomNavigationBarItem(icon: const Icon(Icons.people_rounded), label: S.t(context, 'community')),
+          BottomNavigationBarItem(icon: const Icon(Icons.person_rounded), label: S.t(context, 'profile')),
         ],
       ),
     );
@@ -285,6 +285,7 @@ class _ProgressBar extends StatelessWidget {
 class _QuoteCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final lang = Localizations.localeOf(context).languageCode;
     return FutureBuilder<String>(
       future: rootBundle.loadString('assets/data/quotes.json'),
       builder: (context, snapshot) {
@@ -292,10 +293,11 @@ class _QuoteCard extends StatelessWidget {
         final quotes = jsonDecode(snapshot.data!) as List;
         final idx = DateTime.now().day % quotes.length;
         final q = quotes[idx];
+        final text = (lang == 'pl' && q['text_pl'] != null) ? q['text_pl'] as String : q['text'] as String;
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8),
           child: Text(
-            '"${q['text']}"\n— ${q['author']}',
+            '"$text"\n— ${q[\'author\']}',
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 15,

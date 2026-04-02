@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -6,7 +7,6 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../app/theme.dart';
 import '../l10n/strings.dart';
 import '../providers/sobriety_provider.dart';
-import '../providers/purchase_provider.dart';
 import '../services/tts_service.dart';
 
 class MirrorMomentScreen extends StatefulWidget {
@@ -118,19 +118,12 @@ class _MirrorMomentScreenState extends State<MirrorMomentScreen> {
   @override
   Widget build(BuildContext context) {
     final daysSober = context.watch<SobrietyProvider>().daysSober;
-    final isPremium = context.watch<PurchaseProvider>().isPremium;
 
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
         title: Text(S.t(context, 'mirrorMoment')),
-        actions: [
-          if (!isPremium)
-            TextButton(
-              onPressed: () => Navigator.of(context).pushNamed('/paywall'),
-              child: Text(S.t(context, 'pro'), style: const TextStyle(color: AppColors.gold)),
-            ),
-        ],
+        actions: const [],
       ),
       body: SafeArea(
         child: Column(
@@ -147,9 +140,11 @@ class _MirrorMomentScreenState extends State<MirrorMomentScreen> {
                     _buildPromptCard(),
                     const SizedBox(height: 24),
                     if (!_saved) ...[
-                      _buildTextField(isPremium),
+                      _buildMirrorButton(),
+                    const SizedBox(height: 16),
+                    _buildTextField(),
                       const SizedBox(height: 16),
-                      _buildSaveButton(isPremium),
+                      _buildSaveButton(),
                     ] else
                       _buildSavedState(),
                   ],
@@ -260,16 +255,42 @@ class _MirrorMomentScreenState extends State<MirrorMomentScreen> {
     );
   }
 
-  Widget _buildTextField(bool isPremium) {
+  Widget _buildMirrorButton() {
+    return SizedBox(
+      width: double.infinity,
+      child: OutlinedButton.icon(
+        icon: const Icon(Icons.face_retouching_natural, color: AppColors.primary),
+        label: Text(
+          S.t(context, 'openMirror'),
+          style: const TextStyle(color: AppColors.primary),
+        ),
+        style: OutlinedButton.styleFrom(
+          side: const BorderSide(color: AppColors.primary),
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ),
+        onPressed: () async {
+          final uri = Uri.parse('android.media.action.IMAGE_CAPTURE_SECURE');
+          try {
+            await launchUrl(uri, mode: LaunchMode.externalApplication);
+          } catch (_) {
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Open your front camera to see yourself.')),
+              );
+            }
+          }
+        },
+      ),
+    );
+  }
+  Widget _buildTextField() {
     return TextField(
       controller: _controller,
       maxLines: 7,
       maxLength: 1000,
-      enabled: isPremium,
       decoration: InputDecoration(
-        hintText: isPremium
-            ? S.t(context, 'writeReflection')
-            : S.t(context, 'upgradeToSave'),
+        hintText: S.t(context, 'writeReflection'),
         hintStyle: const TextStyle(color: AppColors.textSecondary),
         counterStyle: const TextStyle(color: AppColors.textSecondary),
       ),
@@ -277,27 +298,23 @@ class _MirrorMomentScreenState extends State<MirrorMomentScreen> {
     );
   }
 
-  Widget _buildSaveButton(bool isPremium) {
+  Widget _buildSaveButton() {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
-          backgroundColor: isPremium ? AppColors.primary : AppColors.surfaceLight,
+          backgroundColor: AppColors.primary,
           foregroundColor: AppColors.textPrimary,
           padding: const EdgeInsets.symmetric(vertical: 16),
         ),
-        onPressed: _saving
-            ? null
-            : isPremium
-                ? _save
-                : () => Navigator.of(context).pushNamed('/paywall'),
+        onPressed: _saving ? null : _save,
         child: _saving
             ? const SizedBox(
                 height: 20,
                 width: 20,
                 child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.textPrimary),
               )
-            : Text(isPremium ? S.t(context, 'saveReflection') : S.t(context, 'unlockPro')),
+            : Text(S.t(context, 'saveReflection')),
       ),
     );
   }

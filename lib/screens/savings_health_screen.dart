@@ -145,16 +145,6 @@ class _CostEditor extends StatelessWidget {
           const SizedBox(width: 8),
           Text(S.t(context, 'dailyCost'), style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
           const Text('\$', style: TextStyle(color: AppColors.textPrimary)),
-          SizedBox(
-            width: 60,
-            child: Slider(
-              value: dailyCost,
-              min: 1,
-              max: 100,
-              activeColor: AppColors.gold,
-              onChanged: onChanged,
-            ),
-          ),
           Expanded(child: Slider(value: dailyCost, min: 1, max: 100, activeColor: AppColors.gold, onChanged: onChanged)),
           Text('\$${dailyCost.toStringAsFixed(0)}${S.t(context, 'perDay')}', style: const TextStyle(color: AppColors.gold, fontWeight: FontWeight.w600)),
         ],

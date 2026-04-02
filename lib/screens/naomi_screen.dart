@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../app/theme.dart';
 import '../providers/naomi_provider.dart';
-import '../providers/purchase_provider.dart';
 import '../l10n/strings.dart';
 import 'paywall_screen.dart';
 import '../services/analytics_service.dart';
@@ -22,7 +21,6 @@ class _NaomiScreenState extends State<NaomiScreen> {
   String? _feedback;
   Map<String, String>? _nextQuestion;
   bool _isSaving = false;
-  bool _routedPaywall = false;
 
   @override
   void initState() {
@@ -32,14 +30,7 @@ class _NaomiScreenState extends State<NaomiScreen> {
   }
 
   void _ensureProNaomi() {
-    if (!mounted || _routedPaywall) return;
-    if (!context.read<PurchaseProvider>().isPro) {
-      _routedPaywall = true;
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute<void>(builder: (_) => const PaywallScreen(trigger: 'naomi')),
-      );
-      return;
-    }
+    if (!mounted) return;
     context.read<NaomiProvider>().loadEntries();
   }
 
