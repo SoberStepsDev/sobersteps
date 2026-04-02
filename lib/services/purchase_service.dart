@@ -31,7 +31,8 @@ class PurchaseService {
   /// Other errors are rethrown.
   static Future<void> purchasePackage(Package package) async {
     try {
-      await Purchases.purchasePackage(package);
+      // In purchases_flutter 9.x, use PurchaseParams.package named constructor
+      await Purchases.purchase(PurchaseParams.package(package));
     } on PlatformException catch (e) {
       if (PurchasesErrorHelper.getErrorCode(e) == PurchasesErrorCode.purchaseCancelledError) {
         return;
